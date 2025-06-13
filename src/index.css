@@ -1,0 +1,291 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #FCEEE5 0%, #F8E6D8 100%);
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #21C8B1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #AD8654;
+}
+
+/* Custom PrimeReact overrides */
+.p-button {
+  background: linear-gradient(135deg, #21C8B1 0%, #1BA89A 100%) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(33, 200, 177, 0.3) !important;
+}
+
+.p-button:hover {
+  background: linear-gradient(135deg, #AD8654 0%, #9A7449 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(173, 134, 84, 0.4) !important;
+}
+
+.p-button:active {
+  transform: translateY(0) !important;
+}
+
+.p-button-secondary {
+  background: linear-gradient(135deg, #99928D 0%, #8A837E 100%) !important;
+  box-shadow: 0 4px 15px rgba(153, 146, 141, 0.3) !important;
+}
+
+.p-button-secondary:hover {
+  background: linear-gradient(135deg, #8A837E 0%, #7B746F 100%) !important;
+  box-shadow: 0 6px 20px rgba(153, 146, 141, 0.4) !important;
+}
+
+.p-datatable {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.p-datatable .p-datatable-header {
+  background: transparent !important;
+  border: none !important;
+  padding: 1.5rem !important;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background: transparent !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: rgba(33, 200, 177, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(odd) {
+  background: rgba(248, 250, 252, 0.5) !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(odd):hover {
+  background: rgba(33, 200, 177, 0.05) !important;
+}
+
+.p-sidebar {
+  background: rgba(252, 238, 229, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+.p-menu {
+  background: transparent !important;
+  border: none !important;
+}
+
+.p-menuitem-link {
+  color: #353535 !important;
+  border-radius: 12px !important;
+  margin: 4px 0 !important;
+  transition: all 0.3s ease !important;
+  font-weight: 500 !important;
+}
+
+.p-menuitem-link:hover {
+  background: linear-gradient(135deg, #21C8B1 0%, #1BA89A 100%) !important;
+  color: white !important;
+  transform: translateX(8px) !important;
+  box-shadow: 0 4px 15px rgba(33, 200, 177, 0.3) !important;
+}
+
+.p-menuitem-link.p-menuitem-link-active {
+  background: linear-gradient(135deg, #21C8B1 0%, #1BA89A 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(33, 200, 177, 0.3) !important;
+}
+
+.p-inputtext, .p-dropdown, .p-calendar .p-inputtext {
+  border: 2px solid rgba(153, 146, 141, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  transition: all 0.3s ease !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.p-inputtext:focus, .p-dropdown:focus, .p-calendar .p-inputtext:focus {
+  border-color: #21C8B1 !important;
+  box-shadow: 0 0 0 4px rgba(33, 200, 177, 0.1) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.p-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.p-badge {
+  border-radius: 20px !important;
+  font-weight: 500 !important;
+  padding: 4px 12px !important;
+}
+
+.p-message {
+  border-radius: 12px !important;
+  border: none !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.p-message-warn {
+  background: linear-gradient(135deg, rgba(254, 213, 85, 0.9) 0%, rgba(251, 191, 36, 0.9) 100%) !important;
+  color: #92400e !important;
+}
+
+.p-message-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%) !important;
+  color: #1e40af !important;
+}
+
+.p-message-success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%) !important;
+  color: #065f46 !important;
+}
+
+.p-tabview .p-tabview-nav {
+  background: transparent !important;
+  border: none !important;
+}
+
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 2px solid rgba(153, 146, 141, 0.2) !important;
+  border-radius: 12px 12px 0 0 !important;
+  margin-right: 4px !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: linear-gradient(135deg, #21C8B1 0%, #1BA89A 100%) !important;
+  color: white !important;
+  border-color: #21C8B1 !important;
+}
+
+.p-tabview .p-tabview-panels {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 0 16px 16px 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Custom animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #21C8B1 0%, #AD8654 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom button styles */
+.btn-gradient {
+  background: linear-gradient(135deg, #21C8B1 0%, #1BA89A 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(135deg, #AD8654 0%, #9A7449 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(173, 134, 84, 0.4);
+}
+
+/* Loading animation */
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Floating elements */
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
