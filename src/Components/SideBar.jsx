@@ -10,44 +10,48 @@ import {
   AiOutlineSetting,
 } from "react-icons/ai";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
-import logo1 from "../Assets/main.png";
+import logo from "../Assets/logo.png";
 import {
   MdOutlinePets,
   MdDiscount,
   MdOutlineStarRate,
   MdOutlineArticle,
 } from "react-icons/md";
+import { TbCategory } from "react-icons/tb";
 import { logout } from "../store/slices/storeSlice";
 import { useDispatch } from "react-redux";
 import { useLoading } from "./loader/LoaderContext";
 import { RiCalendarScheduleLine } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaRegUser, FaUserNinja } from "react-icons/fa";
+import { FaUsersLine } from "react-icons/fa6";
 
 const menuItems = [
   { name: "Dashboard", icon: AiOutlineHome, path: "/" },
-  { name: "Services", icon: AiOutlineShopping, path: "/services/my-service" },
+  
+  { name: "Sessions", icon: FaUsersLine, path: "/sessions" },
   { name: "Schedule", icon: RiCalendarScheduleLine, path: "/schedule/planner" },
-  {
-    name: "Bookings",
-    icon: AiOutlineFileText,
-    path: "/booking/dashboard",
-    submenu: [
-      { name: "Booking", path: "/booking/dashboard" },
-      { name: "Order", path: "/booking/order" },
-    ],
-  },
-  { name: "Pet Profiles", icon: MdOutlinePets, path: "/pets" },
+  // {
+  //   name: "Bookings",
+  //   icon: AiOutlineFileText,
+  //   path: "/booking/dashboard",
+  //   submenu: [
+  //     { name: "Booking", path: "/booking/dashboard" },
+  //     { name: "Order", path: "/booking/order" },
+  //   ],
+  // },
+  { name: "Customers", icon: FaRegUser, path: "/customers" },
   { name: "Promo code", icon: MdDiscount, path: "/promocode" },
-  { name: "Groomers", icon: AiOutlineUser, path: "/groomers" },
-  { name: "Articles", icon: MdOutlineArticle, path: "/articles" },
+  { name: "Trainers", icon: FaUserNinja, path: "/groomers" },
+  // { name: "Articles", icon: MdOutlineArticle, path: "/articles" },
   // { name: "Payments", icon: AiOutlineCreditCard, path: "/payments" },
   {
     name: "Ratings",
     icon: MdOutlineStarRate,
     path: "/ratings",
     submenu: [
-      { name: "Groomer", path: "/ratings" },
-      { name: "Sub Service", path: "/ratings/groomers" },
+      { name: "Trainers", path: "/ratings/trainers" },
+      { name: "Sessions", path: "/ratings/sessions" },
     ],
   },
   {
@@ -55,8 +59,8 @@ const menuItems = [
     icon: AiOutlineSetting,
     path: "/masters",
     submenu: [
-      { name: "Pet Types", path: "/masters/pet-types" },
-      { name: "Breeds", path: "/masters/breeds" },
+      { name: "Categories", icon: TbCategory, path: "/categories" },
+      { name: "Tenures", path: "/masters/tenures" },
       { name: "Currency", path: "/masters/currency" },
       { name: "Tax", path: "/masters/tax" },
       { name: "Late Fee", path: "/masters/latefee" },
@@ -86,7 +90,7 @@ const Sidebar = () => {
     <>
       <div className="w-64 min-h-screen bg-primary text-white flex flex-col">
         <Link to="/" className="p-2 flex items-center space-x-3">
-          <img src={logo1} alt="Mr. Groomer" />
+          <img src={logo} alt="Outlet" />
         </Link>
 
         <nav className="flex-1 mt-4">
@@ -97,7 +101,7 @@ const Sidebar = () => {
                 className={`flex items-center justify-between space-x-3 px-6 py-3 text-sm font-medium transition-colors ${
                   active === path ||
                   (submenu && submenu.some((item) => active === item.path))
-                    ? "bg-secondary text-black"
+                    ? "bg-secondary"
                     : "hover:bg-[#afc2d5]"
                 }`}
                 onClick={(e) => {

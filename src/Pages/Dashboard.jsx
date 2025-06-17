@@ -10,7 +10,7 @@ import {
   Title,
 } from "chart.js";
 import { Pie, Bar } from "react-chartjs-2";
-import { DashboardApi } from "../Api/Dashboard.api";
+// import { DashboardApi } from "../Api/Dashboard.api";
 import { MdOutlinePets } from "react-icons/md";
 import { useLoading } from "../Components/loader/LoaderContext";
 
@@ -38,47 +38,47 @@ const Dashboard = () => {
     newThisMonth: 164,
   });
 
-  const getDashboardData = async () => {
-    handleLoading(true);
-    try {
-      const res = await DashboardApi.getDashboardData();
-      setDashboardData(res?.data?.data);
-      console.log("res", res);
-    } catch (err) {
-      console.log("erorr", err);
-    } finally {
-      handleLoading(false);
-    }
-  };
-  const getPetCount = async () => {
-    handleLoading(true);
-    try {
-      const res = await DashboardApi.getPetCount();
-      setPetCountData(res?.data?.data);
-      console.log("res", res);
-    } catch (err) {
-      console.log("erorr", err);
-    } finally {
-      handleLoading(false);
-    }
-  };
-  const getMonthlyAppointments = async () => {
-    handleLoading(true);
-    try {
-      const res = await DashboardApi.getMonthlyAppointments();
-      setYearlyOrdersData(res?.data?.data?.yearlyOrders);
-      console.log("res", res);
-    } catch (err) {
-      console.log("erorr", err);
-    } finally {
-      handleLoading(false);
-    }
-  };
+  // const getDashboardData = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await DashboardApi.getDashboardData();
+  //     setDashboardData(res?.data?.data);
+  //     console.log("res", res);
+  //   } catch (err) {
+  //     console.log("erorr", err);
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
+  // const getPetCount = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await DashboardApi.getPetCount();
+  //     setPetCountData(res?.data?.data);
+  //     console.log("res", res);
+  //   } catch (err) {
+  //     console.log("erorr", err);
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
+  // const getMonthlyAppointments = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await DashboardApi.getMonthlyAppointments();
+  //     setYearlyOrdersData(res?.data?.data?.yearlyOrders);
+  //     console.log("res", res);
+  //   } catch (err) {
+  //     console.log("erorr", err);
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
-    getDashboardData();
-    getMonthlyAppointments();
-    getPetCount();
+    // getDashboardData();
+    // getMonthlyAppointments();
+    // getPetCount();
   }, []);
 
   const appointmentMonth = yearlyOrdersData?.map((order) => order?.month);

@@ -28,12 +28,13 @@ body{
 
 @theme {
      /* Primary Blues */
-  --color-primary: #01386a;
+  --color-primary: #21C8B1;
   --color-primary-light: #014b8a;
   --color-primary-lighter: #e6f0f8;
   
   /* Secondary Yellows */
-  --color-secondary: #f5d547;
+  --color-secondary: #AD8654;
+  --color-outletRed: #FE5D55;
   --color-secondary-light: #f8e074;
   --color-secondary-dark: #e0c340;
   

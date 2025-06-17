@@ -99,14 +99,14 @@ const SlotManagement = ({ groomers }) => {
     },
   });
 
-  const fetchServices = async () => {
-    try {
-      const res = await ServiceApi.service();
-      setServices(res?.data?.data || []);
-    } catch (error) {
-      console.error("Error fetching services:", error);
-    }
-  };
+  // const fetchServices = async () => {
+  //   try {
+  //     const res = await ServiceApi.service();
+  //     setServices(res?.data?.data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching services:", error);
+  //   }
+  // };
 
   const markHoliday = async () => {
     const { bookingDate } = formik.values;
@@ -163,38 +163,38 @@ const SlotManagement = ({ groomers }) => {
     }
   };
 
-  const handleServiceType = async () => {
-    handleLoading(true);
-    try {
-      const res = await ServiceApi.serviceType();
-      setServicesData(res.data?.data);
-    } catch (err) {
-      console.log(err);
-    }
-    handleLoading(false);
-  };
-  const handleSubService = async (serviceTypeId) => {
-    handleLoading(true);
-    try {
-      const res = await ServiceApi.getSubServiceByServiceId({
-        serviceId: serviceTypeId,
-      });
-      setSubService(res.data?.data);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      handleLoading(false);
-    }
-  };
+  // const handleServiceType = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await ServiceApi.serviceType();
+  //     setServicesData(res.data?.data);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  //   handleLoading(false);
+  // };
+  // const handleSubService = async (serviceTypeId) => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await ServiceApi.getSubServiceByServiceId({
+  //       serviceId: serviceTypeId,
+  //     });
+  //     setSubService(res.data?.data);
+  //   } catch (err) {
+  //     console.log(err);
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
-  useMemo(() => {
-    handleSubService(servicesData?.[0]?._id);
-  }, [servicesData]);
-  useEffect(() => {
-    fetchServices();
-    getAllSlot();
-    handleServiceType();
-  }, []);
+  // useMemo(() => {
+  //   handleSubService(servicesData?.[0]?._id);
+  // }, [servicesData]);
+  // useEffect(() => {
+  //   fetchServices();
+  //   getAllSlot();
+  //   handleServiceType();
+  // }, []);
 
   const handleHolidayModal = () => {
     !formik.values.bookingDate

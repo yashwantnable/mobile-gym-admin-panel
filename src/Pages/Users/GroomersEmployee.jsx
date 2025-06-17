@@ -31,7 +31,7 @@ const GroomersEmployee = () => {
   const validationSchema = Yup.object({
     serviceProvider: Yup.array()
       .min(1, "Select at least one service type")
-      .required("Service Type is required"),
+      .required("Category is required"),
     first_name: Yup.string().required("First Name is required"),
     last_name: Yup.string().required("Last Name is required"),
     email: Yup.string()
@@ -117,7 +117,7 @@ const GroomersEmployee = () => {
         console.log(err);
       }
       setOpen(false);
-      getGroomers();
+      // getGroomers();
       handleLoading(false);
     },
   });
@@ -142,23 +142,23 @@ const GroomersEmployee = () => {
       toast.error(err);
     } finally {
       setDeleteModal();
-      getGroomers();
+      // getGroomers();
     }
   };
-  const handleServiceType = async () => {
-    handleLoading(true);
-    try {
-      const res = await ServiceApi.serviceType();
-      // console.log(res.data);
-      setServices(res.data?.data);
-    } catch (err) {
-      console.log(err);
-    }
-    handleLoading(false);
-  };
+  // const handleServiceType = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await ServiceApi.serviceType();
+  //     // console.log(res.data);
+  //     setServices(res.data?.data);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  //   handleLoading(false);
+  // };
 
   useEffect(() => {
-    handleServiceType();
+    // handleServiceType();
   }, []);
 
   const serviceTypeOption = services.map((item) => {
@@ -232,8 +232,8 @@ const GroomersEmployee = () => {
   }, [selectedRow]);
 
   useEffect(() => {
-    handleCountry();
-    getGroomers();
+    // handleCountry();
+    // getGroomers();
   }, []);
 
   const countryOptions = countryData.map((item) => {
@@ -346,7 +346,7 @@ const GroomersEmployee = () => {
 
           {open && (
             <SidebarField
-              title="Add New Groomer"
+              title="Add New Trainer"
               handleClose={handleClose}
               button1={
                 <Button
@@ -417,7 +417,7 @@ const GroomersEmployee = () => {
 
                 <InputField
                   name="serviceProvider"
-                  label="Service Type"
+                  label="Category"
                   type="select"
                   isMulti={true}
                   options={serviceTypeOption}
@@ -551,6 +551,20 @@ const GroomersEmployee = () => {
                   error={
                     formik.touched.specialization &&
                     formik.errors.specialization
+                  }
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                <InputField
+                  name="Certificates"
+                  label="Certificates"
+                  placeholder="Enter Certificates"
+                  isRequired
+                  type={"file"}
+                  value={formik.values.certificates}
+                  error={
+                    formik.touched.certificates &&
+                    formik.errors.certificates
                   }
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}

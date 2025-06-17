@@ -136,7 +136,7 @@ const SubServiceRating = () => {
     }
   };
   useEffect(() => {
-    getAllSubServiceReviews();
+    // getAllSubServiceReviews();
   }, [selectedRow]);
 
   const getAllSubService = async () => {
@@ -155,13 +155,13 @@ const SubServiceRating = () => {
   console.log('allSubServiceRatings:', allSubServiceRatings);
 
   useEffect(() => {
-    getAllSubService();
+    // getAllSubService();
   }, []);
 
   return (
-    <div>
+    <div className='p-5'>
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-4xl font-bold text-primary'>Sub Services</h2>
+        <h2 className='text-4xl font-bold text-primary'>Session Reviews</h2>
       </div>
       {selectedRow ? (
         <Table2

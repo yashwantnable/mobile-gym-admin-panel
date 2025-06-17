@@ -48,79 +48,79 @@ const UpdateOrderModal = ({
       handleLoading(true);
       console.log("payload",payload)
 
-      try {
-        const res = await OrderApi.updateOrder(payload);
-        console.log("res", res);
-        fetchSlots(values.subserviceType);
-        setIsModalOpen(false);
-        toast.success("Appointment Updated Successfully");
-        formik.resetForm();
-      } catch (error) {
-        console.log("error", error);
-      } finally {
-        handleLoading(false);
-      }
+      // try {
+      //   const res = await OrderApi.updateOrder(payload);
+      //   console.log("res", res);
+      //   fetchSlots(values.subserviceType);
+      //   setIsModalOpen(false);
+      //   toast.success("Appointment Updated Successfully");
+      //   formik.resetForm();
+      // } catch (error) {
+      //   console.log("error", error);
+      // } finally {
+      //   handleLoading(false);
+      // }
     },
   });
 
-  const handleServiceType = async () => {
-    handleLoading(true);
-    try {
-      const res = await ServiceApi.serviceType();
-      console.log("res", res);
-      setServicesData(res.data?.data);
-    } catch (err) {
-      console.log(err);
-    }
-    handleLoading(false);
-  };
+  // const handleServiceType = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await ServiceApi.serviceType();
+  //     console.log("res", res);
+  //     setServicesData(res.data?.data);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  //   handleLoading(false);
+  // };
 
-  const handleSubService = async (serviceTypeId) => {
-    handleLoading(true);
-    try {
-      const res = await ServiceApi.getSubServiceByServiceId({
-        serviceId: serviceTypeId,
-      });
-      setSubService(res.data?.data);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      handleLoading(false);
-    }
-  };
+  // const handleSubService = async (serviceTypeId) => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await ServiceApi.getSubServiceByServiceId({
+  //       serviceId: serviceTypeId,
+  //     });
+  //     setSubService(res.data?.data);
+  //   } catch (err) {
+  //     console.log(err);
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
-  const getAvailableGroomme = async (subServiceId, date, timeslotId) => {
-    console.log("called", subServiceId, date);
-    handleLoading(true);
-    try {
-      const res = await GroomerApi.getAvailableGroomer({
-        date,
-        subServiceId,
-        timeslot: timeslotId,
-      });
-      setAvailableGroomer(res.data?.data?.availableGroomers);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      handleLoading(false);
-    }
-  };
+  // const getAvailableGroomme = async (subServiceId, date, timeslotId) => {
+  //   console.log("called", subServiceId, date);
+  //   handleLoading(true);
+  //   try {
+  //     const res = await GroomerApi.getAvailableGroomer({
+  //       date,
+  //       subServiceId,
+  //       timeslot: timeslotId,
+  //     });
+  //     setAvailableGroomer(res.data?.data?.availableGroomers);
+  //   } catch (err) {
+  //     console.log(err);
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
   console.log("available Grommer", availableGroomer);
 
-  const availableGroomerOption = (timeSlotId) => {
-    console.log("id", timeSlotId);
+  // const availableGroomerOption = (timeSlotId) => {
+  //   console.log("id", timeSlotId);
 
-    const filterData = availableGroomer?.find(
-      (groomer) => groomer?._id === timeSlotId
-    );
-    console.log("filterData", filterData);
-    setGroomerOption(filterData?.availableGroomers);
-    return filterData;
-  };
+  //   const filterData = availableGroomer?.find(
+  //     (groomer) => groomer?._id === timeSlotId
+  //   );
+  //   console.log("filterData", filterData);
+  //   setGroomerOption(filterData?.availableGroomers);
+  //   return filterData;
+  // };
 
   useEffect(() => {
-    handleServiceType();
+    // handleServiceType();
   }, []);
 
   const formatOptions = (items, labelKey = "name", valueKey = "_id") => {
@@ -268,7 +268,7 @@ const UpdateOrderModal = ({
                   </motion.button>
                   <motion.button
                     type="submit"
-                    className={`px-4 py-2  text-white cursor-pointer rounded flex items-center gap-2   ${formik.isSubmitting ? "bg-gray-600" : "bg-[#01386a]"}`}
+                    className={`px-4 py-2  text-white cursor-pointer rounded flex items-center gap-2   ${formik.isSubmitting ? "bg-gray-600" : "bg-[#21C8B1]"}`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={formik.isSubmitting}

@@ -14,11 +14,11 @@ import PriceDisplay from "../../Components/PriceDisplay";
 import { useLoading } from "../../Components/loader/LoaderContext";
 import { Table2 } from "../../Components/Table/Table2";
 import { getBookingColumns } from "./BookingColumns.jsx";
-import { ServiceApi } from "../../Api/Service.api";
-import { PetProfileApi } from "../../Api/PetProfile.api";
-import { GroomerApi } from "../../Api/Groomer.api";
-import { BookingApi } from "../../Api/Booking.api";
-import { SlotApi } from "../../Api/Slot.api.js";
+// import { ServiceApi } from "../../Api/Service.api";
+// import { PetProfileApi } from "../../Api/PetProfile.api";
+// import { GroomerApi } from "../../Api/Groomer.api";
+// import { BookingApi } from "../../Api/Booking.api";
+// import { SlotApi } from "../../Api/Slot.api.js";
 
 const validationSchema = Yup.object({
   customerId: Yup.string().required("Customer is required"),
@@ -51,65 +51,65 @@ const BookingDashboard = () => {
   const [groomingDetails, setGroomingDetails] = useState([]);
   const { handleLoading } = useLoading();
 
-  const handleServiceType = async () => {
-    handleLoading(true);
-    try {
-      const res = await ServiceApi.serviceType();
-      setServices(res.data?.data);
-    } catch (err) {
-      console.error("Error fetching service types:", err);
-      toast.error("Failed to load service types");
-    } finally {
-      handleLoading(false);
-    }
-  };
+  // const handleServiceType = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await ServiceApi.serviceType();
+  //     setServices(res.data?.data);
+  //   } catch (err) {
+  //     console.error("Error fetching service types:", err);
+  //     toast.error("Failed to load service types");
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
-  const handleAllCustomers = async () => {
-    handleLoading(true);
-    try {
-      const res = await PetProfileApi.getAllUser();
-      setUsers(res.data?.data);
-    } catch (err) {
-      console.error("Error fetching customers:", err);
-      toast.error("Failed to load customers");
-    } finally {
-      handleLoading(false);
-    }
-  };
+  // const handleAllCustomers = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await PetProfileApi.getAllUser();
+  //     setUsers(res.data?.data);
+  //   } catch (err) {
+  //     console.error("Error fetching customers:", err);
+  //     toast.error("Failed to load customers");
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
-  const handleAllGroomers = async () => {
-    handleLoading(true);
-    try {
-      const res = await GroomerApi.getAllGroomers();
-      setGroomers(res.data?.data);
-    } catch (err) {
-      console.error("Error fetching groomers:", err);
-      toast.error("Failed to load groomers");
-    } finally {
-      handleLoading(false);
-    }
-  };
+  // const handleAllGroomers = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await GroomerApi.getAllGroomers();
+  //     setGroomers(res.data?.data);
+  //   } catch (err) {
+  //     console.error("Error fetching groomers:", err);
+  //     toast.error("Failed to load groomers");
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
-  const handleSubService = async (serviceTypeId) => {
-    if (!serviceTypeId) return;
+  // const handleSubService = async (serviceTypeId) => {
+  //   if (!serviceTypeId) return;
 
-    handleLoading(true);
-    try {
-      const res = await ServiceApi.getSubServiceByServiceId({
-        serviceId: serviceTypeId,
-      });
-      setSubService(res.data?.data);
-      setGroomingDetails([]);
-      bookingFormik.setFieldValue("subServiceId", "");
-      bookingFormik.setFieldValue("weightType", "");
-      bookingFormik.setFieldValue("price", 0);
-    } catch (err) {
-      console.error("Error fetching subservices:", err);
-      toast.error("Failed to load services");
-    } finally {
-      handleLoading(false);
-    }
-  };
+  //   handleLoading(true);
+  //   try {
+  //     const res = await ServiceApi.getSubServiceByServiceId({
+  //       serviceId: serviceTypeId,
+  //     });
+  //     setSubService(res.data?.data);
+  //     setGroomingDetails([]);
+  //     bookingFormik.setFieldValue("subServiceId", "");
+  //     bookingFormik.setFieldValue("weightType", "");
+  //     bookingFormik.setFieldValue("price", 0);
+  //   } catch (err) {
+  //     console.error("Error fetching subservices:", err);
+  //     toast.error("Failed to load services");
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
   const fetchPetsByUserId = async (userId) => {
     if (!userId) return;
@@ -200,46 +200,46 @@ const BookingDashboard = () => {
     }
   };
 
-  const getAllSlot = async (date) => {
-    console.log("called");
-    // if (!date || !updateBookingFormik|| !bookingFormik.values.subServiceId) return;
+  // const getAllSlot = async (date) => {
+  //   console.log("called");
+  //   // if (!date || !updateBookingFormik|| !bookingFormik.values.subServiceId) return;
 
-    try {
-      const res = await SlotApi.getAllSlot({
-        date: date,
-        subServiceId: bookingFormik.values.subServiceId,
-      });
-      setExistingSlot(res?.data?.data || []);
-    } catch (error) {
-      console.error("Error fetching slots:", error);
-      toast.error("Failed to load available time slots");
-    }
-  };
+  //   try {
+  //     const res = await SlotApi.getAllSlot({
+  //       date: date,
+  //       subServiceId: bookingFormik.values.subServiceId,
+  //     });
+  //     setExistingSlot(res?.data?.data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching slots:", error);
+  //     toast.error("Failed to load available time slots");
+  //   }
+  // };
 
-  const getAvailableGroomers = async (subServiceId, date, timeslotId) => {
-    if (!subServiceId || !date || !timeslotId) return;
+  // const getAvailableGroomers = async (subServiceId, date, timeslotId) => {
+  //   if (!subServiceId || !date || !timeslotId) return;
 
-    handleLoading(true);
-    try {
-      const res = await GroomerApi.getAvailableGroomer({
-        date,
-        subServiceId,
-        timeslot: timeslotId,
-      });
-      setAvailableGroomers(res.data?.data?.availableGroomers || []);
-    } catch (err) {
-      console.error("Error fetching available groomers:", err);
-      toast.error("Failed to load available groomers");
-    } finally {
-      handleLoading(false);
-    }
-  };
+  //   handleLoading(true);
+  //   try {
+  //     const res = await GroomerApi.getAvailableGroomer({
+  //       date,
+  //       subServiceId,
+  //       timeslot: timeslotId,
+  //     });
+  //     setAvailableGroomers(res.data?.data?.availableGroomers || []);
+  //   } catch (err) {
+  //     console.error("Error fetching available groomers:", err);
+  //     toast.error("Failed to load available groomers");
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
-    handleServiceType();
-    handleAllCustomers();
-    handleAllGroomers();
-    getAllBoooking();
+    // handleServiceType();
+    // handleAllCustomers();
+    // handleAllGroomers();
+    // getAllBoooking();
   }, []);
 
   useEffect(() => {

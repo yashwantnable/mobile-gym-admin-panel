@@ -100,7 +100,7 @@ const ExchangeCurrency = ({ currencyData }) => {
       setIsLoading(true);
       await MasterApi.deleteExchangeCurrency(deleteModal._id);
       toast.success("Currency deleted successfully");
-      getAllExchangeCurrencies();
+      // getAllExchangeCurrencies();
       setDeleteModal(null);
     } catch (err) {
       console.error("Error deleting:", err);
@@ -110,18 +110,18 @@ const ExchangeCurrency = ({ currencyData }) => {
     }
   };
 
-  const getAllExchangeCurrencies = async () => {
-    handleLoading(true);
-    try {
-      const res = await MasterApi.getAllExchangeCurrency();
-      setAllExchanfeCurrency(res.data.data || []);
-      console.log("all exchange currency:", res.data.data);
-    } catch (err) {
-      console.error("Error fetching exchange currencies:", err);
-      toast.error("Failed to fetch exchange currencies");
-    }
-    handleLoading(false);
-  };
+  // const getAllExchangeCurrencies = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await MasterApi.getAllExchangeCurrency();
+  //     setAllExchanfeCurrency(res.data.data || []);
+  //     console.log("all exchange currency:", res.data.data);
+  //   } catch (err) {
+  //     console.error("Error fetching exchange currencies:", err);
+  //     toast.error("Failed to fetch exchange currencies");
+  //   }
+  //   handleLoading(false);
+  // };
   console.log("currencyData:", currencyData);
   const countryOptions =
   currencyData?.map((item) => ({
@@ -191,7 +191,7 @@ const ExchangeCurrency = ({ currencyData }) => {
           : await MasterApi.createExchangeCurrency(payload);
 
         toast.success(res?.data?.message || "Currency exchange saved successfully");
-        getAllExchangeCurrencies();
+        // getAllExchangeCurrencies();
       } catch (err) {
         toast.error(
           err.response?.data?.message ||
@@ -207,7 +207,7 @@ const ExchangeCurrency = ({ currencyData }) => {
   });
 
   useEffect(() => {
-    getAllExchangeCurrencies();
+    // getAllExchangeCurrencies();
   }, []);
   return (
     <>

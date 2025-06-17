@@ -269,7 +269,7 @@ export const Table2 = memo(
                   <>
                     <button
                       onClick={downloadTemplate}
-                      className='flex items-center gap-2 px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 transition-colors'
+                      className='flex items-center gap-2 px-4 py-2 bg-primary text-white font-medium rounded-md hover:bg-blue-600 transition-colors'
                     >
                       <span>Download Template</span>
                       <VscCloudDownload className='text-lg' />
@@ -298,7 +298,7 @@ export const Table2 = memo(
                       onClick={() =>
                         exportToExcel(getTableFunction ? rowData : internalRowData, column)
                       }
-                      className='flex items-center gap-2 px-2 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-lg transition-transform transform hover:bg-blue-600 hover:scale-105'
+                      className='flex items-center gap-2 px-2 py-2 bg-primary text-white font-semibold rounded-lg shadow-lg transition-transform transform hover:bg-blue-600 hover:scale-105'
                     >
                       <span>Download Excel Sheet</span>
                       <i>
@@ -310,7 +310,7 @@ export const Table2 = memo(
                 {isAdd && (
                   <button
                     onClick={() => setModalOpen(true)}
-                    className='flex items-center cursor-pointer gap-2 px-4 py-2 border border-blue-500 text-blue-500 font-medium rounded-md hover:bg-blue-500 hover:text-white transition-colors'
+                    className='flex items-center cursor-pointer gap-2 px-4 py-2 border border-primary text-primary font-medium rounded-md hover:bg-primary hover:text-white transition-colors'
                   >
                     <span>Add New</span>
                     <FaPlus />
@@ -424,7 +424,7 @@ export const Table2 = memo(
                       onChange={(e) => {
                         table.setPageSize(Number(e.target.value));
                       }}
-                      className='px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      className='px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
                     >
                       {[10, 20, 30, 40, 50].map((pageSize) => (
                         <option key={pageSize} value={pageSize}>

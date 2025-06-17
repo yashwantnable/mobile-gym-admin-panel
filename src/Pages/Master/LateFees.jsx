@@ -43,7 +43,7 @@ const LateFeesMaster = () => {
       setIsLoading(true);
       await MasterApi.deleteTax(deleteModal._id);
       toast.success("Late Fee deleted successfully");
-      getAllLateFee();
+      // getAllLateFee();
       setDeleteModal(null);
     } catch (err) {
       console.error("Error deleting:", err);
@@ -123,7 +123,7 @@ const LateFeesMaster = () => {
           : await MasterApi.createLateFee(values);
 
         toast.success(res?.data?.message || "Late Fee saved successfully");
-        getAllLateFee();
+        // getAllLateFee();
       } catch (err) {
         toast.error(
           err.response?.data?.message || "Something went wrong while saving tax"
@@ -140,7 +140,7 @@ const LateFeesMaster = () => {
   console.log("selected order", selectedRow);
 
   useEffect(() => {
-    getAllLateFee();
+    // getAllLateFee();
   }, []);
 
   return (

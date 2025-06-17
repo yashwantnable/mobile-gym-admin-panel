@@ -46,7 +46,7 @@ const validationSchema = Yup.object({
     .min(1, "At least one pet is required"),
 });
 
-const Pets = () => {
+const Customers = () => {
   const [open, setOpen] = useState(false);
   const [petTypeData, setPetTypeData] = useState([]);
   const [breedTypeData, setBreedTypeData] = useState([]);
@@ -103,11 +103,11 @@ const Pets = () => {
       }));
   };
 
-  useEffect(() => {
-    getAllPets();
-    getAllPetType();
-    getAllBreeds();
-  }, []);
+  // useEffect(() => {
+  //   getAllPets();
+  //   getAllPetType();
+  //   getAllBreeds();
+  // }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -363,7 +363,7 @@ const Pets = () => {
       cellRenderer: (params) => params?.data?.userId?.address || "N/A",
     },
     {
-      headerName: "Pets Name",
+      headerName: "Customers Name",
       field: "petName",
     },
     {
@@ -407,16 +407,16 @@ const Pets = () => {
       <div className="p-5">
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-4xl font-bold text-primary">Pets</h2>
+            <h2 className="text-4xl font-bold text-primary">Customers</h2>
           </div>
 
           <Table2
             column={petColumns}
             internalRowData={allUsers}
-            searchLabel={"Pets"}
+            searchLabel={"Customers"}
             sheetName={"pet"}
             setModalOpen={setOpen}
-            isAdd={true}
+            isAdd={false}
           />
         </div>
 
@@ -829,4 +829,4 @@ const Pets = () => {
   );
 };
 
-export default Pets;
+export default Customers;

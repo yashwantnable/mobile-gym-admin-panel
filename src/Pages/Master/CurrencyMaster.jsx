@@ -83,7 +83,7 @@ const CurrencyMaster = () => {
       setIsLoading(true);
       await MasterApi.deleteCurrency(deleteModal._id);
       toast.success("Currency deleted successfully");
-      AllCurrencies();
+      // AllCurrencies();
       setDeleteModal(null);
     } catch (err) {
       console.error("Error deleting:", err);
@@ -184,7 +184,7 @@ const CurrencyMaster = () => {
         toast.success(
           res?.data?.message || "Currency saved successfully"
         );
-        AllCurrencies();
+        // AllCurrencies();
       } catch (err) {
         toast.error(
           err.response?.data?.message || "Something went wrong while saving currency"
@@ -219,8 +219,8 @@ const CurrencyMaster = () => {
   }, [selectedRow]);
 
   useEffect(() => {
-    handleCountry();
-    AllCurrencies();
+    // handleCountry();
+    // AllCurrencies();
   }, []);
 
   return (

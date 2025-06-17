@@ -85,7 +85,7 @@ const TaxMaster = () => {
       setIsLoading(true);
       await MasterApi.deleteTax(deleteModal._id);
       toast.success("Tax deleted successfully");
-      getAllTaxes();
+      // getAllTaxes();
       setDeleteModal(null);
     } catch (err) {
       console.error("Error deleting:", err);
@@ -174,7 +174,7 @@ const TaxMaster = () => {
           : await MasterApi.createTax(values);
 
         toast.success(res?.data?.message || "Tax saved successfully");
-        getAllTaxes();
+        // getAllTaxes();
       } catch (err) {
         toast.error(
           err.response?.data?.message || "Something went wrong while saving tax"
@@ -199,8 +199,8 @@ const TaxMaster = () => {
   // }, [selectedRow]);
 
   useEffect(() => {
-    getAllTaxes();
-    handleCountry();
+    // getAllTaxes();
+    // handleCountry();
   }, []);
 
   return (

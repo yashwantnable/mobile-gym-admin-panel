@@ -88,12 +88,12 @@ const Ratings = () => {
   };
 
   useEffect(() => {
-    getAllReviews();
+    // getAllReviews();
   }, []);
   return (
     <div className="p-5">
       <div className="flex justify-between items-center mb-4 mt-10">
-        <h2 className="text-4xl font-bold text-primary">Groomer Reviews & Ratings</h2>
+        <h2 className="text-4xl font-bold text-primary">Trainer Reviews & Ratings</h2>
       </div>
       <Table2
         column={columns}

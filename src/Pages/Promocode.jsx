@@ -55,7 +55,7 @@ const PromoCodeManagement = () => {
   console.log("promocodes", promoCodes);
 
   useEffect(() => {
-    fetchPromoCodes();
+    // fetchPromoCodes();
   }, []);
 
   const validationSchema = Yup.object({

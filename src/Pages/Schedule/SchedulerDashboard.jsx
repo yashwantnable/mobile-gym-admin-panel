@@ -10,7 +10,7 @@ import HolidayBanner from "../../Components/SlotManagement/HolidayBanner";
 import TimeColumn from "../../Components/SlotManagement/TimeColumn";
 import GroomerHeader from "../../Components/SlotManagement/GroomerHeader";
 import AppointmentSlot from "../../Components/SlotManagement/AppointmentSlot";
-import { useSchedulerApi } from "../../hooks/useSchedulerApi";
+// import { useSchedulerApi } from "../../hooks/useSchedulerApi";
 
 const Scheduler = ({ groomers }) => {
   // State management
@@ -23,83 +23,83 @@ const Scheduler = ({ groomers }) => {
 
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
 
-  const {
-    servicesData,
-    subService,
-    appointments,
-    existingSlot,
-    holidays,
-    fetchSubServices,
-    fetchSlots,
-    setExistingSlot,
-    setAppointments,
-    defaultServiceId,
-    defaultSubServiceId,
-  } = useSchedulerApi(currentDate, selectedSubService);
+  // const {
+  //   servicesData,
+  //   subService,
+  //   appointments,
+  //   existingSlot,
+  //   holidays,
+  //   fetchSubServices,
+  //   fetchSlots,
+  //   setExistingSlot,
+  //   setAppointments,
+  //   defaultServiceId,
+  //   defaultSubServiceId,
+  // } = useSchedulerApi(currentDate, selectedSubService);
 
-  useEffect(() => {
-    if (defaultServiceId && defaultSubServiceId) {
-      setSelectedService(defaultServiceId);
-      setSelectedSubService(defaultSubServiceId);
-    }
-  }, [defaultSubServiceId]);
+  // useEffect(() => {
+  //   if (defaultServiceId && defaultSubServiceId) {
+  //     setSelectedService(defaultServiceId);
+  //     setSelectedSubService(defaultSubServiceId);
+  //   }
+  // }, [defaultSubServiceId]);
 
   // Process time slots
-  const timeSlots = useMemo(() => {
-    return existingSlot.map((slot) => {
-      const startDate = new Date(slot.startTime);
-      const endDate = new Date(slot.endTime);
+  // const timeSlots = useMemo(() => {
+  //   return existingSlot.map((slot) => {
+  //     const startDate = new Date(slot.startTime);
+  //     const endDate = new Date(slot.endTime);
 
-      const formatTime = (date) => {
-        let hours = date.getHours();
-        let minutes = date.getMinutes();
-        const ampm = hours >= 12 ? "PM" : "AM";
-        hours = hours % 12 || 12;
-        return `${hours}:${String(minutes).padStart(2, "0")} ${ampm}`;
-      };
+  //     const formatTime = (date) => {
+  //       let hours = date.getHours();
+  //       let minutes = date.getMinutes();
+  //       const ampm = hours >= 12 ? "PM" : "AM";
+  //       hours = hours % 12 || 12;
+  //       return `${hours}:${String(minutes).padStart(2, "0")} ${ampm}`;
+  //     };
 
-      return {
-        id: slot?._id,
-        hour: startDate.getHours() % 12 || 12,
-        minutes: startDate.getMinutes(),
-        time: formatTime(startDate),
-        endTime: formatTime(endDate),
-        slot: startDate,
-      };
-    });
-  }, [existingSlot]);
+  //     return {
+  //       id: slot?._id,
+  //       hour: startDate.getHours() % 12 || 12,
+  //       minutes: startDate.getMinutes(),
+  //       time: formatTime(startDate),
+  //       endTime: formatTime(endDate),
+  //       slot: startDate,
+  //     };
+  //   });
+  // }, [existingSlot]);
 
-  const handleDateNavigation = (days) => {
-    setCurrentDate(addDays(currentDate, days));
-  };
+  // const handleDateNavigation = (days) => {
+  //   setCurrentDate(addDays(currentDate, days));
+  // };
 
-  const handleDateChange = (date) => {
-    setCurrentDate(new Date(date));
-  };
+  // const handleDateChange = (date) => {
+  //   setCurrentDate(new Date(date));
+  // };
 
-  const handleSlotClick = (groomer, timeSlot, appointment) => {
-    if (holidays?.isClosed) return;
-    setSelectedSlot(appointment || { groomer, timeSlot });
-    setIsModalOpen(true);
-  };
+  // const handleSlotClick = (groomer, timeSlot, appointment) => {
+  //   if (holidays?.isClosed) return;
+  //   setSelectedSlot(appointment || { groomer, timeSlot });
+  //   setIsModalOpen(true);
+  // };
 
-  const getCoveringAppointment = (groomer, timeSlot) => {
-    const slotTime = moment(new Date(timeSlot.slot));
-    return appointments.find((appt) => {
-      const apptStart = moment.utc(appt.startTime).local();
-      const apptEnd = moment.utc(appt.endTime).local();
-      return (
-        appt.groomerId === groomer._id &&
-        slotTime.isSameOrAfter(apptStart) &&
-        slotTime.isBefore(apptEnd)
-      );
-    });
-  };
+  // const getCoveringAppointment = (groomer, timeSlot) => {
+  //   const slotTime = moment(new Date(timeSlot.slot));
+  //   return appointments.find((appt) => {
+  //     const apptStart = moment.utc(appt.startTime).local();
+  //     const apptEnd = moment.utc(appt.endTime).local();
+  //     return (
+  //       appt.groomerId === groomer._id &&
+  //       slotTime.isSameOrAfter(apptStart) &&
+  //       slotTime.isBefore(apptEnd)
+  //     );
+  //   });
+  // };
 
-  const isSlotAvailable = (groomer, timeSlot) => {
-    if (holidays?.isClosed) return false;
-    return !getCoveringAppointment(groomer, timeSlot);
-  };
+  // const isSlotAvailable = (groomer, timeSlot) => {
+  //   if (holidays?.isClosed) return false;
+  //   return !getCoveringAppointment(groomer, timeSlot);
+  // };
 
   return (
     <div className="mx-auto p-4" style={{ backgroundColor: colors.white }}>
@@ -119,16 +119,17 @@ const Scheduler = ({ groomers }) => {
               fetchSubServices(e.target.value);
               setExistingSlot([]);
               setSelectedSubService([]);
-              setAppointments([]);
+              // setAppointments([]);
             }}
             isRequired
             className=""
             labelClassName="text-sm"
             placeholder="Select a Service"
-            options={servicesData.map((service) => ({
-              value: service._id,
-              label: `${service?.name}`,
-            }))}
+            // options={servicesData.map((service) => ({
+            //   value: service._id,
+            //   label: `${service?.name}`,
+            // }))}
+            options={[]}
           />
           <InputField
             label="Subservice Type"
@@ -142,21 +143,22 @@ const Scheduler = ({ groomers }) => {
             isRequired
             labelClassName="text-sm"
             placeholder="Select a subservice"
-            options={subService?.map((service) => ({
-              value: service._id,
-              label: `${service.name}`,
-            }))}
+            options={[]}
+            // options={subService?.map((service) => ({
+            //   value: service._id,
+            //   label: `${service.name}`,
+            // }))}
           />
         </div>
 
         <DateNavigation
           currentDate={currentDate}
-          onDateChange={handleDateChange}
-          onNavigate={handleDateNavigation}
+          // onDateChange={handleDateChange}
+          // onNavigate={handleDateNavigation}
         />
       </motion.div>
 
-      <HolidayBanner holiday={holidays} />
+      <HolidayBanner holiday={[]} />
 
       {/* Scheduler Grid */}
       <motion.div
@@ -168,11 +170,11 @@ const Scheduler = ({ groomers }) => {
           borderColor: colors.accent,
         }}
       >
-        <TimeColumn timeSlots={timeSlots} />
+        <TimeColumn timeSlots={[]} />
 
         {/* Scrollable Content Area */}
         <div className="ml-[150px] overflow-x-auto">
-          <GroomerHeader groomers={groomers} />
+          <GroomerHeader groomers={[]} />
 
           {/* Appointment Slots */}
           <div
@@ -254,11 +256,11 @@ const Scheduler = ({ groomers }) => {
       </motion.div>
 
       <UpdateOrderModal
-        timeSlot={timeSlots}
+        timeSlot={[]}
         selectedSlot={selectedSlot}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        fetchSlots={fetchSlots}
+        fetchSlots={[]}
         setCurrentDate={setCurrentDate}
       />
     </div>

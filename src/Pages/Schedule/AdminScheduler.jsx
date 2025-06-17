@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 
 import SlotManagement from "./SlotManagement";
 import SchedulerDashboard from "./SchedulerDashboard";
-import { GroomerApi } from "../../Api/Groomer.api";
+// import { GroomerApi } from "../../Api/Groomer.api";
 import { FiCalendar } from "react-icons/fi";
-import { useSchedulerApi } from "../../hooks/useSchedulerApi";
+// import { useSchedulerApi } from "../../hooks/useSchedulerApi";
 
 const AdminScheduler = () => {
   const [date, setDate] = useState(new Date());
@@ -19,7 +19,7 @@ const AdminScheduler = () => {
     }
   };
   useEffect(() => {
-    fetchGroomers();
+    // fetchGroomers();
   }, []);
 
   return (

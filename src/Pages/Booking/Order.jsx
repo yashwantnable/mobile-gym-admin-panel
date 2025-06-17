@@ -66,54 +66,54 @@ const Order = () => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      try {
-        const res = await BookingApi.createBooking(values);
-        toast.success("Booking created Successfully");
-        getAllBoooking();
-      } catch (error) {
-        toast.error(error?.response?.data?.message);
-        console.log("errorr");
-      }
-      setCreateOrder(false);
-    },
-  });
+  //     try {
+  //       const res = await BookingApi.createBooking(values);
+  //       toast.success("Booking created Successfully");
+  //       getAllBoooking();
+  //     } catch (error) {
+  //       toast.error(error?.response?.data?.message);
+  //       console.log("errorr");
+  //     }
+  //     setCreateOrder(false);
+  //   },
+  // });
 
-  const updateOrderFormik = useFormik({
-    initialValues: {
-      customerId: selectedRow?.customer?._id || "",
-      date: selectedRow?.date
-        ? moment(selectedRow.date).format("YYYY-MM-DD")
-        : "",
-      timeSlotId: selectedRow?.timeSlotId || "",
-      groomerId: selectedRow?.groomer?._id || "",
+  // const updateOrderFormik = useFormik({
+  //   initialValues: {
+  //     customerId: selectedRow?.customer?._id || "",
+  //     date: selectedRow?.date
+  //       ? moment(selectedRow.date).format("YYYY-MM-DD")
+  //       : "",
+  //     timeSlotId: selectedRow?.timeSlotId || "",
+  //     groomerId: selectedRow?.groomer?._id || "",
     },
     onSubmit: async (values) => {
       console.log("values", values);
-      try {
-        const res = await BookingApi.updateBooking(selectedRow._id, values);
-        toast.success("Booking updated Successfully");
-        getAllBoooking();
-        setOpen(false);
-      } catch (error) {
-        toast.error(error?.response?.data?.message);
-      }
+      // try {
+      //   const res = await BookingApi.updateBooking(selectedRow._id, values);
+      //   toast.success("Booking updated Successfully");
+      //   getAllBoooking();
+      //   setOpen(false);
+      // } catch (error) {
+      //   toast.error(error?.response?.data?.message);
+      // }
     },
   });
 
-  const getAllBoooking = async () => {
-    handleLoading(true);
-    try {
-      const res = await OrderApi.getAllOrders();
-      setOrderData(res.data.data);
-    } catch (error) {
-      console.log("erorr", error);
-    } finally {
-      handleLoading(false);
-    }
-  };
+  // const getAllBoooking = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await OrderApi.getAllOrders();
+  //     setOrderData(res.data.data);
+  //   } catch (error) {
+  //     console.log("erorr", error);
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
-    getAllBoooking();
+    // getAllBoooking();
   }, []);
 
   const statusFormik = useFormik({

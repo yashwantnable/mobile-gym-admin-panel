@@ -33,6 +33,9 @@ import SubServiceRating from './Pages/Ratings/SubServiceRating';
 import Articles from './Pages/Articles/Articles';
 import BlogPost from './Pages/Articles/BlogPost';
 import LateFeesMaster from './Pages/Master/LateFees';
+import Categories from './Pages/Categories/Categories';
+import Customers from './Pages/PetsProfile/Pets';
+import TenureMaster from './Pages/Master/TenureMaster';
 
 
 const App = () => {
@@ -42,8 +45,9 @@ const App = () => {
       <Route path="/" element={<Layout />}>
         {/* All components  */}
         <Route path="/" element={<ProtectedRoute children={<Dashboard />} />} />
-        <Route path="services" element={<ProtectedRoute children={<Service />} />} >
-          <Route path='my-service' element={<ProtectedRoute children={<MyService />} />} />
+        <Route path="/categories" element={<ProtectedRoute children={<Categories />} />} />
+        <Route path="sessions" element={<ProtectedRoute children={<MyService />} />} >
+          {/* <Route path='my-service' element={<ProtectedRoute children={<MyService />} />} /> */}
         </Route>
         <Route path="booking" element={<ProtectedRoute children={<Booking />} />} >
           <Route path='dashboard' element={<ProtectedRoute children={<BookingDashboard />} />} />
@@ -54,17 +58,18 @@ const App = () => {
         <Route path="schedule" element={<ProtectedRoute children={<Scheduler />} />} >
           <Route path='planner' element={<ProtectedRoute children={<AdminScheduler />} />} />
         </Route>
-        <Route path='pets' element={<ProtectedRoute children={<Pets />} />} />
+        <Route path='customers' element={<ProtectedRoute children={<Customers />} />} />
         <Route path='payments' element={<ProtectedRoute children={<Payment />} />} />
         <Route path='/masters/pet-types' element={<ProtectedRoute children={<PetType />} />} />
         <Route path='/masters/breeds' element={<ProtectedRoute children={<BreedType />} />} />
         <Route path='/masters/currency' element={<ProtectedRoute children={<CurrencyMaster />} />} />
         <Route path='/masters/tax' element={<ProtectedRoute children={<TaxMaster />} />} />
+        <Route path='/masters/tenures' element={<ProtectedRoute children={<TenureMaster />} />} />
         <Route path='/masters/latefee' element={<ProtectedRoute children={<LateFeesMaster />} />} />
         <Route path='/promocode' element={<ProtectedRoute children={<Promocode />} />} />
         <Route path='/account' element={<ProtectedRoute children={<Account />} />} />
-        <Route path='/ratings' element={<ProtectedRoute children={<Ratings />} />} />
-        <Route path='/ratings/groomers' element={<ProtectedRoute children={<SubServiceRating />} />} />
+        <Route path='/ratings/trainers' element={<ProtectedRoute children={<Ratings />} />} />
+        <Route path='/ratings/sessions' element={<ProtectedRoute children={<SubServiceRating />} />} />
         <Route path='/articles/tips/:id' element={<ProtectedRoute children={<BlogPost />} />} />
       </Route>
     </>

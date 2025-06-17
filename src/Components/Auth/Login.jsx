@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
-import logo from "../../Assets/main.png";
+import logo from "../../Assets/logo.png";
 import InputField from "../InputField";
 import { FaEye, FaEyeSlash, FaLock, FaEnvelope } from "react-icons/fa";
 import { login } from "../../store/slices/storeSlice";
@@ -31,17 +31,17 @@ const Login = () => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      handleLoading(true);
-      try {
-        await dispatch(login(values)).unwrap();
+    //   handleLoading(true);
+    //   try {
+    //     await dispatch(login(values)).unwrap();
         navigate("/");
-      } catch (e) {
-        console.error("Login error:", e);
-        toast.error("Invalid credentials. Please try again.");
-      } finally {
-        handleLoading(false);
-        formik.resetForm();
-      }
+    //   } catch (e) {
+    //     console.error("Login error:", e);
+    //     toast.error("Invalid credentials. Please try again.");
+    //   } finally {
+    //     handleLoading(false);
+    //     formik.resetForm();
+    //   }
     },
   });
 
