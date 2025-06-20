@@ -13,6 +13,7 @@ import { toFormData } from "../formHandling";
 import DeleteModal from "../../Components/DeleteModal";
 import { useLoading } from "../../Components/loader/LoaderContext";
 import { Table2 } from "../../Components/Table/Table2";
+import { columns, dummyCustomerList } from "./customerData";
 
 const validationSchema = Yup.object({
   first_name: Yup.string().required("First Name is required"),
@@ -340,67 +341,71 @@ const Customers = () => {
     formik.resetForm();
   };
 
-  const petColumns = useMemo(() => [
-
-    {
-      headerName: "Client Name",
-      field: "userId",
-      cellRenderer: (params) => params?.data?.userId?.first_name || "N/A",
-    },
-    {
-      headerName: "Email Address",
-      field: "email",
-      cellRenderer: (params) => params?.data?.userId?.email || "N/A",
-    },
-    {
-      headerName: "Contact Number",
-      field: "phone_number",
-      cellRenderer: (params) => params?.data?.userId?.phone_number || "N/A",
-    },
-    {
-      headerName: "Address",
-      field: "address",
-      cellRenderer: (params) => params?.data?.userId?.address || "N/A",
-    },
-    {
-      headerName: "Customers Name",
-      field: "petName",
-    },
-    {
-      headerName: "Pet Type",
-      field: "petType",
-      cellRenderer: (params) => `${params?.data?.petType?.name || "N/A"}`,
-    },
-    {
-      headerName: "Pet Breed",
-      field: "breed",
-      cellRenderer: (params) => `${params?.data?.breed?.name || "N/A"}`,
-    },
-    {
-      headerName: "Actions",
-      field: "actions",
-      minWidth: 150,
-      cellRenderer: (params) => (
-        <div className="flex items-center space-x-3 mt-2">
-          <button
-            className="text-primary transition-colors cursor-pointer"
-            onClick={() => {
-              setOpen(true);
-              setSelectedRow(params?.data);
-            }}
-          >
-            <FaRegEdit size={18} />
-          </button>
-          <button
-            className="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
-            onClick={() => setDeleteModal(params?.data)}
-          >
-            <MdOutlineDeleteOutline size={20} />
-          </button>
-        </div>
-      ),
-    },
-  ], []);
+const customerColumns = useMemo(() => [
+  {
+    headerName: "S.No",
+    field: "serial",
+    valueGetter: (params) => params.node.rowIndex + 1,
+    minWidth: 80,
+  },
+  {
+    headerName: "Name",
+    field: "name",
+    cellRenderer: (params) => params?.data?.name || "N/A",
+  },
+  {
+    headerName: "Age",
+    field: "age",
+    cellRenderer: (params) => params?.data?.age || "N/A",
+  },
+  {
+    headerName: "Location",
+    field: "location",
+    cellRenderer: (params) => params?.data?.location || "N/A",
+  },
+  {
+    headerName: "Contact No",
+    field: "contactNumber",
+    cellRenderer: (params) => params?.data?.contactNumber || "N/A",
+  },
+  {
+    headerName: "Subscriptions",
+    field: "subscriptions",
+    cellRenderer: (params) =>
+      Array.isArray(params?.data?.subscriptions) && params.data.subscriptions.length > 0
+        ? params.data.subscriptions.join(", ")
+        : "N/A",
+  },
+  {
+    headerName: "Fitness Goal",
+    field: "fitnessGoal",
+    cellRenderer: (params) => params?.data?.fitnessGoal || "N/A",
+  },
+  {
+    headerName: "Actions",
+    field: "actions",
+    minWidth: 150,
+    cellRenderer: (params) => (
+      <div className="flex items-center space-x-3 mt-2">
+        <button
+          className="text-primary transition-colors cursor-pointer"
+          onClick={() => {
+            setOpen(true);
+            setSelectedRow(params?.data);
+          }}
+        >
+          <FaRegEdit size={18} />
+        </button>
+        <button
+          className="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
+          onClick={() => setDeleteModal(params?.data)}
+        >
+          <MdOutlineDeleteOutline size={20} />
+        </button>
+      </div>
+    ),
+  },
+], [setOpen, setSelectedRow, setDeleteModal]);
 
   return (
     <>
@@ -411,8 +416,8 @@ const Customers = () => {
           </div>
 
           <Table2
-            column={petColumns}
-            internalRowData={allUsers}
+            column={customerColumns}
+            internalRowData={dummyCustomerList}
             searchLabel={"Customers"}
             sheetName={"pet"}
             setModalOpen={setOpen}

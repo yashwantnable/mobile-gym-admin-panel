@@ -14,8 +14,9 @@ import { MdOutlineDeleteOutline } from "react-icons/md";
 import DeleteModal from "../../Components/DeleteModal";
 import { Table2 } from "../../Components/Table/Table2";
 import PhoneInputField from "../../Components/PhoneInputField";
+import { dummyTrainerList } from "./EmployeeData";
 
-const GroomersEmployee = () => {
+const Trainers = () => {
   const [open, setOpen] = useState(false);
   const [experienceType, setExperienceType] = useState("");
   const [allGroomers, setAllGroomers] = useState([]);
@@ -227,8 +228,8 @@ const GroomersEmployee = () => {
     }
   };
   useEffect(() => {
-    setImagePreview(selectedRow?.profile_image);
-    cityDataforEdit(selectedRow?.country?._id);
+    // setImagePreview(selectedRow?.profile_image);
+    // cityDataforEdit(selectedRow?.country?._id);
   }, [selectedRow]);
 
   useEffect(() => {
@@ -248,81 +249,136 @@ const GroomersEmployee = () => {
     label: item?.name,
   }));
 
-  const columns = useMemo(
-    () => [
-      {
-        headerName: "Groomer Name",
-        field: "first_name",
-        cellRenderer: (params) => {
-          const imageUrl = params.data?.profile_image;
-          const name = params.data?.first_name || "N/A";
-          return (
-            <div className="flex items-center space-x-2">
-              {imageUrl && (
-                <img
-                  src={imageUrl}
-                  alt={name}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              )}
-              <span className="capitalize">{name}</span>
-            </div>
-          );
-        },
-      },
-      {
-        headerName: "Phone Number",
-        field: "phone_number",
-      },
-      {
-        headerName: "Email",
-        field: "email",
-      },
-      {
-        headerName: "Gender",
-        field: "gender",
-      },
-      {
-        headerName: "Age",
-        field: "age",
-      },
-      {
-        headerName: "Experience",
-        field: "experienceYear",
-      },
-      {
-        headerName: "Specialization",
-        field: "specialization",
-        valueGetter: (params) => params.data?.specialization ?? "N/A",
-      },
-      {
-        headerName: "Actions",
-        field: "actions",
-        minWidth: 150,
-        cellRenderer: (params) => (
-          <div className="flex items-center space-x-3 mt-2">
-            <button
-              className="text-primary transition-colors cursor-pointer"
-              onClick={() => {
-                setOpen(true);
-                setSelectedRow(params?.data);
-                console.log(params?.data);
-              }}
-            >
-              <FaRegEdit size={18} />
-            </button>
-            <button
-              className="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
-              onClick={() => setDeleteModal(params?.data)}
-            >
-              <MdOutlineDeleteOutline size={20} />
-            </button>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
+ const trainerColumns = useMemo(() => [
+  {
+    headerName: "S.No",
+    valueGetter: (params) => params.node.rowIndex + 1,
+    minWidth: 80,
+  },
+  {
+    headerName: "Profile Image",
+    field: "profile_image",
+    cellRenderer: (params) =>
+      params?.data?.profile_image ? (
+        <img
+          src={params.data.profile_image}
+          alt="Profile"
+          className="w-10 h-10 rounded-full object-cover"
+        />
+      ) : (
+        "N/A"
+      ),
+  },
+  {
+    headerName: "Name",
+    field: "first_name",
+    cellRenderer: (params) =>
+      `${params?.data?.first_name || ""} ${params?.data?.last_name || ""}`,
+  },
+  {
+    headerName: "Email",
+    field: "email",
+  },
+  {
+    headerName: "Phone Number",
+    field: "phone_number",
+  },
+  {
+    headerName: "Address",
+    field: "address",
+  },
+  {
+    headerName: "Gender",
+    field: "gender",
+  },
+  {
+    headerName: "Age",
+    field: "age",
+  },
+  {
+    headerName: "Country",
+    field: "country",
+  },
+  {
+    headerName: "City",
+    field: "city",
+  },
+  {
+    headerName: "Specialization",
+    field: "specialization",
+  },
+  {
+    headerName: "Experience",
+    field: "experience",
+  },
+  {
+    headerName: "Experience Years",
+    field: "experienceYear",
+    cellRenderer: (params) =>
+      params?.data?.experience === "EXPERIENCE"
+        ? params?.data?.experienceYear || "N/A"
+        : "-",
+  },
+  {
+    headerName: "Certificates",
+    field: "certificates",
+    cellRenderer: (params) =>
+      params?.data?.certificates ? (
+        <a
+          href={params.data.certificates}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline"
+        >
+          View
+        </a>
+      ) : (
+        "N/A"
+      ),
+  },
+  {
+    headerName: "ID Proof",
+    field: "idProof",
+    cellRenderer: (params) =>
+      params?.data?.idProof ? (
+        <a
+          href={params.data.idProof}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline"
+        >
+          View
+        </a>
+      ) : (
+        "N/A"
+      ),
+  },
+  {
+    headerName: "Actions",
+    field: "actions",
+    minWidth: 150,
+    cellRenderer: (params) => (
+      <div className="flex items-center space-x-3 mt-2">
+        <button
+          className="text-primary transition-colors cursor-pointer"
+          onClick={() => {
+            setOpen(true);
+            setSelectedRow(params?.data);
+          }}
+        >
+          <FaRegEdit size={18} />
+        </button>
+        <button
+          className="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
+          onClick={() => setDeleteModal(params?.data)}
+        >
+          <MdOutlineDeleteOutline size={20} />
+        </button>
+      </div>
+    ),
+  },
+], [setOpen, setSelectedRow, setDeleteModal]);
+
   const handleClose = () => {
     setOpen(false);
     setSelectedRow(null);
@@ -336,8 +392,8 @@ const GroomersEmployee = () => {
         <h2 className="text-primary text-3xl font-semibold">Groomers</h2>
         <div>
           <Table2
-            column={columns}
-            internalRowData={allGroomers}
+            column={trainerColumns}
+            internalRowData={dummyTrainerList}
             searchLabel={"Groomers"}
             sheetName={"groomers"}
             setModalOpen={setOpen}
@@ -556,6 +612,20 @@ const GroomersEmployee = () => {
                   onBlur={formik.handleBlur}
                 />
                 <InputField
+                  name="Id Proof"
+                  label="Id Proof"
+                  // placeholder="Enter Certificates"
+                  isRequired
+                  type={"file"}
+                  value={formik.values.idProof}
+                  error={
+                    formik.touched.idProof &&
+                    formik.errors.idProof
+                  }
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                <InputField
                   name="Certificates"
                   label="Certificates"
                   placeholder="Enter Certificates"
@@ -616,4 +686,4 @@ const GroomersEmployee = () => {
   );
 };
 
-export default GroomersEmployee;
+export default Trainers;

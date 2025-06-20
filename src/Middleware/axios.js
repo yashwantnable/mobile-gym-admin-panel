@@ -25,27 +25,20 @@ instance.interceptors.response.use(
     (error) => {
         const status = error.response?.status;
 
-        if (status === 401) {
+        if (status === 401 || status === 403) {
             localStorage.clear();
 
             if (window.__persistor) {
                 window.__persistor.purge();
             }
-            alert("Your session has expired!!");
-            window.location.reload();
-        }
-        if (status === 403) {
-            localStorage.clear();
 
-            if (window.__persistor) {
-                window.__persistor.purge();
-            }
             alert("Your session has expired!!");
-            window.location.reload();
+            window.location.href = "/login"; // Absolute path redirect
         }
 
         return Promise.reject(error);
     }
 );
+
 
 export default instance;

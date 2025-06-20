@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FaPlus, FaTimes, FaUpload } from 'react-icons/fa';
 import { MdOutlineDeleteOutline } from 'react-icons/md';
 import { FaRegEdit, FaTrash } from 'react-icons/fa';
@@ -8,6 +8,7 @@ import InputField from '../../Components/InputField';
 import DeleteModal from '../../Components/DeleteModal';
 import { Table2 } from '../../Components/Table/Table2';
 import { useFormik } from 'formik';
+import { CategoryApi } from '../../Api/Category.Api';
 
 const Categories = () => {
     const [selectedId, setSelectedId] = useState(null);
@@ -15,6 +16,19 @@ const Categories = () => {
     const [open, setOpen] = useState(false);
     const [deleteModal, setDeleteModal] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
+
+
+    const getAllCategories=async()=>{
+        try{
+
+            const categories= await CategoryApi.getAllCategory();
+            console.log("categories:",categories);
+        }catch(err){
+            console.error(err)
+        }
+    }
+
+
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -45,33 +59,35 @@ const Categories = () => {
         },
     });
 
-    const fitnessColumns = useMemo(() => [
-        { headerName: "Name", field: "name" },
-        { headerName: "Description", field: "description" },
-        { headerName: "Difficulty", field: "difficulty" },
-        { headerName: "Duration (min)", field: "duration" },
-        { headerName: "Popular", field: "isPopular", cellRenderer: (params) => (params.value ? "Yes" : "No") },
-        {
-            headerName: "Actions",
-            field: "actions",
-            cellRenderer: (params) => (
-                <div className="flex items-center space-x-3 mt-2">
-                    <button onClick={() => {
-                        setOpen(true);
-                        setIsEditMode(true);
-                        setSelectedId(params.data.id);
-                        formik.setValues(params.data);
-                        setImagePreview(params.data.imagePreview || null);
-                    }}>
-                        <FaRegEdit />
-                    </button>
-                    <button onClick={() => setDeleteModal(params.data)}>
-                        <MdOutlineDeleteOutline className="text-red-600" />
-                    </button>
-                </div>
-            )
-        }
-    ], []);
+   const categoryColumns = useMemo(() => [
+    { headerName: "Category Name", field: "cName" },
+    { headerName: "Category Level", field: "cLevel" },
+    {
+        headerName: "Actions",
+        field: "actions",
+        cellRenderer: (params) => (
+            <div className="flex items-center space-x-3 mt-2">
+                <button onClick={() => {
+                    setOpen(true);
+                    setIsEditMode(true);
+                    setSelectedId(params.data.id);
+                    formik.setValues(params.data);
+                    setImagePreview(params.data.imagePreview || null);
+                }}>
+                    <FaRegEdit />
+                </button>
+                <button onClick={() => setDeleteModal(params.data)}>
+                    <MdOutlineDeleteOutline className="text-red-600" />
+                </button>
+            </div>
+        )
+    }
+], []);
+
+useEffect(()=>{
+    getAllCategories();
+},[])
+
 
     return (
         <div className="p-5">
@@ -92,7 +108,7 @@ const Categories = () => {
             </div>
 
             <Table2
-                column={fitnessColumns}
+                column={categoryColumns}
                 internalRowData={[]} // Use actual data here
                 searchLabel={"Fitness Categories"}
                 isAdd={true}

@@ -2,6 +2,7 @@ import React from 'react';
 import { FiChevronLeft, FiChevronRight, FiCalendar } from 'react-icons/fi';
 import { format } from 'date-fns';
 
+
 const DateNavigation = ({ currentDate, onDateChange, onNavigate }) => {
   return (
     <div className="flex items-center gap-2">

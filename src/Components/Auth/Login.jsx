@@ -31,17 +31,17 @@ const Login = () => {
     },
     validationSchema,
     onSubmit: async (values) => {
-    //   handleLoading(true);
-    //   try {
-    //     await dispatch(login(values)).unwrap();
+      handleLoading(true);
+      try {
+        await dispatch(login(values)).unwrap();
         navigate("/");
-    //   } catch (e) {
-    //     console.error("Login error:", e);
-    //     toast.error("Invalid credentials. Please try again.");
-    //   } finally {
-    //     handleLoading(false);
-    //     formik.resetForm();
-    //   }
+      } catch (e) {
+        console.error("Login error:", e);
+        toast.error("Invalid credentials. Please try again.");
+      } finally {
+        handleLoading(false);
+        formik.resetForm();
+      }
     },
   });
 

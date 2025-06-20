@@ -348,7 +348,7 @@ const MyService = () => {
   return (
     <div className='p-5'>
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-4xl font-bold text-primary'>Sessions</h2>
+        <h2 className='text-4xl font-bold text-primary'>Services</h2>
         {/* <button
           onClick={() => setOpenType(true)}
           className='flex items-center gap-2 px-4 py-1 cursor-pointer border-[0.1rem] border-primary text-primary font-semibold rounded-full hover:bg-primary hover:text-white transition-all duration-300'

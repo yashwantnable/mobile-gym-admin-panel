@@ -6,51 +6,99 @@ import { FaEye } from 'react-icons/fa';
 import { IoMdArrowRoundBack } from 'react-icons/io';
 import { RatingApi } from '../../Api/Ratings.api';
 
-const SubServiceRating = () => {
-  const [allSubServiceRatings, setAllSubServiceRatings] = useState(null);
+const ServiceRating = () => {
+  const [allServiceRatings, setAllServiceRatings] = useState(null);
   const [allSubServiceData, setAllSubServiceData] = useState(null);
   const [selectedRow, setSelectedRow] = useState();
   const [reviewOpen, setReviewOpen] = useState(false);
   const { handleLoading } = useLoading();
 
   const ReviewColumns = useMemo(
-    () => [
-      {
-        headerName: 'Customer Name',
-        field: 'created_by.first_name',
-        minWidth: 160,
-        valueGetter: (params) => params.data?.created_by?.first_name || 'N/A',
-      },
-      {
-        headerName: 'Customer Email',
-        field: 'created_by.email',
-        minWidth: 200,
-        valueGetter: (params) => params.data?.created_by?.email || 'N/A',
-      },
-      {
-        headerName: 'Rating',
-        field: 'rating',
-        minWidth: 100,
-      },
-      {
-        headerName: 'Review',
-        field: 'review',
-        minWidth: 300,
-      },
-      {
-        headerName: 'Submitted On',
-        field: 'createdAt',
-        minWidth: 180,
-        valueGetter: (params) =>
-          new Date(params.data?.createdAt).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          }),
-      },
-    ],
-    []
-  );
+  () => [
+    {
+      headerName: 'Customer Name',
+      field: 'customer.first_name',
+      minWidth: 160,
+      valueGetter: (params) => params.data?.customer?.first_name || 'N/A',
+    },
+    {
+      headerName: 'Subscription Name',
+      field: 'subscription.name',
+      minWidth: 200,
+      valueGetter: (params) => params.data?.subscription?.name || 'N/A',
+    },
+    {
+      headerName: 'Rating',
+      field: 'rating',
+      minWidth: 100,
+    },
+    {
+      headerName: 'Review',
+      field: 'review',
+      minWidth: 300,
+    },
+  ],
+  []
+);
+
+const dummySubscriptionReviews = [
+  {
+    id: 1,
+    customer: {
+      first_name: "Alice",
+    },
+    subscription: {
+      name: "Yoga Monthly Plan",
+    },
+    rating: 4.5,
+    review: "The yoga sessions were calming and well-structured.",
+  },
+  {
+    id: 2,
+    customer: {
+      first_name: "David",
+    },
+    subscription: {
+      name: "Strength Training - Weekly",
+    },
+    rating: 4.8,
+    review: "Great strength workouts, I feel more energized!",
+  },
+  {
+    id: 3,
+    customer: {
+      first_name: "Sophia",
+    },
+    subscription: {
+      name: "Zumba Daily",
+    },
+    rating: 4.2,
+    review: "Fun and active! Could use a bit more variety.",
+  },
+  {
+    id: 4,
+    customer: {
+      first_name: "Mohammed",
+    },
+    subscription: {
+      name: "Cardio Burn Package",
+    },
+    rating: 5.0,
+    review: "Excellent results! Loved the trainer’s enthusiasm.",
+  },
+  {
+    id: 5,
+    customer: {
+      first_name: "Emily",
+    },
+    subscription: {
+      name: "Personalized Fitness Plan",
+    },
+    rating: 4.7,
+    review: "Tailored to my needs. I’ve made great progress!",
+  },
+];
+
 
   const columns = useMemo(
     () => [
@@ -126,7 +174,7 @@ const SubServiceRating = () => {
     handleLoading(true);
     try {
       const res = await RatingApi.getAllServiceReview(selectedRow?._id);
-      setAllSubServiceRatings(res.data.data.reviews || []);
+      setAllServiceRatings(res.data.data.reviews || []);
       console.log('sub survice reviews:', res.data.reviews);
     } catch (err) {
       console.error('Error fetching currencies:', err);
@@ -152,7 +200,7 @@ const SubServiceRating = () => {
       handleLoading(false);
     }
   };
-  console.log('allSubServiceRatings:', allSubServiceRatings);
+  console.log('allServiceRatings:', allServiceRatings);
 
   useEffect(() => {
     // getAllSubService();
@@ -161,32 +209,22 @@ const SubServiceRating = () => {
   return (
     <div className='p-5'>
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-4xl font-bold text-primary'>Session Reviews</h2>
+        <h2 className='text-4xl font-bold text-primary'>Subscription Reviews</h2>
       </div>
-      {selectedRow ? (
+      
         <Table2
           column={ReviewColumns}
-          internalRowData={allSubServiceRatings}
+          internalRowData={dummySubscriptionReviews}
           searchLabel={'Sub Services Ratings'}
           sheetName={'subservices Ratings'}
           // setModalOpen={setOpen}
           // isAdd={true}
           setSelectedRow={setSelectedRow}
-          isBack={true}
+          // isBack={true}
         />
-      ) : (
-        <Table2
-          column={columns}
-          internalRowData={allSubServiceData}
-          searchLabel={'Sub Services'}
-          sheetName={'subservices'}
-          // setModalOpen={setOpen}
-          // isAdd={true}
-          setSelectedRow={setSelectedRow}
-        />
-      )}
+      
     </div>
   );
 };
 
-export default SubServiceRating;
+export default ServiceRating;

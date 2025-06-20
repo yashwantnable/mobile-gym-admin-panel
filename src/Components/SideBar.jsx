@@ -29,29 +29,20 @@ import { FaUsersLine } from "react-icons/fa6";
 const menuItems = [
   { name: "Dashboard", icon: AiOutlineHome, path: "/" },
   
-  { name: "Sessions", icon: FaUsersLine, path: "/sessions" },
-  { name: "Schedule", icon: RiCalendarScheduleLine, path: "/schedule/planner" },
-  // {
-  //   name: "Bookings",
-  //   icon: AiOutlineFileText,
-  //   path: "/booking/dashboard",
-  //   submenu: [
-  //     { name: "Booking", path: "/booking/dashboard" },
-  //     { name: "Order", path: "/booking/order" },
-  //   ],
-  // },
   { name: "Customers", icon: FaRegUser, path: "/customers" },
+  { name: "Trainers", icon: FaUserNinja, path: "/trainers" },
+  { name: "Schedule", icon: RiCalendarScheduleLine, path: "/schedule/planner" },
+  { name: "Subscriptions", icon: FaUsersLine, path: "/subscription" },
   { name: "Promo code", icon: MdDiscount, path: "/promocode" },
-  { name: "Trainers", icon: FaUserNinja, path: "/groomers" },
-  // { name: "Articles", icon: MdOutlineArticle, path: "/articles" },
-  // { name: "Payments", icon: AiOutlineCreditCard, path: "/payments" },
+  { name: "Payments", icon: AiOutlineCreditCard, path: "/payments" },
+  { name: "System Settings", icon: AiOutlineCreditCard, path: "/system-settings" },
   {
     name: "Ratings",
     icon: MdOutlineStarRate,
     path: "/ratings",
     submenu: [
       { name: "Trainers", path: "/ratings/trainers" },
-      { name: "Sessions", path: "/ratings/sessions" },
+      { name: "Subscriptions", path: "/ratings/subscriptions" },
     ],
   },
   {
@@ -59,11 +50,12 @@ const menuItems = [
     icon: AiOutlineSetting,
     path: "/masters",
     submenu: [
-      { name: "Categories", icon: TbCategory, path: "/categories" },
+      { name: "Categories", icon: TbCategory, path: "/master/categories" },
+      { name: "Service", icon: FaUsersLine, path: "/master/services" },
       { name: "Tenures", path: "/masters/tenures" },
       { name: "Currency", path: "/masters/currency" },
       { name: "Tax", path: "/masters/tax" },
-      { name: "Late Fee", path: "/masters/latefee" },
+      // { name: "Late Fee", path: "/masters/latefee" },
     ],
   },
 ];

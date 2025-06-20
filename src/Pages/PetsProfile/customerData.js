@@ -1,3 +1,49 @@
+import { useMemo } from "react";
+import { FaRegEdit } from "react-icons/fa";
+import { MdOutlineDeleteOutline } from "react-icons/md";
+
+
+
+export const dummyCustomerList = [
+  {
+    _id: "cust_001",
+    name: "Alice Johnson",
+    age: 28,
+    location: "New York, USA",
+    contact_no: "+1 555-1234",
+    subscriptions: "Gold Membership",
+    fitness_goal: "Weight Loss",
+  },
+  {
+    _id: "cust_002",
+    name: "David Kim",
+    age: 35,
+    location: "Seoul, South Korea",
+    contact_no: "+82 10-2345-6789",
+    subscriptions: "Platinum Membership",
+    fitness_goal: "Muscle Gain",
+  },
+  {
+    _id: "cust_003",
+    name: "Sara Patel",
+    age: 31,
+    location: "Mumbai, India",
+    contact_no: "+91 98765-43210",
+    subscriptions: "Basic Plan",
+    fitness_goal: "Flexibility",
+  },
+  {
+    _id: "cust_004",
+    name: "Lucas Fernández",
+    age: 24,
+    location: "Madrid, Spain",
+    contact_no: "+34 612-345-678",
+    subscriptions: "Monthly Pass",
+    fitness_goal: "Endurance",
+  },
+];
+
+
 export const columns = [
     {
         headerName: "S.No.",

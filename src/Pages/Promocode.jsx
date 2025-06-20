@@ -32,14 +32,68 @@ const cardVariants = {
 };
 
 const PromoCodeManagement = () => {
+   const dummyPromoCodes = [
+  {
+    id: 1,
+    code: "SUMMER2025",
+    discountType: "percentage",
+    discountValue: { $numberDecimal: "15" },
+    minOrderAmount: { $numberDecimal: "50" },
+    startDate: "2025-06-01",
+    endDate: "2025-06-30",
+    maxUses: { $numberDecimal: "100" },
+    description: "15% off all summer items",
+    isActive: true,
+  },
+  {
+    id: 2,
+    code: "WELCOME50",
+    discountType: "fixed",
+    discountValue: { $numberDecimal: "50" },
+    minOrderAmount: { $numberDecimal: "200" },
+    startDate: "2025-06-15",
+    endDate: "2025-07-15",
+    maxUses: { $numberDecimal: "50" },
+    description: "₹50 off for first-time users",
+    isActive: true,
+  },
+  {
+    id: 3,
+    code: "FREESHIP",
+    discountType: "fixed",
+    discountValue: { $numberDecimal: "0" },
+    minOrderAmount: { $numberDecimal: "100" },
+    startDate: "2025-05-01",
+    endDate: "2025-12-31",
+    maxUses: { $numberDecimal: "500" },
+    description: "Free shipping on orders over ₹100",
+    isActive: false,
+  },
+  {
+    id: 4,
+    code: "FLASH25",
+    discountType: "percentage",
+    discountValue: { $numberDecimal: "25" },
+    minOrderAmount: { $numberDecimal: "150" },
+    startDate: "2025-06-18",
+    endDate: "2025-06-20",
+    maxUses: { $numberDecimal: "25" },
+    description: "Flash sale – 25% off",
+    isActive: true,
+  },
+];
+
   const { handleLoading } = useLoading();
   const [openSidebar, setOpenSidebar] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedPromo, setSelectedPromo] = useState(null);
-  const [promoCodes, setPromoCodes] = useState([]);
+  const [promoCodes, setPromoCodes] = useState(dummyPromoCodes);
   const [generatedCode, setGeneratedCode] = useState("");
 
   const formatDate = (isoString) => isoString?.split("T")[0];
+
+ 
+
 
   const fetchPromoCodes = async () => {
     handleLoading(true);
