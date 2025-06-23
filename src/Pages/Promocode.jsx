@@ -87,7 +87,7 @@ const PromoCodeManagement = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedPromo, setSelectedPromo] = useState(null);
-  const [promoCodes, setPromoCodes] = useState(dummyPromoCodes);
+  const [promoCodes, setPromoCodes] = useState();
   const [generatedCode, setGeneratedCode] = useState("");
 
   const formatDate = (isoString) => isoString?.split("T")[0];
@@ -109,7 +109,7 @@ const PromoCodeManagement = () => {
   console.log("promocodes", promoCodes);
 
   useEffect(() => {
-    // fetchPromoCodes();
+    fetchPromoCodes();
   }, []);
 
   const validationSchema = Yup.object({
@@ -431,15 +431,8 @@ const PromoCodeManagement = () => {
             setOpenSidebar(false);
             setSelectedPromo(null);
           }}
-          button1={
-            <Button
-              text={selectedPromo ? "Update" : "Create"}
-              onClick={formik.handleSubmit}
-              type="submit"
-              className="w-full"
-            />
-          }
-          button2={
+
+           button1={
             <Button
               variant="outline"
               onClick={() => formik.resetForm()}
@@ -447,6 +440,15 @@ const PromoCodeManagement = () => {
               className="w-full"
             />
           }
+          button2={
+            <Button
+              text={selectedPromo ? "Update" : "Create"}
+              onClick={formik.handleSubmit}
+              type="submit"
+              className="w-full"
+            />
+          }
+         
         >
           <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div className="relative">

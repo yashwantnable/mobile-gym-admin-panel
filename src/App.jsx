@@ -10,7 +10,6 @@ import Layout from './Layout/Layout';
 import Dashboard from './Pages/Dashboard';
 import ProtectedRoute, { PublicRoute } from './Middleware/ProtectedRoute';
 import Service from './Pages/Service';
-import MyService from './Pages/Services/MyService';
 import Login from './Components/Auth/Login';
 import GroomersEmployee from './Pages/Users/Trainers';
 import { ToastContainer, Bounce } from 'react-toastify';
@@ -28,7 +27,7 @@ import Promocode from './Pages/Promocode';
 import Account from './Pages/Account/Account';
 import TaxMaster from './Pages/Master/Tax';
 import Ratings from './Pages/Ratings/Ratings';
-import Order from './Pages/Booking/Order';
+// import Order from './Pages/Booking/Order';
 import SubServiceRating from './Pages/Ratings/ServiceRating';
 import Articles from './Pages/Articles/Articles';
 import BlogPost from './Pages/Articles/BlogPost';
@@ -41,6 +40,7 @@ import Trainers from './Pages/Users/Trainers';
 import ServiceRating from './Pages/Ratings/ServiceRating';
 import Subscription from './Pages/Subscription/Subscription';
 import TrainerReviewPage from './Pages/Ratings/TrainerReviewPage';
+import MySessions from './Pages/Services/MySessions';
 
 
 const App = () => {
@@ -51,12 +51,12 @@ const App = () => {
         {/* All components  */}
         <Route path="/" element={<ProtectedRoute children={<Dashboard />} />} />
         <Route path="/master/categories" element={<ProtectedRoute children={<Categories />} />} />
-        <Route path="/master/services" element={<ProtectedRoute children={<MyService />} />} >
+        <Route path="/master/sessions" element={<ProtectedRoute children={<MySessions />} />} >
           {/* <Route path='my-service' element={<ProtectedRoute children={<MyService />} />} /> */}
         </Route>
         <Route path="booking" element={<ProtectedRoute children={<Booking />} />} >
           <Route path='dashboard' element={<ProtectedRoute children={<BookingDashboard />} />} />
-          <Route path='order' element={<ProtectedRoute children={<Order />} />} />
+          {/* <Route path='order' element={<ProtectedRoute children={<Order />} />} /> */}
         </Route>
         <Route path='trainers' element={<ProtectedRoute children={<Trainers />} />} />
         <Route path='articles' element={<ProtectedRoute children={<Articles />} />} />
@@ -75,7 +75,7 @@ const App = () => {
         <Route path='/promocode' element={<ProtectedRoute children={<Promocode />} />} />
         <Route path='/account' element={<ProtectedRoute children={<Account />} />} />
         <Route path='/ratings/trainers' element={<ProtectedRoute children={<Ratings />} />} />
-        <Route path='/ratings/trainer/:_id' element={<ProtectedRoute children={<TrainerReviewPage />} />} />
+        <Route path='/ratings/trainer/:id' element={<ProtectedRoute children={<TrainerReviewPage />} />} />
         <Route path='/ratings/subscriptions' element={<ProtectedRoute children={<ServiceRating />} />} />
         {/* <Route path='/articles/tips/:id' element={<ProtectedRoute children={<BlogPost />} />} /> */}
         <Route path='/system-settings' element={<ProtectedRoute children={<SystemSettings />} />} />

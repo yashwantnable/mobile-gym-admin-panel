@@ -51,9 +51,9 @@ const menuItems = [
     path: "/masters",
     submenu: [
       { name: "Categories", icon: TbCategory, path: "/master/categories" },
-      { name: "Service", icon: FaUsersLine, path: "/master/services" },
+      { name: "Sessions", icon: FaUsersLine, path: "/master/sessions" },
       { name: "Tenures", path: "/masters/tenures" },
-      { name: "Currency", path: "/masters/currency" },
+      // { name: "Currency", path: "/masters/currency" },
       { name: "Tax", path: "/masters/tax" },
       // { name: "Late Fee", path: "/masters/latefee" },
     ],

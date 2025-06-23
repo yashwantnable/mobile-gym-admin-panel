@@ -6,7 +6,6 @@ import InputField from "../../Components/InputField";
 import Button from "../../Components/Button";
 import { FaCamera, FaRegEdit, FaTimes } from "react-icons/fa";
 import { MasterApi } from "../../Api/Master.api";
-import { GroomerApi } from "../../Api/Groomer.api";
 import { toast } from "react-toastify";
 import { ServiceApi } from "../../Api/Service.api";
 import { useLoading } from "../../Components/loader/LoaderContext";
@@ -15,11 +14,12 @@ import DeleteModal from "../../Components/DeleteModal";
 import { Table2 } from "../../Components/Table/Table2";
 import PhoneInputField from "../../Components/PhoneInputField";
 import { dummyTrainerList } from "./EmployeeData";
+import { TrainerApi } from "../../Api/Trainer.api";
 
 const Trainers = () => {
   const [open, setOpen] = useState(false);
   const [experienceType, setExperienceType] = useState("");
-  const [allGroomers, setAllGroomers] = useState([]);
+  const [allTrainer, setAllTrainer] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [countryData, setCountryData] = useState([]);
@@ -30,9 +30,6 @@ const Trainers = () => {
   const [deleteModal, setDeleteModal] = useState(null);
 
   const validationSchema = Yup.object({
-    serviceProvider: Yup.array()
-      .min(1, "Select at least one service type")
-      .required("Category is required"),
     first_name: Yup.string().required("First Name is required"),
     last_name: Yup.string().required("Last Name is required"),
     email: Yup.string()
@@ -61,7 +58,7 @@ const Trainers = () => {
 
   const formik = useFormik({
     initialValues: {
-      serviceProvider: selectedRow?.serviceProvider || [],
+      // serviceProvider: selectedRow?.serviceProvider || [],
       first_name: selectedRow?.first_name || "",
       last_name: selectedRow?.last_name || "",
       email: selectedRow?.email || "",
@@ -83,9 +80,6 @@ const Trainers = () => {
       handleLoading(true);
 
       const formData = new FormData();
-      values.serviceProvider.forEach((id) => {
-        formData.append("serviceProvider[]", id);
-      });
       formData.append("first_name", values.first_name);
       formData.append("last_name", values.last_name);
       formData.append("email", values.email);
@@ -106,8 +100,8 @@ const Trainers = () => {
       console.log("selectedRow:", selectedRow?._id);
       try {
         const res = selectedRow?._id
-          ? await GroomerApi.updateGroomer(selectedRow?._id, formData)
-          : await GroomerApi.createGroomer(formData);
+          ? await TrainerApi.updateTrainer(selectedRow?._id, formData)
+          : await TrainerApi.createTrainer(formData);
         console.log(res.data?.data);
         toast.success(
           selectedRow?._id
@@ -118,16 +112,19 @@ const Trainers = () => {
         console.log(err);
       }
       setOpen(false);
-      // getGroomers();
+      getTrainer();
+      formik.resetForm();
       handleLoading(false);
     },
   });
 
-  const getGroomers = async () => {
+  const getTrainer = async () => {
     handleLoading(true);
     try {
-      const res = await GroomerApi.getAllGroomers();
-      setAllGroomers(res?.data?.data);
+      const res = await TrainerApi.getAllTrainers();
+      console.log("trainers:",res?.data?.data);
+      
+      setAllTrainer(res?.data?.data);
     } catch (err) {
       toast.error(err);
     } finally {
@@ -143,7 +140,7 @@ const Trainers = () => {
       toast.error(err);
     } finally {
       setDeleteModal();
-      // getGroomers();
+      getTrainer();
     }
   };
   // const handleServiceType = async () => {
@@ -157,9 +154,10 @@ const Trainers = () => {
   //   }
   //   handleLoading(false);
   // };
-
+  console.log("allTrainer:",allTrainer);
+  
   useEffect(() => {
-    // handleServiceType();
+    getTrainer();
   }, []);
 
   const serviceTypeOption = services.map((item) => {
@@ -199,7 +197,7 @@ const Trainers = () => {
   const handleCountry = async () => {
     try {
       const res = await MasterApi.country();
-      setCountryData(res.data?.data);
+      setCountryData(res?.data?.data);
     } catch (err) {
       console.log(err);
     }
@@ -233,8 +231,8 @@ const Trainers = () => {
   }, [selectedRow]);
 
   useEffect(() => {
-    // handleCountry();
-    // getGroomers();
+    handleCountry();
+    // getTrainer();
   }, []);
 
   const countryOptions = countryData.map((item) => {
@@ -250,11 +248,6 @@ const Trainers = () => {
   }));
 
  const trainerColumns = useMemo(() => [
-  {
-    headerName: "S.No",
-    valueGetter: (params) => params.node.rowIndex + 1,
-    minWidth: 80,
-  },
   {
     headerName: "Profile Image",
     field: "profile_image",
@@ -295,14 +288,16 @@ const Trainers = () => {
     headerName: "Age",
     field: "age",
   },
-  {
-    headerName: "Country",
-    field: "country",
-  },
-  {
-    headerName: "City",
-    field: "city",
-  },
+ {
+  headerName: "Country",
+  field: "country",
+  cellRenderer: (params) => params?.data?.country?.name || "N/A",
+},
+{
+  headerName: "City",
+  field: "city",
+  cellRenderer: (params) => params?.data?.city?.name || "N/A",
+},
   {
     headerName: "Specialization",
     field: "specialization",
@@ -389,12 +384,12 @@ const Trainers = () => {
   return (
     <>
       <div className="m-4">
-        <h2 className="text-primary text-3xl font-semibold">Groomers</h2>
+        <h2 className="text-primary text-3xl font-semibold">Trainer</h2>
         <div>
           <Table2
             column={trainerColumns}
-            internalRowData={dummyTrainerList}
-            searchLabel={"Groomers"}
+            internalRowData={allTrainer}
+            searchLabel={"Trainer"}
             sheetName={"groomers"}
             setModalOpen={setOpen}
             isAdd={true}
@@ -471,7 +466,7 @@ const Trainers = () => {
                     )}
                 </div>
 
-                <InputField
+                {/* <InputField
                   name="serviceProvider"
                   label="Category"
                   type="select"
@@ -485,7 +480,7 @@ const Trainers = () => {
                     formik.errors.serviceProvider
                   }
                   isRequired
-                />
+                /> */}
 
                 <InputField
                   name="first_name"

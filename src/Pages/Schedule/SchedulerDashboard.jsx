@@ -3,7 +3,7 @@ import { addDays } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment/moment";
 import InputField from "../../Components/InputField";
-import UpdateOrderModal from "./UpdateOrderModal";
+// import UpdateOrderModal from "./UpdateOrderModal";
 import { colors } from "../../Components/SlotManagement/constants";
 import DateNavigation from "../../Components/SlotManagement/DateNavigation";
 import HolidayBanner from "../../Components/SlotManagement/HolidayBanner";
@@ -255,14 +255,14 @@ const Scheduler = ({ groomers }) => {
         </div>
       </motion.div>
 
-      <UpdateOrderModal
+      {/* <UpdateOrderModal
         timeSlot={[]}
         selectedSlot={selectedSlot}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         fetchSlots={[]}
         setCurrentDate={setCurrentDate}
-      />
+      /> */}
     </div>
   );
 };

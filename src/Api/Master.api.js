@@ -4,13 +4,21 @@ export const MasterApi = {
     country: () => Api.get("master/get-all-country"),
     city: (countryId) => Api.get(`master/get-all-city/${countryId}`),
 
-    //breed-Master Apis
-    getAllBreed: (payload) => Api.get('/breed/get-all-breed', payload),
-    createBreed: (payload) => Api.post('/breed/create-breed', payload),
-    updateBreed: (id, payload) => Api.put(`/breed/update-breed/${id}`, payload),
-    getSingleBreed: (id, payload) => Api.get(`/breed/get-breed/${id}`, payload),
-    deleteBreed:
-        (id, payload) => Api.delete(`/breed/delete-breed/${id}`, payload),
+    //Tenure-Master Apis
+    getAllTenure: () => Api.get('master/get-all-tenure'),
+    createTenure: (payload) => Api.post('master/create-tenure', payload),
+    getSingleTenure: (id) => Api.get(`master/get-tenure-by-id/${id}`),
+    updateTenure: (id, payload) => Api.put(`master/update-tenure/${id}`, payload),
+    deleteTenure:(id, payload) => Api.delete(`/master/delete-tenure/${id}`, payload),
+
+
+
+    //session-Master Apis
+    getAllSession: () => Api.get('master/get-all-sessions'),
+    createSession: (payload) => Api.post('master/create-session', payload),
+    getSingleSession: (id) => Api.get(`master/get-session-by-id/${id}`),
+    updateSession: (id, payload) => Api.put(`master/update-session/${id}`, payload),
+    deleteSession:(id, payload) => Api.delete(`/master/delete-session/${id}`, payload),
 
 
     //Pet-Type-Master Apis
@@ -18,8 +26,7 @@ export const MasterApi = {
     createpetType: (payload) => Api.post('/petType/create-petType', payload),
     updatepetType: (id, payload) => Api.put(`/petType/update-PetType/${id}`, payload),
     getSinglepetType: (id, payload) => Api.get(`/petType/get-PetType/${id}`, payload),
-    deletepetType:
-        (id, payload) => Api.delete(`/petType/delete-PetType/${id}`, payload),
+    deletepetType:(id, payload) => Api.delete(`/petType/delete-PetType/${id}`, payload),
 
 
     // Tax apis

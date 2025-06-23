@@ -85,7 +85,7 @@ const TaxMaster = () => {
       setIsLoading(true);
       await MasterApi.deleteTax(deleteModal._id);
       toast.success("Tax deleted successfully");
-      // getAllTaxes();
+      getAllTaxes();
       setDeleteModal(null);
     } catch (err) {
       console.error("Error deleting:", err);
@@ -181,7 +181,7 @@ const TaxMaster = () => {
         );
         console.error("Tax Error:", err);
       }
-
+      getAllTaxes();
       setOpen(false);
       setSelectedRow(null);
       formik.resetForm();
@@ -199,8 +199,8 @@ const TaxMaster = () => {
   // }, [selectedRow]);
 
   useEffect(() => {
-    // getAllTaxes();
-    // handleCountry();
+    getAllTaxes();
+    handleCountry();
   }, []);
 
   return (
