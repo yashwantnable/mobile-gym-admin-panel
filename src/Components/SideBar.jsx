@@ -50,6 +50,7 @@ const menuItems = [
     icon: AiOutlineSetting,
     path: "/masters",
     submenu: [
+      { name: "Location", icon: TbCategory, path: "/master/locations" },
       { name: "Categories", icon: TbCategory, path: "/master/categories" },
       { name: "Sessions", icon: FaUsersLine, path: "/master/sessions" },
       { name: "Tenures", path: "/masters/tenures" },

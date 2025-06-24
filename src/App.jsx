@@ -9,9 +9,7 @@ import './App.css'
 import Layout from './Layout/Layout';
 import Dashboard from './Pages/Dashboard';
 import ProtectedRoute, { PublicRoute } from './Middleware/ProtectedRoute';
-import Service from './Pages/Service';
 import Login from './Components/Auth/Login';
-import GroomersEmployee from './Pages/Users/Trainers';
 import { ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Booking from './Pages/Booking';
@@ -20,15 +18,15 @@ import Pets from './Pages/PetsProfile/Customers';
 import Payment from './Pages/Payments/Payment';
 import Scheduler from './Pages/Scheduler';
 import AdminScheduler from './Pages/Schedule/AdminScheduler';
-import PetType from './Pages/Master/PetType';
-import BreedType from './Pages/Master/BreedType';
+// import PetType from './Pages/Master/PetType';
+// import BreedType from './Pages/Master/BreedType';
 import CurrencyMaster from './Pages/Master/CurrencyMaster';
 import Promocode from './Pages/Promocode';
 import Account from './Pages/Account/Account';
 import TaxMaster from './Pages/Master/Tax';
 import Ratings from './Pages/Ratings/Ratings';
 // import Order from './Pages/Booking/Order';
-import SubServiceRating from './Pages/Ratings/ServiceRating';
+import SubServiceRating from './Pages/Ratings/SubscriptionRating';
 import Articles from './Pages/Articles/Articles';
 import BlogPost from './Pages/Articles/BlogPost';
 import LateFeesMaster from './Pages/Master/LateFees';
@@ -37,10 +35,11 @@ import Customers from './Pages/PetsProfile/Customers';
 import TenureMaster from './Pages/Master/TenureMaster';
 import SystemSettings from './Pages/Settings/SystemSettings';
 import Trainers from './Pages/Users/Trainers';
-import ServiceRating from './Pages/Ratings/ServiceRating';
+import ServiceRating from './Pages/Ratings/SubscriptionRating';
 import Subscription from './Pages/Subscription/Subscription';
 import TrainerReviewPage from './Pages/Ratings/TrainerReviewPage';
 import MySessions from './Pages/Services/MySessions';
+import LocationMaster from './Pages/Master/LocationMaster';
 
 
 const App = () => {
@@ -66,10 +65,11 @@ const App = () => {
         <Route path='customers' element={<ProtectedRoute children={<Customers />} />} />
         <Route path='subscription' element={<ProtectedRoute children={<Subscription />} />} />
         <Route path='payments' element={<ProtectedRoute children={<Payment />} />} />
-        <Route path='/masters/pet-types' element={<ProtectedRoute children={<PetType />} />} />
+        {/* <Route path='/masters/pet-types' element={<ProtectedRoute children={<PetType />} />} /> */}
         {/* <Route path='/masters/breeds' element={<ProtectedRoute children={<BreedType />} />} /> */}
         <Route path='/masters/currency' element={<ProtectedRoute children={<CurrencyMaster />} />} />
         <Route path='/masters/tax' element={<ProtectedRoute children={<TaxMaster />} />} />
+        <Route path='/master/locations' element={<ProtectedRoute children={<LocationMaster />} />} />
         <Route path='/masters/tenures' element={<ProtectedRoute children={<TenureMaster />} />} />
         {/* <Route path='/masters/latefee' element={<ProtectedRoute children={<LateFeesMaster />} />} /> */}
         <Route path='/promocode' element={<ProtectedRoute children={<Promocode />} />} />

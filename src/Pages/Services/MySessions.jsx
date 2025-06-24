@@ -30,6 +30,18 @@ const MySessions = () => {
     }
   };
 
+
+    const handleDelete=async()=>{
+          try{
+              const res= await MasterApi.deleteSession(deleteModal?._id);
+              toast.success("session deleted successfully")
+              setDeleteModal(null)
+              getAllCategories();
+          }catch(err){
+              toast.error("error:",err)
+          }
+      }
+
   const handleImageUpload = (isServiceType, event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {

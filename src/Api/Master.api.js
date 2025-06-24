@@ -4,6 +4,18 @@ export const MasterApi = {
     country: () => Api.get("master/get-all-country"),
     city: (countryId) => Api.get(`master/get-all-city/${countryId}`),
 
+
+
+
+
+    //location-Master Apis
+    getAllLocation: () => Api.post('master/get-all-location-master'),
+    getAllLocationbyCountryOrCity: () => Api.get('master/get-location-by-country-city'),
+    createLocation: (payload) => Api.post('master/create-location-master', payload),
+    getSingleLocationbyId: (id) => Api.get(`master/get-location-master/${id}`),
+    updateLocation: (id, payload) => Api.put(`master/update-location-master/${id}`, payload),
+    deleteLocation:(id, payload) => Api.delete(`/master/delete-location-master-by-id/${id}`, payload),
+    
     //Tenure-Master Apis
     getAllTenure: () => Api.get('master/get-all-tenure'),
     createTenure: (payload) => Api.post('master/create-tenure', payload),

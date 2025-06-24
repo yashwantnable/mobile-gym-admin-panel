@@ -225,10 +225,11 @@ const Trainers = () => {
       }
     }
   };
-  useEffect(() => {
-    // setImagePreview(selectedRow?.profile_image);
-    // cityDataforEdit(selectedRow?.country?._id);
-  }, [selectedRow]);
+ 
+
+  // useEffect(() => {
+  //   handleCountryChange();
+  // }, [selectedRow]);
 
   useEffect(() => {
     handleCountry();
@@ -559,6 +560,7 @@ const Trainers = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
+                {/* {JSON.stringify(formik.values.country)} */}
                 <InputField
                   name="country"
                   label="Country"
@@ -570,6 +572,7 @@ const Trainers = () => {
                   onChange={handleCountryChange}
                   onBlur={formik.handleBlur}
                 />
+                {/* {JSON.stringify(formik.values.city)} */}
                 <InputField
                   name="city"
                   label="City"

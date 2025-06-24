@@ -5,7 +5,7 @@ import { useLoading } from "../../Components/loader/LoaderContext";
 import { Table2 } from "../../Components/Table/Table2";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDeleteOutline } from "react-icons/md";
-import SubServiceRating from "./ServiceRating";
+import SubServiceRating from "./SubscriptionRating";
 import TrainersList from "./TrainersList";
 
 const Ratings = () => {

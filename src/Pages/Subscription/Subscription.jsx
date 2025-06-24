@@ -1,102 +1,148 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import SidebarField from '../../Components/SideBarField';
 import Button from '../../Components/Button';
 import InputField from '../../Components/InputField';
+import { SubscriptionApi } from '../../Api/Subscription.api';
+import { toast } from 'react-toastify';
+import { CategoryApi } from '../../Api/Category.Api';
+import { MasterApi } from '../../Api/Master.api';
+import { FiEdit } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
+import DeleteModal from '../../Components/DeleteModal';
 
-// Dummy card data
-const dummySubscriptions = [
-  {
-    id: 1,
-    name: 'Gold Gym Package',
-    category: 'Fitness',
-    service: 'Gym Access',
-    tenure: 'Monthly',
-    price: 49.99,
-    description: 'Full access to gym equipment and group classes.',
-    location: 'Dubai',
-    image:
-      'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 2,
-    name: 'Zumba Pro Plan',
-    category: 'Zumba',
-    service: 'Group Zumba Classes',
-    tenure: 'Weekly',
-    price: 19.99,
-    description: 'Fun Zumba sessions every week with certified trainers.',
-    location: 'Abu Dhabi',
-    image:
-      'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 3,
-    name: 'Yoga Retreat',
-    category: 'Yoga',
-    service: 'Daily Yoga',
-    tenure: 'Daily',
-    price: 5.0,
-    description: 'Morning yoga sessions for a peaceful start.',
-    location: 'Sharjah',
-    image:
-      'https://images.unsplash.com/photo-1550985607-b2839c2a1f4f?auto=format&fit=crop&w=800&q=80',
-  },
-];
-
-const tenureOptions = [
-  { label: 'Daily', value: 'daily' },
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Yearly', value: 'yearly' },
-];
 
 const Subscription = () => {
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [subscriptions, setSubscriptions] = useState(dummySubscriptions);
+  const [allSubscription, setAllSubscription] = useState([]);
+  const [allSessions, setAllSessions] = useState([]);
+   const [deleteModal, setDeleteModal] = useState(null);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [tenureOptions, setTenureOptions] = useState([]);
 
   const subscriptionValidationSchema = Yup.object({
     name: Yup.string().required('Required'),
-    image: Yup.string().required('Image is required'),
-    category: Yup.string().required('Required'),
-    service: Yup.string().required('Required'),
-    tenure: Yup.string().required('Required'),
+    media: Yup.string().required('Image is required'),
+    categoryId: Yup.string().required('Required'),
+    sessionType: Yup.string().required('Required'),
+    duration: Yup.string().required('Required'),
     price: Yup.number().required('Required'),
     description: Yup.string().required('Required'),
     location: Yup.string().required('Required'),
   });
 
+
+    
+
+  const allSubscriptions = async () => {
+    try {
+      const res = await SubscriptionApi.getAllSubscription();
+      setAllSubscription(res?.data?.data);
+      console.log('all subscriptions:', res?.data?.data);
+    } catch (err) {
+      toast.error('error:', err);
+    }
+  };
+
+  const handleDelete=async()=>{
+          try{
+              const res= await SubscriptionApi.DeleteSubscription(deleteModal?._id);
+              toast.success("Subscription deleted successfully")
+              setDeleteModal(null)
+              allSubscriptions();
+          }catch(err){
+              toast.error("error:",err)
+          }
+      }
+
+  const getAllSession = async () => {
+    try {
+      const res = await MasterApi.getAllSession();
+      setAllSessions(res?.data?.data);
+      console.log('all sessions:', res?.data?.data);
+    } catch (err) {
+      toast.error('error:', err);
+    }
+  };
+  const getAllTenures = async () => {
+    try {
+      const res = await MasterApi.getAllTenure();
+      setTenureOptions(res?.data?.data);
+      console.log('All Tenures:', res?.data?.data);
+    } catch (err) {
+      toast.error('error:', err);
+    }
+  };
+
+  const getAllCategories = async () => {
+    try {
+      const categories = await CategoryApi.getAllCategory();
+      console.log('categories:', categories?.data?.data);
+      setCategoryOptions(categories?.data?.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const formik = useFormik({
     initialValues: {
       name: selectedRow?.name || '',
-      category: selectedRow?.category || '',
-      image: selectedRow?.image || '',
-      service: selectedRow?.service || '',
-      tenure: selectedRow?.tenure || '',
+      categoryId: selectedRow?.categoryId?._id || '',
+      media: selectedRow?.media || '',
+      sessionType: selectedRow?.sessionType?._id || '',
+      duration: selectedRow?.duration?._id || '',
       price: selectedRow?.price || '',
       description: selectedRow?.description || '',
       location: selectedRow?.location || '',
     },
     validationSchema: subscriptionValidationSchema,
     enableReinitialize: true,
-    onSubmit: async (values) => {
-      if (selectedRow) {
-        // Update existing
-        setSubscriptions((prev) =>
-          prev.map((item) => (item.id === selectedRow.id ? { ...item, ...values } : item))
-        );
-      } else {
-        // Create new
-        const newSub = { id: Date.now(), ...values };
-        setSubscriptions((prev) => [...prev, newSub]);
+    onSubmit: async (values, { resetForm }) => {
+      console.log('Form values:', values);
+
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('categoryId', values.categoryId);
+      formData.append('sessionType', values.sessionType);
+      formData.append('duration', values.duration);
+      formData.append('price', values.price);
+      formData.append('description', values.description);
+      formData.append('location', values.location);
+
+      if (values.media) {
+        formData.append('media', values.media); // file object
       }
-      setOpen(false);
-      setSelectedRow(null);
-      formik.resetForm();
+
+      try {
+        let res;
+        if (selectedRow?._id) {
+          res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
+          toast.success('Subscription updated successfully');
+        } else {
+          res = await SubscriptionApi.createSubscription(formData);
+          toast.success('Subscription created successfully');
+        }
+
+        console.log('res:', res);
+        resetForm();
+        allSubscriptions();
+        setOpen(false);
+        setSelectedRow(null);
+      } catch (error) {
+        console.error('Submission error:', error);
+        toast.error('Failed to save subscription');
+      }
     },
   });
+
+  useEffect(() => {
+    allSubscriptions();
+    getAllCategories();
+    getAllSession();
+    getAllTenures();
+  }, []);
 
   return (
     <div className='p-10'>
@@ -107,57 +153,57 @@ const Subscription = () => {
 
       {/* Subscription Cards Section */}
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 mt-10 mx-auto'>
-        {subscriptions.map((sub) => (
-  <div
-    key={sub.id}
-    className="group bg-white rounded-2xl shadow p-2 flex flex-col justify-between cursor-pointer hover:shadow-lg transition-all duration-300"
-  >
-    {/* Image Wrapper with Buttons Overlay */}
-    <div className="relative mb-3">
-      {sub.image && (
-        <img
-          src={sub.image}
-          alt={sub.name}
-          className="w-full h-40 object-cover rounded-lg"
-        />
-      )}
+        {allSubscription.map((sub) => (
+          <div
+            key={sub._id}
+            className='relative bg-white rounded-2xl shadow p-2 flex flex-col justify-between cursor-pointer hover:shadow-lg transition-all duration-300'
+          >
+            {/* Buttons at the top-right of the card */}
+            <div className='absolute top-2 right-2 z-10 flex gap-2'>
+               <button
+        className='p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition'
+        onClick={() => {
+          setSelectedRow(sub);
+          setOpen(true);
+        }}
+      >
+        <FiEdit size={16} />
+      </button>
 
-      {/* Hover Buttons Positioned on Top of Image */}
-      <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <Button
-          text="Update"
-          cssClass="hover:shadow-lg px-4 py-1 text-sm"
-          size="sm"
-          onClick={() => {
-            setSelectedRow(sub);
-            setOpen(true);
-          }}
-        />
-        <Button
-          text="Delete"
-          size="sm"
-          variant="outline"
-          cssClass="px-4 py-1 text-sm text-red-500 hover:shadow-lg"
-          onClick={() =>
-            setSubscriptions((prev) => prev.filter((item) => item.id !== sub.id))
-          }
-        />
-      </div>
-    </div>
+      <button
+        className='p-2 border border-red-500 text-red-500 rounded-full hover:bg-red-50 transition'
+        onClick={() => {
+          // setSelectedRow();
+          setDeleteModal(sub);
+        }}
+      >
+        <FiTrash2 size={16} />
+      </button>
+            </div>
 
-    {/* Content Section */}
-    <div>
-      <h2 className="text-lg font-semibold text-primary">{sub.name}</h2>
-      <p className="text-sm text-gray-500 mb-1">{sub.category}</p>
-      <p className="text-sm text-gray-500 mb-1">{sub.service}</p>
-      <p className="text-sm text-gray-500 mb-1">Tenure: {sub.tenure}</p>
-      <p className="text-sm text-gray-500 mb-1">Location: {sub.location}</p>
-      <p className="text-sm text-gray-500 mb-2">Price: ${sub.price}</p>
-      <p className="text-sm text-gray-600">{sub.description}</p>
-    </div>
-  </div>
-))}
+            {/* Image */}
+            <div className='mb-3'>
+              {sub.media && (
+                <img
+                  src={sub.media}
+                  alt={sub.name}
+                  className='w-full h-40 object-cover rounded-lg'
+                />
+              )}
+            </div>
 
+            {/* Card Content */}
+            <div>
+              <h2 className='text-lg font-semibold text-primary'>{sub.name}</h2>
+              <p className='text-sm text-gray-500 mb-1'>{sub.categoryId?.cName}</p>
+              <p className='text-sm text-gray-500 mb-1'>{sub.sessionType?.sessionName}</p>
+              <p className='text-sm text-gray-500 mb-1'>Tenure: {sub.duration?.name}</p>
+              <p className='text-sm text-gray-500 mb-1'>Location: {sub.location}</p>
+              <p className='text-sm text-gray-500 mb-2'>Price: ${sub.price}</p>
+              <p className='text-sm text-gray-600'>{sub.description}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       {open && (
@@ -181,6 +227,7 @@ const Subscription = () => {
               variant='outline'
               onClick={() => {
                 setOpen(false);
+                setSelectedRow(null);
                 formik.resetForm();
               }}
               text='Cancel'
@@ -188,8 +235,9 @@ const Subscription = () => {
           }
         >
           <form onSubmit={formik.handleSubmit} className='space-y-4'>
+            {/* Image Upload */}
             <InputField
-              name='image'
+              name='media'
               label='Image'
               type='file'
               accept='image/*'
@@ -197,26 +245,23 @@ const Subscription = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    formik.setFieldValue('image', reader.result);
-                  };
-                  reader.readAsDataURL(file);
+                  formik.setFieldValue('media', file);
                 }
               }}
               onBlur={formik.handleBlur}
-              error={formik.touched.image && formik.errors.image}
+              error={formik.touched.media && formik.errors.media}
             />
 
-            {/* Preview below input */}
-            {formik.values.image && (
+            {/* Preview */}
+            {formik.values.media && (
               <img
-                src={formik.values.image}
+                src={formik.values.media}
                 alt='Preview'
                 className='w-32 h-32 object-cover rounded-md mt-2 border'
               />
             )}
 
+            {/* Name */}
             <InputField
               name='name'
               label='Subscription Name'
@@ -227,48 +272,71 @@ const Subscription = () => {
               onBlur={formik.handleBlur}
               error={formik.touched.name && formik.errors.name}
             />
+
+            {/* Category */}
             <InputField
-              name='category'
+              name='categoryId'
               label='Category'
-              placeholder='Enter category'
-              isRequired
-              value={formik.values.category}
-              onChange={formik.handleChange}
+              type='select'
+              options={categoryOptions.map((cat) => ({
+                label: `${cat.cName} (${cat.cLevel})`, // You can customize label as needed
+                value: cat._id,
+              }))}
+              value={formik.values.categoryId}
+              onChange={(e) => formik.setFieldValue('categoryId', e.target.value)}
               onBlur={formik.handleBlur}
-              error={formik.touched.category && formik.errors.category}
+              error={formik.touched.categoryId && formik.errors.categoryId}
+              isRequired
             />
             <InputField
-              name='service'
-              label='Service'
-              placeholder='Enter service'
-              isRequired
-              value={formik.values.service}
-              onChange={formik.handleChange}
+              name='sessionType'
+              label='Session'
+              type='select'
+              options={
+                allSessions && allSessions.length > 0
+                  ? allSessions.map((session) => ({
+                      label: session.sessionName,
+                      value: session._id,
+                    }))
+                  : []
+              }
+              value={formik.values.sessionType}
+              onChange={(e) => formik.setFieldValue('sessionType', e.target.value)}
               onBlur={formik.handleBlur}
-              error={formik.touched.service && formik.errors.service}
+              error={formik.touched.sessionType && formik.errors.sessionType}
+              isRequired
             />
+
+            {/* Tenure */}
             <InputField
-              name='tenure'
+              name='duration'
               label='Tenure'
               type='select'
-              options={tenureOptions}
+              options={tenureOptions.map((duration) => ({
+                label: `${duration.name}`, // You can customize label as needed
+                value: duration._id,
+              }))}
               isRequired
-              value={formik.values.tenure}
+              value={formik.values.duration}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.tenure && formik.errors.tenure}
+              error={formik.touched.duration && formik.errors.duration}
             />
+
+            {/* Price */}
             <InputField
               name='price'
               label='Price'
-              placeholder='Enter price'
               type='number'
+              placeholder='Enter price'
               isRequired
               value={formik.values.price}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.price && formik.errors.price}
             />
+
+            {/* Description */}
             <InputField
               name='description'
               label='Description'
@@ -279,6 +347,8 @@ const Subscription = () => {
               onBlur={formik.handleBlur}
               error={formik.touched.description && formik.errors.description}
             />
+
+            {/* Location */}
             <InputField
               name='location'
               label='Location'
@@ -291,6 +361,15 @@ const Subscription = () => {
             />
           </form>
         </SidebarField>
+      )}
+      {deleteModal && (
+        <DeleteModal
+          deleteModal={deleteModal}
+          setDeleteModal={setDeleteModal}
+          handleDelete={handleDelete}
+          title='Delete Promo Code'
+          message={`Are you sure you want to delete the promo code "${deleteModal.code}"? This action cannot be undone.`}
+        />
       )}
     </div>
   );
