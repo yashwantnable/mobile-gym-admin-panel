@@ -7,25 +7,61 @@ import { IoMdArrowRoundBack } from 'react-icons/io';
 import { RatingApi } from '../../Api/Ratings.api';
 
 const SubscriptionRating = () => {
-  const [allServiceRatings, setAllServiceRatings] = useState(null);
-  const [allSubServiceData, setAllSubServiceData] = useState(null);
+  const [allSubscriptionReviews, setAllSubscriptionReviews] = useState(null);
+  // const [allSubServiceData, setAllSubServiceData] = useState(null);
   const [selectedRow, setSelectedRow] = useState();
   const [reviewOpen, setReviewOpen] = useState(false);
   const { handleLoading } = useLoading();
 
-  const ReviewColumns = useMemo(
+
+const ReviewColumns = useMemo(
   () => [
     {
       headerName: 'Customer Name',
-      field: 'customer.first_name',
+      field: 'created_by.first_name',
       minWidth: 160,
-      valueGetter: (params) => params.data?.customer?.first_name || 'N/A',
+      valueGetter: (params) =>
+        params.data?.created_by?.first_name?.trim() || 'N/A',
+    },
+    {
+      headerName: 'Customer Email',
+      field: 'created_by.email',
+      minWidth: 200,
+      valueGetter: (params) => params.data?.created_by?.email || 'N/A',
+    },
+    {
+      headerName: 'Trainer Name',
+      field: 'trainer.first_name',
+      minWidth: 160,
+      valueGetter: (params) =>
+        params.data?.trainer?.first_name?.trim() || 'N/A',
+    },
+    {
+      headerName: 'Trainer Email',
+      field: 'trainer.email',
+      minWidth: 200,
+      valueGetter: (params) => params.data?.trainer?.email || 'N/A',
     },
     {
       headerName: 'Subscription Name',
-      field: 'subscription.name',
+      field: 'subscriptionId.name',
       minWidth: 200,
-      valueGetter: (params) => params.data?.subscription?.name || 'N/A',
+      valueGetter: (params) =>
+        params.data?.subscriptionId?.name || 'N/A',
+    },
+    {
+      headerName: 'Subscription Location',
+      field: 'subscriptionId.location',
+      minWidth: 150,
+      valueGetter: (params) =>
+        params.data?.subscriptionId?.location || 'N/A',
+    },
+    {
+      headerName: 'Session Name',
+      field: 'sessionId.sessionName',
+      minWidth: 180,
+      valueGetter: (params) =>
+        params.data?.sessionId?.sessionName || 'N/A',
     },
     {
       headerName: 'Rating',
@@ -37,75 +73,25 @@ const SubscriptionRating = () => {
       field: 'review',
       minWidth: 300,
     },
+    {
+      headerName: 'Created At',
+      field: 'createdAt',
+      minWidth: 180,
+      valueGetter: (params) =>
+        new Date(params.data?.createdAt).toLocaleString() || 'N/A',
+    },
   ],
   []
 );
 
-// const dummySubscriptionReviews = [
-//   {
-//     id: 1,
-//     customer: {
-//       first_name: "Alice",
-//     },
-//     subscription: {
-//       name: "Yoga Monthly Plan",
-//     },
-//     rating: 4.5,
-//     review: "The yoga sessions were calming and well-structured.",
-//   },
-//   {
-//     id: 2,
-//     customer: {
-//       first_name: "David",
-//     },
-//     subscription: {
-//       name: "Strength Training - Weekly",
-//     },
-//     rating: 4.8,
-//     review: "Great strength workouts, I feel more energized!",
-//   },
-//   {
-//     id: 3,
-//     customer: {
-//       first_name: "Sophia",
-//     },
-//     subscription: {
-//       name: "Zumba Daily",
-//     },
-//     rating: 4.2,
-//     review: "Fun and active! Could use a bit more variety.",
-//   },
-//   {
-//     id: 4,
-//     customer: {
-//       first_name: "Mohammed",
-//     },
-//     subscription: {
-//       name: "Cardio Burn Package",
-//     },
-//     rating: 5.0,
-//     review: "Excellent results! Loved the trainer’s enthusiasm.",
-//   },
-//   {
-//     id: 5,
-//     customer: {
-//       first_name: "Emily",
-//     },
-//     subscription: {
-//       name: "Personalized Fitness Plan",
-//     },
-//     rating: 4.7,
-//     review: "Tailored to my needs. I’ve made great progress!",
-//   },
-// ];
 
 
 
   const getAllSubscriptionReviews = async () => {
     handleLoading(true);
     try {
-      const res = await RatingApi.getAllServiceReview(selectedRow?._id);
-      setAllServiceRatings(res.data.data.reviews || []);
+      const res = await RatingApi.getAllSubscriptionReview(selectedRow?._id);
+      setAllSubscriptionReviews(res.data.data.reviews || []);
       console.log('sub survice reviews:', res.data.reviews);
     } catch (err) {
       console.error('Error fetching currencies:', err);
@@ -118,20 +104,20 @@ const SubscriptionRating = () => {
     getAllSubscriptionReviews();
   }, [selectedRow]);
 
-  const getAllSubService = async () => {
-    handleLoading(true);
-    try {
-      const res = await ServiceApi.service();
-      setAllSubServiceData(res.data.data || []);
-      //   console.log(res);
-    } catch (err) {
-      console.error('Error fetching currencies:', err);
-      toast.error('Failed to fetch currencies');
-    } finally {
-      handleLoading(false);
-    }
-  };
-  console.log('allServiceRatings:', allServiceRatings);
+  // const getAllSubService = async () => {
+  //   handleLoading(true);
+  //   try {
+  //     const res = await ServiceApi.service();
+  //     setAllSubServiceData(res.data.data || []);
+  //     //   console.log(res);
+  //   } catch (err) {
+  //     console.error('Error fetching currencies:', err);
+  //     toast.error('Failed to fetch currencies');
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
+  console.log('allSubscriptionReviews:', allSubscriptionReviews);
 
   useEffect(() => {
     // getAllSubService();
@@ -145,7 +131,7 @@ const SubscriptionRating = () => {
       
         <Table2
           column={ReviewColumns}
-          internalRowData={dummySubscriptionReviews}
+          internalRowData={allSubscriptionReviews}
           searchLabel={'Sub Services Ratings'}
           sheetName={'subservices Ratings'}
           // setModalOpen={setOpen}

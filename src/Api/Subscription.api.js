@@ -5,5 +5,6 @@ export const SubscriptionApi = {
   createSubscription: (payload) => Api.post('/subscription/create-subscription', payload),
   updateSubscription: (id, payload) => Api.put(`/subscription/update-subscription/${id}`, payload),
   getSingleSubscription: (id) => Api.get(`/subscription/get-subscription-by-id/${id}`),
+  getSubscriptionByCatId: (id) => Api.get(`/subscription/get-subscription-by-category-id/${id}`),
   DeleteSubscription: (id, payload) => Api.delete(`/subscription/delete-subscription/${id}`, payload),
 };

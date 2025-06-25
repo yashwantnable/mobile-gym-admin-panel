@@ -18,6 +18,7 @@ import "./style.css";
 import InputField from "../../Components/InputField";
 import HolidayModal from "../../Components/HolidayModal";
 import { useLoading } from "../../Components/loader/LoaderContext";
+import { SubscriptionApi } from "../../Api/Subscription.api";
 
 const SlotManagement = ({ groomers }) => {
   const [services, setServices] = useState([]);
@@ -28,9 +29,9 @@ const SlotManagement = ({ groomers }) => {
   const [showHolidayModal, setShowHolidayModal] = useState(false);
   const [holidayReason, setHolidayReason] = useState("");
   const [slotDuration, setSlotDuration] = useState();
-  const [servicesData, setServicesData] = useState([]);
+  // const [servicesData, setSubscription] = useState([]);
   const { handleLoading } = useLoading();
-  const [subService, setSubService] = useState();
+  const [allSubscription, setSubscription] = useState();
 
   const formik = useFormik({
     initialValues: {
@@ -99,14 +100,14 @@ const SlotManagement = ({ groomers }) => {
     },
   });
 
-  // const fetchServices = async () => {
-  //   try {
-  //     const res = await ServiceApi.service();
-  //     setServices(res?.data?.data || []);
-  //   } catch (error) {
-  //     console.error("Error fetching services:", error);
-  //   }
-  // };
+  const fetchSubscription = async () => {
+    try {
+      const res = await SubscriptionApi.getAllSubscription()
+      setServices(res?.data?.data || []);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  };
 
   const markHoliday = async () => {
     const { bookingDate } = formik.values;
@@ -163,38 +164,41 @@ const SlotManagement = ({ groomers }) => {
     }
   };
 
-  // const handleServiceType = async () => {
-  //   handleLoading(true);
-  //   try {
-  //     const res = await ServiceApi.serviceType();
-  //     setServicesData(res.data?.data);
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  //   handleLoading(false);
-  // };
-  // const handleSubService = async (serviceTypeId) => {
-  //   handleLoading(true);
-  //   try {
-  //     const res = await ServiceApi.getSubServiceByServiceId({
-  //       serviceId: serviceTypeId,
-  //     });
-  //     setSubService(res.data?.data);
-  //   } catch (err) {
-  //     console.log(err);
-  //   } finally {
-  //     handleLoading(false);
-  //   }
-  // };
+  const handleSubscription = async () => {
+    handleLoading(true);
+    try {
+      const res = await SubscriptionApi.getAllSubscription();
+      setSubscription(res.data?.data);
+      console.log("all subscription:",res?.data?.data);
+      
+    } catch (err) {
+      console.log(err);
+    }
+    handleLoading(false);
+  };
+  const handleSubService = async (serviceTypeId) => {
+    handleLoading(true);
+    try {
+      const res = await ServiceApi.getSubServiceByServiceId({
+        serviceId: serviceTypeId,
+      });
+      setSubscription(res.data?.data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      handleLoading(false);
+    }
+  };
 
   // useMemo(() => {
   //   handleSubService(servicesData?.[0]?._id);
   // }, [servicesData]);
-  // useEffect(() => {
-  //   fetchServices();
-  //   getAllSlot();
-  //   handleServiceType();
-  // }, []);
+
+  useEffect(() => {
+    fetchSubscription();
+    getAllSlot();
+    handleSubscription();
+  }, []);
 
   const handleHolidayModal = () => {
     !formik.values.bookingDate
@@ -358,7 +362,7 @@ const SlotManagement = ({ groomers }) => {
                       <div className="">
                         <div className="space-y-4">
                           <InputField
-                            label="Subservice Type"
+                            label="Subscription"
                             type="select"
                             value={formik.values.subserviceId}
                             onChange={(e) => {
@@ -393,7 +397,7 @@ const SlotManagement = ({ groomers }) => {
                             }
                             labelClassName="text-sm"
                             placeholder="Select a subservice"
-                            options={subService?.map((service) => ({
+                            options={allSubscription?.map((service) => ({
                               value: service._id,
                               label: `${service.name}`,
                             }))}

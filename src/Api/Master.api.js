@@ -27,6 +27,7 @@ export const MasterApi = {
 
     //session-Master Apis
     getAllSession: () => Api.get('master/get-all-sessions'),
+    getSessionByCatagoryId: (categoryId) => Api.get(`master/get-session-by-category-id/${categoryId}`),
     createSession: (payload) => Api.post('master/create-session', payload),
     getSingleSession: (id) => Api.get(`master/get-session-by-id/${id}`),
     updateSession: (id, payload) => Api.put(`master/update-session/${id}`, payload),

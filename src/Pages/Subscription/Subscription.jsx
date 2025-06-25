@@ -8,17 +8,16 @@ import { SubscriptionApi } from '../../Api/Subscription.api';
 import { toast } from 'react-toastify';
 import { CategoryApi } from '../../Api/Category.Api';
 import { MasterApi } from '../../Api/Master.api';
-import { FiEdit } from "react-icons/fi";
-import { FiTrash2 } from "react-icons/fi";
+import { FiEdit } from 'react-icons/fi';
+import { FiTrash2 } from 'react-icons/fi';
 import DeleteModal from '../../Components/DeleteModal';
-
 
 const Subscription = () => {
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [allSubscription, setAllSubscription] = useState([]);
   const [allSessions, setAllSessions] = useState([]);
-   const [deleteModal, setDeleteModal] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [tenureOptions, setTenureOptions] = useState([]);
 
@@ -33,9 +32,6 @@ const Subscription = () => {
     location: Yup.string().required('Required'),
   });
 
-
-    
-
   const allSubscriptions = async () => {
     try {
       const res = await SubscriptionApi.getAllSubscription();
@@ -46,16 +42,16 @@ const Subscription = () => {
     }
   };
 
-  const handleDelete=async()=>{
-          try{
-              const res= await SubscriptionApi.DeleteSubscription(deleteModal?._id);
-              toast.success("Subscription deleted successfully")
-              setDeleteModal(null)
-              allSubscriptions();
-          }catch(err){
-              toast.error("error:",err)
-          }
-      }
+  const handleDelete = async () => {
+    try {
+      const res = await SubscriptionApi.DeleteSubscription(deleteModal?._id);
+      toast.success('Subscription deleted successfully');
+      setDeleteModal(null);
+      allSubscriptions();
+    } catch (err) {
+      toast.error('error:', err);
+    }
+  };
 
   const getAllSession = async () => {
     try {
@@ -66,6 +62,17 @@ const Subscription = () => {
       toast.error('error:', err);
     }
   };
+  const getSessionByCatagoryId = async (catagoryId) => {
+    try {
+      const res = await MasterApi.getSessionByCatagoryId(catagoryId);
+      setAllSessions(res?.data?.data);
+      console.log('all sessions:', res?.data?.data);
+    } catch (err) {
+      // toast.error('error:', err);
+      setAllSessions();
+    }
+  };
+
   const getAllTenures = async () => {
     try {
       const res = await MasterApi.getAllTenure();
@@ -160,25 +167,25 @@ const Subscription = () => {
           >
             {/* Buttons at the top-right of the card */}
             <div className='absolute top-2 right-2 z-10 flex gap-2'>
-               <button
-        className='p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition'
-        onClick={() => {
-          setSelectedRow(sub);
-          setOpen(true);
-        }}
-      >
-        <FiEdit size={16} />
-      </button>
+              <button
+                className='p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition'
+                onClick={() => {
+                  setSelectedRow(sub);
+                  setOpen(true);
+                }}
+              >
+                <FiEdit size={16} />
+              </button>
 
-      <button
-        className='p-2 border border-red-500 text-red-500 rounded-full hover:bg-red-50 transition'
-        onClick={() => {
-          // setSelectedRow();
-          setDeleteModal(sub);
-        }}
-      >
-        <FiTrash2 size={16} />
-      </button>
+              <button
+                className='p-2 border border-red-500 text-red-500 rounded-full hover:bg-red-50 transition'
+                onClick={() => {
+                  // setSelectedRow();
+                  setDeleteModal(sub);
+                }}
+              >
+                <FiTrash2 size={16} />
+              </button>
             </div>
 
             {/* Image */}
@@ -279,15 +286,22 @@ const Subscription = () => {
               label='Category'
               type='select'
               options={categoryOptions.map((cat) => ({
-                label: `${cat.cName} (${cat.cLevel})`, // You can customize label as needed
+                label: `${cat.cName} (${cat.cLevel})`,
                 value: cat._id,
               }))}
               value={formik.values.categoryId}
-              onChange={(e) => formik.setFieldValue('categoryId', e.target.value)}
+              onChange={(e) => {
+                const selectedCategoryId = e.target.value;
+
+                formik.setFieldValue('categoryId', selectedCategoryId);
+
+                getSessionByCatagoryId(selectedCategoryId);
+              }}
               onBlur={formik.handleBlur}
               error={formik.touched.categoryId && formik.errors.categoryId}
               isRequired
             />
+
             <InputField
               name='sessionType'
               label='Session'
