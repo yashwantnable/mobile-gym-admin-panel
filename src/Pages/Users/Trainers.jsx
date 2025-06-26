@@ -194,6 +194,15 @@ const Trainers = () => {
     formik.setFieldValue("profile_image", null);
   };
 
+   const cityDataforEdit = async (countryId) => {
+    try {
+      const res = await MasterApi.city(countryId);
+      setCityData(res.data?.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  
   const handleCountry = async () => {
     try {
       const res = await MasterApi.country();
@@ -203,14 +212,7 @@ const Trainers = () => {
     }
   };
 
-  const cityDataforEdit = async (countryId) => {
-    try {
-      const res = await MasterApi.city(countryId);
-      setCityData(res.data?.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+ 
   const handleCountryChange = async (e) => {
     const selectedCountryId = e.target.value;
     setCountryId(selectedCountryId);

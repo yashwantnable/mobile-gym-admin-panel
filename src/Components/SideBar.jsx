@@ -31,7 +31,7 @@ const menuItems = [
   
   { name: "Customers", icon: FaRegUser, path: "/customers" },
   { name: "Trainers", icon: FaUserNinja, path: "/trainers" },
-  { name: "Schedule", icon: RiCalendarScheduleLine, path: "/schedule/planner" },
+  // { name: "Schedule", icon: RiCalendarScheduleLine, path: "/schedule/planner" },
   { name: "Subscriptions", icon: FaUsersLine, path: "/subscription" },
   { name: "Promo code", icon: MdDiscount, path: "/promocode" },
   { name: "Payments", icon: AiOutlineCreditCard, path: "/payments" },
@@ -52,8 +52,8 @@ const menuItems = [
     submenu: [
       { name: "Location", icon: TbCategory, path: "/master/locations" },
       { name: "Categories", icon: TbCategory, path: "/master/categories" },
-      { name: "Sessions", icon: FaUsersLine, path: "/master/sessions" },
-      { name: "Tenures", path: "/masters/tenures" },
+      { name: "Types", icon: FaUsersLine, path: "/master/sessions" },
+      // { name: "Tenures", path: "/masters/tenures" },
       // { name: "Currency", path: "/masters/currency" },
       { name: "Tax", path: "/masters/tax" },
       // { name: "Late Fee", path: "/masters/latefee" },

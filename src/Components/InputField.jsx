@@ -104,8 +104,31 @@ const InputField = ({
       >
         {label} {isRequired && <span className='text-red-500'>*</span>}
       </label>
-
-      {type === 'select' ? (
+      
+      {type === 'number' ? (
+  <input
+    id={name}
+    name={name}
+    type="number"
+    value={value}
+    onChange={(e) => {
+      const val = e.target.value;
+      if (val === '' || parseFloat(val) >= 0) {
+        onChange(e);
+      }
+    }}
+    onBlur={onBlur}
+    placeholder={placeholder}
+    className="w-full px-4 py-2 border rounded-lg outline-none border-[#d1d5db]"
+    min={0}
+    style={{
+      WebkitAppearance: 'none',
+      MozAppearance: 'textfield',
+      margin: 0,
+    }}
+    {...props}
+  />
+) : type === 'select' ? (
         <Select
           id={name}
           name={name}

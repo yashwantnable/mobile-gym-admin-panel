@@ -10,6 +10,7 @@ import { useFormik } from 'formik';
 import { MasterApi } from '../../Api/Master.api';
 import { useLoading } from '../../Components/loader/LoaderContext';
 import { CategoryApi } from '../../Api/Category.Api';
+import { toast } from 'react-toastify';
 
 const MySessions = () => {
   const { handleLoading } = useLoading();
@@ -19,6 +20,7 @@ const MySessions = () => {
   const [deleteModal, setDeleteModal] = useState(null);
   const [sessions, setSessions] = useState(null);
   const [categories, setCategories] = useState(null);
+console.log("deleteModal:",deleteModal);
 
   const handleCancelImage = (isServiceType) => {
     if (isServiceType) {
@@ -30,12 +32,13 @@ const MySessions = () => {
     }
   };
 
+  
 
     const handleDelete=async()=>{
           try{
-              const res= await MasterApi.deleteSession(deleteModal?._id);
+              const res= await MasterApi.deleteSession(deleteModal);
               toast.success("session deleted successfully")
-              setDeleteModal(null)
+              setDeleteModal(false)
               getAllCategories();
           }catch(err){
               toast.error("error:",err)
@@ -56,7 +59,12 @@ const MySessions = () => {
       alert('Please upload a valid image');
     }
   };
-
+  
+  useEffect(()=>{
+    setImagePreview(sId?.image);
+  },[sId])
+  console.log("sission id:",sId);
+  
   const columns = useMemo(
     () => [
       {
@@ -73,12 +81,6 @@ const MySessions = () => {
         minWidth: 150,
       },
 
-      {
-        headerName: 'category Id',
-        field: 'categoryId',
-        minWidth: 150,
-        cellRenderer: (params) => params.value?.categoryId || 'N/A',
-      },
 
       {
         headerName: 'Actions',
@@ -86,18 +88,19 @@ const MySessions = () => {
         minWidth: 150,
         cellRenderer: (params) => (
           <div className='text-xl flex items-center py-2'>
+            
             <button
               className='rounded cursor-pointer'
               onClick={() => {
                 setOpen(true);
-                setSid(params?.data?._id);
+                setSid(params?.data);
               }}
             >
               <FaRegEdit />
             </button>
             <button
               className='px-4 rounded cursor-pointer text-red-500'
-              onClick={() => setDeleteModal(params?.data?._id)}
+              onClick={()=>setDeleteModal(params?.data?._id)}
             >
               <MdOutlineDeleteOutline />
             </button>
@@ -134,11 +137,12 @@ const MySessions = () => {
 
   const formik = useFormik({
     initialValues: {
-      categoryId: '',
-      sessionName: '',
-      image: null,
+      categoryId: sId?.categoryId?._id||'',
+      sessionName: sId?.sessionName||'',
+      image: sId?.image||null,
     },
     //   validationSchema,
+     enableReinitialize: true,
     onSubmit: async (values) => {
         console.log("values:",values);
         
@@ -254,7 +258,7 @@ const MySessions = () => {
               label='Category'
               type='select'
               options={categories.map((cat) => ({
-                label: `${cat.cName} (${cat.cLevel})`, // You can customize label as needed
+                label: `${cat.cName}`,
                 value: cat._id,
               }))}
               value={formik.values.categoryId}
@@ -275,7 +279,7 @@ const MySessions = () => {
               isRequired
             />
 
-            <InputField
+            {/* <InputField
               name='categoryId'
               label='Trainer'
               type='select'
@@ -285,7 +289,7 @@ const MySessions = () => {
               onBlur={formik.handleBlur}
               error={formik.touched.categoryId && formik.errors.categoryId}
               isRequired
-            />
+            /> */}
           </form>
         </SidebarField>
       )}
@@ -295,7 +299,7 @@ const MySessions = () => {
           setDeleteModal={setDeleteModal}
           handleDelete={handleDelete}
           title='Delete Promo Code'
-          message={`Are you sure you want to delete the promo code "${deleteModal.code}"? This action cannot be undone.`}
+          message={`Are you sure you want to delete the Type ? `}
         />
       )}
     </div>
