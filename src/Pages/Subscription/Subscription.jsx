@@ -13,12 +13,14 @@ import { FiTrash2 } from 'react-icons/fi';
 import DeleteModal from '../../Components/DeleteModal';
 import DatePicker from 'react-datepicker';
 import { MapLocationPicker } from '../../Components/LocationMArker';
+import { TrainerApi } from '../../Api/Trainer.api';
 
 const Subscription = () => {
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [allSubscription, setAllSubscription] = useState([]);
   const [countryData, setCountryData] = useState([]);
+  const [allTrainer, setAllTrainer] = useState([]);
   const [cityData, setCityData] = useState([]);
   const [useMap, setUseMap] = useState(false);
   const [allSessions, setAllSessions] = useState([]);
@@ -95,6 +97,7 @@ const Subscription = () => {
     endTime: Yup.string().required('End Time is required'),
   });
 
+  
   const allSubscriptions = async () => {
     try {
       const res = await SubscriptionApi.getAllSubscription();
@@ -104,6 +107,20 @@ const Subscription = () => {
       toast.error('error:', err);
     }
   };
+
+  const getAllTrainer = async () => {
+      // handleLoading(true);
+      try {
+        const res = await TrainerApi.getAllTrainers();
+        console.log("trainers:",res?.data?.data);
+        setAllTrainer(res?.data?.data);
+      } catch (err) {
+        toast.error(err);
+      } finally {
+        // handleLoading(false);
+      }
+    };
+
 
   const handleDelete = async () => {
     try {
@@ -169,9 +186,11 @@ const Subscription = () => {
   const formik = useFormik({
     initialValues: {
       name: selectedRow?.name || '',
+      location: selectedRow?.location || { type: "Point", coordinates: [0, 0] },
       categoryId: selectedRow?.categoryId?._id || '',
       media: selectedRow?.media || '',
       sessionType: selectedRow?.sessionType?._id || '',
+      trainer: selectedRow?.trainer?._id || '',
       date: selectedRow?.date || [null, null],
       startTime: selectedRow?.startTime || '',
       endTime: selectedRow?.endTime || '',
@@ -184,56 +203,52 @@ const Subscription = () => {
     // validationSchema: subscriptionValidationSchema,
     enableReinitialize: true,
     onSubmit: async (values, { resetForm }) => {
-      const formData = new FormData();
+  const formData = new FormData();
 
-  //     const addressParts = [
-  //   values.streetName,
-  //   values.city,
-  //   values.country
-  // ].filter(Boolean);
+  formData.append('name', values.name);
+  formData.append('categoryId', values.categoryId);
+  formData.append('sessionType', values.sessionType);
+  formData.append('price', values.price);
+  formData.append('description', values.description);
+  formData.append('trainer', values.trainer);
+  formData.append('streetName', values.streetName);
+  formData.append('city', values.city);
+  formData.append('country', values.country);
+  formData.append('startTime', values.startTime);
+  formData.append('endTime', values.endTime);
 
-  // const fullAddress = addressParts.join(', ');
+  if (values.date) {
+    formData.append('date', JSON.stringify(values.date));
+  }
 
+  if (values.location && values.location.type === "Point") {
+    formData.append('location', JSON.stringify(values.location));
+  }
 
-      formData.append('name', values.name);
-      formData.append('categoryId', values.categoryId);
-      formData.append('sessionType', values.sessionType);
-      formData.append('price', values.price);
-      formData.append('description', values.description);
-      // formData.append('address', fullAddress);
-      formData.append('streetName', values.streetName);
-      formData.append('city', values.city);
-      formData.append('country', values.country);
-      formData.append('startTime', values.startTime);
-      formData.append('endTime', values.endTime);
+  if (values.media) {
+    formData.append('media', values.media);
+  }
 
-      if (values.date) {
-        formData.append('date', JSON.stringify(values.date));
-      }
+  try {
+    let res;
+    if (selectedRow?._id) {
+      res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
+      toast.success('Subscription updated successfully');
+    } else {
+      res = await SubscriptionApi.createSubscription(formData);
+      toast.success('Subscription created successfully');
+    }
 
-      if (values.media) {
-        formData.append('media', values.media);
-      }
+    resetForm();
+    allSubscriptions();
+    setOpen(false);
+    setSelectedRow(null);
+  } catch (error) {
+    console.error('Submission error:', error);
+    toast.error('Failed to save subscription');
+  }
+}
 
-      try {
-        let res;
-        if (selectedRow?._id) {
-          res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
-          toast.success('Subscription updated successfully');
-        } else {
-          res = await SubscriptionApi.createSubscription(formData);
-          toast.success('Subscription created successfully');
-        }
-
-        resetForm();
-        allSubscriptions();
-        setOpen(false);
-        setSelectedRow(null);
-      } catch (error) {
-        console.error('Submission error:', error);
-        toast.error('Failed to save subscription');
-      }
-    },
   });
 
   const handleCountry = async () => {
@@ -264,15 +279,13 @@ const Subscription = () => {
   //   handleCountryChange();
   // }, [selectedRow]);
 
-  useEffect(() => {
-    handleCountry();
-    // getTrainer();
-  }, []);
+  
 
   useEffect(() => {
     allSubscriptions();
     getAllCategories();
-    // getAllSession();
+    handleCountry();
+    getAllTrainer();
     getAllTenures();
   }, []);
 
@@ -325,9 +338,10 @@ const Subscription = () => {
             {/* Content */}
             <div className='flex flex-col gap-1'>
               <h2 className='text-xl font-bold text-primary capitalize'>{sub.name}</h2>
-              <p className='text-sm text-gray-500'>
-                {sub.categoryId?.cName} — {sub.categoryId?.cLevel}
+              <p className='text-md text-gray-600'>
+                {sub.sessionType?.sessionName} - {sub.categoryId?.cName} 
               </p>
+              <p className='text-sm text-gray-500'>{sub?.trainer?.first_name} {sub?.trainer?.last_name}</p>
 
               {/* Dates */}
               {sub.date?.length === 2 && (
@@ -353,11 +367,11 @@ const Subscription = () => {
               )}
 
               {/* Location and Price */}
-              <p className='text-sm text-gray-600'>📍 {sub.address}</p>
+              <p className='text-sm text-gray-600 line-clamp-1'>📍 {sub?.streetName}, {sub?.city?.name}, {sub?.country?.name}</p>
               <p className='text-sm text-green-600 font-semibold'>💰 ${sub.price}</p>
 
               {/* Description */}
-              {sub.description && <p className='text-sm text-gray-700 mt-2'>{sub.description}</p>}
+              {sub.description && <p className='text-sm text-gray-700 mt-2 line-clamp-2'>{sub.description}</p>}
             </div>
           </div>
         ))}
@@ -467,6 +481,23 @@ const Subscription = () => {
               }}
               onBlur={formik.handleBlur}
               error={formik.touched.sessionType && formik.errors.sessionType}
+              isRequired
+            />
+
+
+            {/* trainer */}
+            <InputField
+              name='trainer'
+              label='Traiers'
+              type='select'
+              options={allTrainer?.map((cat) => ({
+                label: `${cat.first_name} ${cat.last_name}`,
+                value: cat._id,
+              }))}
+              value={formik.values.trainer}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.trainer && formik.errors.trainer}
               isRequired
             />
 
