@@ -6,6 +6,6 @@ export const BookingApi = {
   // createGroomer: (payload) => Api.post('/groomer/create-groomer', payload),
   updateBooking: (id, payload) =>
     Api.put(`booking/update-booking/${id}`, payload),
-  getAllBooking: () => Api.get(`booking/get-all-bookings`),
+  getAllBooking: () => Api.get(`booking/get-all-subscriptionBooking`),
   deleteBooking: (id) => Api.delete(`booking/delete-booking/${id}`),
 };

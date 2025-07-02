@@ -1,0 +1,102 @@
+.custom-calendar-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.upcoming-events-section {
+    background-color: #f5f5f5;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.upcoming-event {
+    border-left: 4px solid #ff6b6b;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: white;
+}
+
+.event-person {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.event-type {
+    color: #666;
+    margin: 5px 0;
+}
+
+.event-dates {
+    color: #333;
+}
+
+.custom-event {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    border-left: 4px solid #ccc;
+}
+
+.custom-event.bereavement-leave {
+    border-left-color: #ff6b6b;
+    background-color: #ffebee;
+}
+
+.custom-event.grand-game {
+    border-left-color: #4caf50;
+    background-color: #e8f5e9;
+}
+
+.custom-event.out-of-station {
+    border-left-color: #2196f3;
+    background-color: #e3f2fd;
+}
+
+.calendar-legend {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border-radius: 3px;
+}
+
+.legend-color.bereavement-leave {
+    background-color: #ff6b6b;
+}
+
+.legend-color.grand-game {
+    background-color: #4caf50;
+}
+
+.legend-color.out-of-station {
+    background-color: #21C8B1;
+}
+
+.fc .fc-daygrid-day-frame {
+    min-height: 100px;
+}
+
+.fc .fc-daygrid-day-events {
+    margin: 5px;
+}
+
+.fc .fc-daygrid-event {
+    margin: 2px 0;
+}

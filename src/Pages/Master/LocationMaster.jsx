@@ -16,9 +16,8 @@ import { useLoading } from '../../Components/loader/LoaderContext';
 const locationValidationSchema = Yup.object().shape({
   country: Yup.string().required('Country is required'),
   city: Yup.string().required('City is required'),
-  pin: Yup.string().required('Pin code is required'),
   streetName: Yup.string().required('Street name is required'),
-  pinAddress: Yup.string().required('Pin address is required'),
+  landmark: Yup.string().required('landmark is required'),
 });
 
 const LocationMaster = () => {
@@ -34,6 +33,11 @@ const LocationMaster = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { handleLoading } = useLoading();
   console.log('mapCenter:', mapCenter);
+
+  useEffect(() => {
+  formik.setFieldValue('location', mapCenter);
+}, [mapCenter]);
+
 
   const handleCountry = async () => {
     try {
@@ -179,17 +183,17 @@ const LocationMaster = () => {
         headerName: 'Country',
         field: 'country',
         minWidth: 160,
-        cellRenderer: (params) => params.data.country?.name || 'N/A',
+        cellRenderer: (params) => params.data.Country?.name || 'N/A',
       },
       {
         headerName: 'City',
         field: 'city',
         minWidth: 160,
-        cellRenderer: (params) => params.data.city?.name || 'N/A',
+        cellRenderer: (params) => params.data.City?.name || 'N/A',
       },
       {
-        headerName: 'Pin',
-        field: 'pin',
+        headerName: 'Land Mark',
+        field: 'landmark',
         minWidth: 100,
       },
       {
@@ -198,10 +202,17 @@ const LocationMaster = () => {
         minWidth: 180,
       },
       {
-        headerName: 'Pin Address',
-        field: 'pinAddress',
-        minWidth: 200,
+      headerName: 'Coordinates',
+      field: 'location',
+      minWidth: 200,
+      cellRenderer: (params) => {
+        const coords = params.data?.location?.coordinates;
+        if (Array.isArray(coords) && coords.length === 2) {
+          return `Lat: ${coords[1]}, Lng: ${coords[0]}`;
+        }
+        return 'N/A';
       },
+    },
       {
         headerName: 'Actions',
         field: 'actions',
@@ -234,32 +245,37 @@ const LocationMaster = () => {
   );
 
   const formik = useFormik({
-    initialValues: {
-      country: selectedRow?.Country?._id || selectedRow?.country || '',
-      city: selectedRow?.city?._id || selectedRow?.city || '',
-      pin: selectedRow?.pin || '',
-      streetName: selectedRow?.streetName || '',
-      pinAddress: selectedRow?.pinAddress || '',
+  initialValues: {
+    country: selectedRow?.Country?._id || selectedRow?.country || '',
+    city: selectedRow?.city?._id || selectedRow?.city || '',
+    streetName: selectedRow?.streetName || '',
+    landmark: selectedRow?.landmark || '',
+     location: {
+      type: 'Point',
+      coordinates: selectedRow?.location,
     },
-    validationSchema: locationValidationSchema,
-    enableReinitialize: true,
-    onSubmit: async (values) => {
-      try {
-        const res = selectedRow?._id
-          ? await MasterApi.updateLocation(selectedRow._id, values)
-          : await MasterApi.createLocation(values);
+  },
+  validationSchema: locationValidationSchema,
+  enableReinitialize: true,
+  onSubmit: async (values) => {
+    try {
+      const res = selectedRow?._id
+        ? await MasterApi.updateLocation(selectedRow._id, values)
+        : await MasterApi.createLocation(values);
 
-        toast.success(res?.data?.message || 'Location saved successfully');
-        getAllLocations();
-      } catch (err) {
-        toast.error(err.response?.data?.message || 'Something went wrong while saving location');
-        console.error('Location Error:', err);
-      }
-      setOpen(false);
-      setSelectedRow(null);
-      formik.resetForm();
-    },
-  });
+      toast.success(res?.data?.message || 'Location saved successfully');
+      getAllLocations();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Something went wrong while saving location');
+      console.error('Location Error:', err);
+    }
+
+    setOpen(false);
+    setSelectedRow(null);
+    formik.resetForm();
+  },
+});
+
 
   useEffect(() => {
     const countryId = selectedRow?.country?._id || selectedRow?.country;
@@ -360,7 +376,7 @@ const LocationMaster = () => {
                 onBlur={formik.handleBlur}
               />
 
-              <InputField
+              {/* <InputField
                 name='pin'
                 label='Pin Code'
                 placeholder='Enter pin code'
@@ -368,6 +384,16 @@ const LocationMaster = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={formik.touched.pin && formik.errors.pin}
+              /> */}
+
+              <InputField
+                name='landmark'
+                label='Landmark'
+                placeholder='Enter Landmark'
+                value={formik.values.landmark}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.landmark && formik.errors.landmark}
               />
 
               <InputField

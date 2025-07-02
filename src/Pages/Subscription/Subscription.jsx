@@ -14,11 +14,15 @@ import DeleteModal from '../../Components/DeleteModal';
 import DatePicker from 'react-datepicker';
 import { MapLocationPicker } from '../../Components/LocationMArker';
 import { TrainerApi } from '../../Api/Trainer.api';
+import { useLoading } from '../../Components/loader/LoaderContext';
+
 
 const Subscription = () => {
+  const { handleLoading } = useLoading();
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [allSubscription, setAllSubscription] = useState([]);
+  const [locationData, setLocationData] = useState([]);
   const [countryData, setCountryData] = useState([]);
   const [allTrainer, setAllTrainer] = useState([]);
   const [cityData, setCityData] = useState([]);
@@ -76,40 +80,81 @@ const Subscription = () => {
     },
   };
 
-  const subscriptionValidationSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    categoryId: Yup.string().required('Category is required'),
-    sessionType: Yup.string().required('Session Type is required'),
-    price: Yup.number().required('Price is required'),
-    address: Yup.string().required('Location is required'),
-    //   date: Yup.array()
-    // .of(Yup.date())
-    // .test('valid-date', 'Date must be a single date or a range of two dates', (value) => {
-    //   return (
-    //     Array.isArray(value) &&
-    //     (value.length === 1 || value.length === 2) &&
-    //     value[0] !== null &&
-    //     (value.length === 1 || value[1] !== null)
-    //   );
-    // }),
 
-    startTime: Yup.string().required('Start Time is required'),
-    endTime: Yup.string().required('End Time is required'),
-  });
+const subscriptionValidationSchema = Yup.object().shape({
+  media: Yup.mixed().required('Image is required'),
+
+  name: Yup.string().required('Name is required'),
+
+  categoryId: Yup.string().required('Category is required'),
+
+  sessionType: Yup.string().required('Session Type is required'),
+
+  trainer: Yup.string().required('Trainer is required'),
+
+  Address: Yup.string().required('Location is required'),
+
+  date: Yup.array()
+    .of(Yup.date().nullable())
+    .test(
+      'valid-date-range',
+      'Date must be a single date or a valid range of two dates',
+      (value) =>
+        Array.isArray(value) &&
+        (value.length === 1 || value.length === 2) &&
+        value[0] !== null &&
+        (value.length === 1 || value[1] !== null)
+    )
+    .required('Date is required'),
+
+  startTime: Yup.string().required('Start Time is required'),
+
+  endTime: Yup.string()
+    .required('End Time is required')
+    .test('is-after-start', 'End Time must be after Start Time', function (endTime) {
+      const { startTime } = this.parent;
+      if (!startTime || !endTime) return true;
+      return startTime < endTime;
+    }),
+
+  price: Yup.number()
+    .typeError('Price must be a number')
+    .required('Price is required'),
+
+  description: Yup.string(),
+});
+
 
   
   const allSubscriptions = async () => {
     try {
+      handleLoading(true);
       const res = await SubscriptionApi.getAllSubscription();
       setAllSubscription(res?.data?.data);
       console.log('all subscriptions:', res?.data?.data);
     } catch (err) {
       toast.error('error:', err);
-    }
+    }finally {
+        handleLoading(false);
+      }
   };
 
+   const getAllLocations = async () => {
+      try {
+        handleLoading(true);
+        const res = await MasterApi.getAllLocation();
+        setLocationData(res?.data?.data?.allLocationMasters || []);
+        //   console.log(res?.data?.data?.allLocationMasters);
+      } catch (err) {
+        console.error('Error fetching locations:', err);
+        toast.error('Failed to fetch locations');
+      } finally {
+        handleLoading(false);
+      }
+    };
+
   const getAllTrainer = async () => {
-      // handleLoading(true);
+      handleLoading(true);
       try {
         const res = await TrainerApi.getAllTrainers();
         console.log("trainers:",res?.data?.data);
@@ -117,9 +162,18 @@ const Subscription = () => {
       } catch (err) {
         toast.error(err);
       } finally {
-        // handleLoading(false);
+        handleLoading(false);
       }
     };
+
+
+    const formatTime12Hour = (timeStr) => {
+  const [hourStr, minute] = timeStr.split(":");
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? "pm" : "am";
+  hour = hour % 12 || 12; // Convert '0' to '12'
+  return `${hour}:${minute} ${ampm}`;
+};
 
 
   const handleDelete = async () => {
@@ -183,73 +237,80 @@ const Subscription = () => {
     { label: 'Sun', value: 'Sun' },
   ];
 
-  const formik = useFormik({
-    initialValues: {
-      name: selectedRow?.name || '',
-      location: selectedRow?.location || { type: "Point", coordinates: [0, 0] },
-      categoryId: selectedRow?.categoryId?._id || '',
-      media: selectedRow?.media || '',
-      sessionType: selectedRow?.sessionType?._id || '',
-      trainer: selectedRow?.trainer?._id || '',
-      date: selectedRow?.date || [null, null],
-      startTime: selectedRow?.startTime || '',
-      endTime: selectedRow?.endTime || '',
-      price: selectedRow?.price || '',
-      description: selectedRow?.description || '',
-      streetName: selectedRow?.streetName || '',
-      country: selectedRow?.country?._id || "",
-      city: selectedRow?.city?._id || "",
-    },
-    // validationSchema: subscriptionValidationSchema,
-    enableReinitialize: true,
-    onSubmit: async (values, { resetForm }) => {
-  const formData = new FormData();
+ const formik = useFormik({
+  initialValues: {
+    name: selectedRow?.name || '',
+    Address: selectedRow?.Address || '',
+    // coordinates: selectedRow?.location?.coordinates || [0, 0],  // NEW FIELD
+    categoryId: selectedRow?.categoryId?._id || '',
+    media: selectedRow?.media || '',
+    sessionType: selectedRow?.sessionType?._id || '',
+    trainer: selectedRow?.trainer?._id || '',
+    date: selectedRow?.date || [null, null],
+    startTime: selectedRow?.startTime || '',
+    endTime: selectedRow?.endTime || '',
+    price: selectedRow?.price || '',
+    description: selectedRow?.description || '',
+    // streetName: selectedRow?.streetName || '',
+    // country: selectedRow?.country?._id || "",
+    // city: selectedRow?.city?._id || "",
+  },
+  validationSchema: subscriptionValidationSchema,
+  enableReinitialize: true,
+  onSubmit: async (values, { resetForm }) => {
+    const formData = new FormData();
 
-  formData.append('name', values.name);
-  formData.append('categoryId', values.categoryId);
-  formData.append('sessionType', values.sessionType);
-  formData.append('price', values.price);
-  formData.append('description', values.description);
-  formData.append('trainer', values.trainer);
-  formData.append('streetName', values.streetName);
-  formData.append('city', values.city);
-  formData.append('country', values.country);
-  formData.append('startTime', values.startTime);
-  formData.append('endTime', values.endTime);
+    formData.append('name', values.name);
+    formData.append('categoryId', values.categoryId);
+    formData.append('sessionType', values.sessionType);
+    formData.append('price', values.price);
+    formData.append('description', values.description);
+    formData.append('trainer', values.trainer);
+    // formData.append('streetName', values.streetName);
+    // formData.append('city', values.city);
+    // formData.append('country', values.country);
+    formData.append('startTime', values.startTime);
+    formData.append('endTime', values.endTime);
+    formData.append('Address', values.Address);
 
-  if (values.date) {
-    formData.append('date', JSON.stringify(values.date));
-  }
-
-  if (values.location && values.location.type === "Point") {
-    formData.append('location', JSON.stringify(values.location));
-  }
-
-  if (values.media) {
-    formData.append('media', values.media);
-  }
-
-  try {
-    let res;
-    if (selectedRow?._id) {
-      res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
-      toast.success('Subscription updated successfully');
-    } else {
-      res = await SubscriptionApi.createSubscription(formData);
-      toast.success('Subscription created successfully');
+    if (values.date) {
+      formData.append('date', JSON.stringify(values.date));
     }
 
-    resetForm();
-    allSubscriptions();
-    setOpen(false);
-    setSelectedRow(null);
-  } catch (error) {
-    console.error('Submission error:', error);
-    toast.error('Failed to save subscription');
-  }
-}
+    // if (values.location && values.location.type === "Point") {
+    //   formData.append('location', JSON.stringify(values.location));
+    // } else if (
+    //   Array.isArray(values.coordinates) &&
+    //   values.coordinates.length === 2
+    // ) {
+    //   formData.append('coordinates', JSON.stringify(values.coordinates)); // NEW FIELD
+    // }
 
-  });
+    if (values.media) {
+      formData.append('media', values.media);
+    }
+
+    try {
+      let res;
+      if (selectedRow?._id) {
+        res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
+        toast.success('Subscription updated successfully');
+      } else {
+        res = await SubscriptionApi.createSubscription(formData);
+        toast.success('Subscription created successfully');
+      }
+
+      resetForm();
+      allSubscriptions();
+      setOpen(false);
+      setSelectedRow(null);
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error('Failed to save subscription');
+    }
+  }
+});
+
 
   const handleCountry = async () => {
     try {
@@ -283,6 +344,7 @@ const Subscription = () => {
 
   useEffect(() => {
     allSubscriptions();
+    getAllLocations()
     getAllCategories();
     handleCountry();
     getAllTrainer();
@@ -339,9 +401,11 @@ const Subscription = () => {
             <div className='flex flex-col gap-1'>
               <h2 className='text-xl font-bold text-primary capitalize'>{sub.name}</h2>
               <p className='text-md text-gray-600'>
-                {sub.sessionType?.sessionName} - {sub.categoryId?.cName} 
+                {sub.sessionType?.sessionName} - {sub.categoryId?.cName}
               </p>
-              <p className='text-sm text-gray-500'>{sub?.trainer?.first_name} {sub?.trainer?.last_name}</p>
+              <p className='text-sm text-gray-500'>
+                {sub?.trainer?.first_name} {sub?.trainer?.last_name}
+              </p>
 
               {/* Dates */}
               {sub.date?.length === 2 && (
@@ -358,20 +422,25 @@ const Subscription = () => {
 
               {/* Time */}
               <p className='text-sm text-gray-600'>
-                🕒 {sub.startTime} - {sub.endTime}
+                🕒 {formatTime12Hour(sub.startTime)} - {formatTime12Hour(sub.endTime)}
               </p>
 
-              {/* Tenure (Optional) */}
+              {/* Tenure (Optional)
               {sub.duration?.name && (
                 <p className='text-sm text-gray-600'>🗓️ Tenure: {sub.duration.name}</p>
-              )}
+              )} */}
 
               {/* Location and Price */}
-              <p className='text-sm text-gray-600 line-clamp-1'>📍 {sub?.streetName}, {sub?.city?.name}, {sub?.country?.name}</p>
-              <p className='text-sm text-green-600 font-semibold'>💰 ${sub.price}</p>
+              <p className='text-sm text-gray-600 line-clamp-1'>
+                📍 {sub?.Address?.streetName}, {sub?.Address?.city?.name},{' '}
+                {sub?.Address?.country?.name}
+              </p>
+              <p className='text-sm text-green-600 font-semibold'>💰 AED {sub.price}</p>
 
               {/* Description */}
-              {sub.description && <p className='text-sm text-gray-700 mt-2 line-clamp-2'>{sub.description}</p>}
+              {sub.description && (
+                <p className='text-sm text-gray-700 mt-2 line-clamp-2'>{sub.description}</p>
+              )}
             </div>
           </div>
         ))}
@@ -484,11 +553,10 @@ const Subscription = () => {
               isRequired
             />
 
-
             {/* trainer */}
             <InputField
               name='trainer'
-              label='Traiers'
+              label='Trainers'
               type='select'
               options={allTrainer?.map((cat) => ({
                 label: `${cat.first_name} ${cat.last_name}`,
@@ -498,6 +566,22 @@ const Subscription = () => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.trainer && formik.errors.trainer}
+              isRequired
+            />
+
+            {/* Location */}
+            <InputField
+              name='Address'
+              label='Location'
+              type='select'
+              options={locationData?.map((loc) => ({
+                label: `${loc?.streetName}, ${loc?.landmark}, ${loc?.City?.name}, ${loc?.Country?.name}`,
+                value: loc?._id,
+              }))}
+              value={formik.values.Address}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.Address && formik.errors.Address}
               isRequired
             />
 
@@ -531,7 +615,6 @@ const Subscription = () => {
                 className='border outline-none border-gray-300 rounded-lg px-3 py-2 w-full bg-white'
               />
             </div>
-
 
             {/* Time Fields */}
             <div className='flex justify-between gap-4'>
@@ -573,7 +656,7 @@ const Subscription = () => {
               onBlur={formik.handleBlur}
               error={formik.touched.price && formik.errors.price}
             />
-            <div className='flex justify-between items-center border-t pt-4 border-gray-300'>
+            {/* <div className='flex justify-between items-center border-t pt-4 border-gray-300'>
               <p>Address</p>
               <button
                 type='button'
@@ -582,13 +665,13 @@ const Subscription = () => {
               >
                 {useMap ? 'Enter Address Manually' : 'Choose on Map'}
               </button>
-            </div>
+            </div> */}
 
-            {useMap ? (
+            {/* {useMap ? (
               <>
                 <MapLocationPicker formik={formik} />
-                {formik.touched.location && formik.errors.location && (
-                  <p className='text-red-500 text-sm mt-1'>{formik.errors.location}</p>
+                {formik.touched.coordinates && formik.errors.coordinates && (
+                  <p className='text-red-500 text-sm mt-1'>{formik.errors.coordinates}</p>
                 )}
                 <div>
                   <label className='block text-sm text-gray-600 mt-2'>Street</label>
@@ -613,7 +696,6 @@ const Subscription = () => {
                   onChange={handleCountryChange}
                   onBlur={formik.handleBlur}
                 />
-                {/* {JSON.stringify(formik.values.city)} */}
                 <InputField
                   name='city'
                   label='City'
@@ -636,7 +718,7 @@ const Subscription = () => {
                   onBlur={formik.handleBlur}
                 />
               </div>
-            )}
+            )} */}
 
             {/* map  */}
             {/* <div>

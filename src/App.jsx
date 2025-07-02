@@ -16,7 +16,7 @@ import Booking from './Pages/Booking';
 import BookingDashboard from './Pages/Booking/BookingDashboard';
 import Pets from './Pages/PetsProfile/Customers';
 import Payment from './Pages/Payments/Payment';
-import Scheduler from './Pages/Scheduler';
+import Scheduler from './Pages/ScheduleCalender/Scheduler';
 import AdminScheduler from './Pages/Schedule/AdminScheduler';
 // import PetType from './Pages/Master/PetType';
 // import BreedType from './Pages/Master/BreedType';
@@ -59,7 +59,7 @@ const App = () => {
         </Route>
         <Route path='trainers' element={<ProtectedRoute children={<Trainers />} />} />
         <Route path='articles' element={<ProtectedRoute children={<Articles />} />} />
-        <Route path="schedule" element={<ProtectedRoute children={<Scheduler />} />} >
+        <Route path="schedules" element={<ProtectedRoute children={<Scheduler />} />} >
           <Route path='planner' element={<ProtectedRoute children={<AdminScheduler />} />} />
         </Route>
         <Route path='customers' element={<ProtectedRoute children={<Customers />} />} />

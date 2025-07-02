@@ -33,6 +33,7 @@ const menuItems = [
   { name: "Trainers", icon: FaUserNinja, path: "/trainers" },
   // { name: "Schedule", icon: RiCalendarScheduleLine, path: "/schedule/planner" },
   { name: "Subscriptions", icon: FaUsersLine, path: "/subscription" },
+  { name: "Schedules", icon: FaUsersLine, path: "/schedules" },
   { name: "Promo code", icon: MdDiscount, path: "/promocode" },
   { name: "Payments", icon: AiOutlineCreditCard, path: "/payments" },
   { name: "System Settings", icon: AiOutlineCreditCard, path: "/system-settings" },
