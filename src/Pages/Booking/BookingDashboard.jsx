@@ -15,7 +15,7 @@ import { useLoading } from "../../Components/loader/LoaderContext";
 import { Table2 } from "../../Components/Table/Table2";
 import { getBookingColumns } from "./BookingColumns.jsx";
 // import { ServiceApi } from "../../Api/Service.api";
-// import { PetProfileApi } from "../../Api/PetProfile.api";
+// import { CustomerApi } from "../../Api/PetProfile.api";
 // import { GroomerApi } from "../../Api/Groomer.api";
 // import { BookingApi } from "../../Api/Booking.api";
 // import { SlotApi } from "../../Api/Slot.api.js";
@@ -67,7 +67,7 @@ const BookingDashboard = () => {
   // const handleAllCustomers = async () => {
   //   handleLoading(true);
   //   try {
-  //     const res = await PetProfileApi.getAllUser();
+  //     const res = await CustomerApi.getAllUser();
   //     setUsers(res.data?.data);
   //   } catch (err) {
   //     console.error("Error fetching customers:", err);
@@ -116,7 +116,7 @@ const BookingDashboard = () => {
 
     handleLoading(true);
     try {
-      const res = await PetProfileApi.getAllPet({ userId });
+      const res = await CustomerApi.getAllCustomer({ userId });
       setPets(res.data?.data);
       bookingFormik.setFieldValue("petId", "");
     } catch (err) {

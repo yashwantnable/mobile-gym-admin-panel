@@ -40,6 +40,8 @@ import Subscription from './Pages/Subscription/Subscription';
 import TrainerReviewPage from './Pages/Ratings/TrainerReviewPage';
 import MySessions from './Pages/Services/MySessions';
 import LocationMaster from './Pages/Master/LocationMaster';
+import { LoaderProvider } from './Components/loader/LoaderContext';
+import Loader from './components/loader/Loader';
 
 
 const App = () => {
@@ -84,6 +86,8 @@ const App = () => {
   ))
   return (
     <div>
+      <LoaderProvider>
+        <Loader/>
       <RouterProvider router={router} />
       <ToastContainer
         position="top-right"
@@ -98,6 +102,7 @@ const App = () => {
         theme="dark"
         transition={Bounce}
       />
+      </LoaderProvider>
     </div>
   )
 }

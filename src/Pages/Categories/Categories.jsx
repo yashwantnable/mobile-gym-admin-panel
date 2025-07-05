@@ -61,12 +61,14 @@ const Categories = () => {
     initialValues: {
       cName: '',
       image: '',
+      description:''
     },
     onSubmit: async (values) => {
       console.log('Submitting', values);
       const formData = new FormData();
       formData.append('cName', values.cName);
       formData.append('image', values.image);
+      formData.append('description', values.description);
       console.log('selected Id:', selectedId);
 
       try {
@@ -212,6 +214,16 @@ const Categories = () => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.cName && formik.errors.cName}
+              isRequired
+            />
+            <InputField
+              name='description'
+              label='description'
+              placeholder='description'
+              value={formik.values.description}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.description && formik.errors.description}
               isRequired
             />
 

@@ -1,204 +1,124 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FaPlus, FaTrash, FaUpload, FaTimes, FaRegEdit } from "react-icons/fa";
-import SidebarField from "../../Components/SideBarField";
-import Button from "../../Components/Button";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import InputField from "../../Components/InputField";
-import { PetProfileApi } from "../../Api/PetProfile.api";
-import { toast } from "react-toastify";
-import { MasterApi } from "../../Api/Master.api";
-import { MdOutlineDeleteOutline } from "react-icons/md";
-import { toFormData } from "../formHandling";
-import DeleteModal from "../../Components/DeleteModal";
-import { useLoading } from "../../Components/loader/LoaderContext";
-import { Table2 } from "../../Components/Table/Table2";
-import { columns, dummyCustomerList } from "./customerData";
-
-const validationSchema = Yup.object({
-  first_name: Yup.string().required("First Name is required"),
-  last_name: Yup.string().required("Last Name is required"),
-  phone_number: Yup.string().required("Contact Number is required"),
-  // address: Yup.string().required("Address is required"),
-  email: Yup.string().required("Email is required"),
-  petinfo: Yup.array()
-    .of(
-      Yup.object({
-        petName: Yup.string().required("Pet Name is required"),
-        petType: Yup.string().required("petType is required"),
-        breed: Yup.string().required("Breed is required"),
-        gender: Yup.string().required("Gender is required"),
-        weight: Yup.number()
-          .positive("Weight must be positive")
-          .required("Weight is required"),
-        dob: Yup.date().required("Date of Birth is required"),
-        activity_level: Yup.string().required("Activity level is required"),
-        day_Habits: Yup.string().required("This field is required"),
-        personality: Yup.string(),
-        health_issues: Yup.string(),
-        special_care: Yup.string(),
-        document: Yup.mixed().nullable(),
-        microchip_number: Yup.string(),
-        warning: Yup.string(),
-        dietary_requirements: Yup.string(),
-        life_usage: Yup.string(),
-      })
-    )
-    .min(1, "At least one pet is required"),
-});
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FaPlus, FaTrash, FaUpload, FaTimes, FaRegEdit, FaEye } from 'react-icons/fa';
+import SidebarField from '../../Components/SideBarField';
+import Button from '../../Components/Button';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import InputField from '../../Components/InputField';
+import { CustomerApi } from '../../Api/customer.api';
+import { toast } from 'react-toastify';
+import { MasterApi } from '../../Api/Master.api';
+import { MdOutlineDeleteOutline } from 'react-icons/md';
+import { toFormData } from '../formHandling';
+import DeleteModal from '../../Components/DeleteModal';
+import { useLoading } from '../../Components/loader/LoaderContext';
+import { Table2 } from '../../Components/Table/Table2';
+import { columns, dummyCustomerList } from './customerData';
+import { FiCalendar, FiClock, FiMapPin } from 'react-icons/fi';
 
 const Customers = () => {
   const [open, setOpen] = useState(false);
-  const [petTypeData, setPetTypeData] = useState([]);
-  const [breedTypeData, setBreedTypeData] = useState([]);
-  const [idForBreed, setIdForBreed] = useState("");
+  const [countryData, setCountryData] = useState([]);
+  const [userSubscriptions, setUserSubscriptions] = useState([]);
+  const [countryId, setCountryId] = useState([]);
+  const [cityData, setCityData] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRefs = useRef([]);
 
-  const { handleLoading } = useLoading()
+  const { handleLoading } = useLoading();
 
-  const getAllPets = async () => {
-    handleLoading(true)
+  const getAllCustomers = async () => {
+    handleLoading(true);
     try {
-      const res = await PetProfileApi.getAllPet();
+      const res = await CustomerApi.getAllCustomer();
       setAllUsers(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch pets");
+      toast.error('Failed to fetch pets');
     }
-    handleLoading(false)
+    handleLoading(false);
   };
 
-  const getAllPetType = async () => {
-    handleLoading(true)
+  const handleCountryChange = async (e) => {
+    const selectedCountryId = e.target.value;
+    setCountryId(selectedCountryId);
+    formik.setFieldValue('country', selectedCountryId);
+
+    if (selectedCountryId) {
+      try {
+        const res = await MasterApi.city(selectedCountryId);
+        setCityData(res.data?.data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
+
+  const getSubscriptionByUserId = async (userId) => {
     try {
-      const res = await MasterApi.getAllpetType();
-      setPetTypeData(res?.data?.data || []);
+      handleLoading(true);
+      const res = await CustomerApi.getUserSubscription(userId);
+      setUserSubscriptions(res?.data?.data);
+      console.log('customer res:', res);
     } catch (err) {
-      console.error("Failed to fetch pet types", err);
+      console.error(err);
+    } finally {
+      handleLoading(false);
     }
-    handleLoading(false)
   };
 
-  const getAllBreeds = async () => {
-    handleLoading(true)
-    try {
-      const res = await MasterApi.getAllBreed();
-      setBreedTypeData(res?.data?.data || []);
-    } catch (err) {
-      toast.error("Failed to fetch breeds");
-    }
-    handleLoading(false)
-  };
-
-  const getFilteredBreeds = (petTypeId) => {
-    if (!petTypeId) return [];
-    return breedTypeData
-      .filter((breed) => breed.petTypeId?._id === petTypeId)
-      .map((breed) => ({
-        label: breed.name,
-        value: breed._id,
-      }));
-  };
-
-  // useEffect(() => {
-  //   getAllPets();
-  //   getAllPetType();
-  //   getAllBreeds();
-  // }, []);
+  console.log('selectedRow:', selectedRow);
+  console.log('userSubscriptions:', userSubscriptions);
 
   const formik = useFormik({
     initialValues: {
-      first_name: "",
-      last_name: "",
-      phone_number: "",
-      email: "",
-      address: "",
-      petinfo: [
-        {
-          petName: "",
-          petType: "",
-          breed: "",
-          dob: "",
-          gender: "",
-          weight: "",
-          activity_level: "",
-          day_Habits: "",
-          personality: "",
-          health_issues: "",
-          special_care: "",
-          microchip_number: "",
-          warning: "",
-          dietary_requirements: "",
-          life_usage: "",
-          image: null,
-          document: null,
-          existingImage: null,
-          existingDocument: null,
-        },
-      ],
+      first_name: '',
+      last_name: '',
+      phone_number: '',
+      email: '',
+      address: '',
     },
-    validationSchema,
+
     onSubmit: async (values) => {
       try {
         setIsLoading(true);
         const payload = {
-          ...(!selectedRow ? {
-            // first_name: values.first_name,
-            // last_name: values.last_name,
-            // phone_number: values.phone_number,
-            // address: values.address,
-            email: values.email,
-          } : {}),
+          ...(!selectedRow
+            ? {
+                // first_name: values.first_name,
+                // last_name: values.last_name,
+                // phone_number: values.phone_number,
+                // address: values.address,
+                email: values.email,
+              }
+            : {}),
           first_name: values.first_name,
           last_name: values.last_name,
           phone_number: values.phone_number,
           address: values.address,
-
-          petinfo: values.petinfo.map(pet => ({
-            petName: pet.petName,
-            petType: pet.petType,
-            breed: pet.breed,
-            dob: pet.dob,
-            gender: pet.gender,
-            weight: pet.weight,
-            activity_level: pet.activity_level,
-            day_Habits: pet.day_Habits,
-            personality: pet.personality,
-            health_issues: pet.health_issues,
-            special_care: pet.special_care,
-            microchip_number: pet.microchip_number,
-            warning: pet.warning,
-            dietary_requirements: pet.dietary_requirements,
-            life_usage: pet.life_usage,
-            ...(pet.image ? { image: pet.image } :
-              pet.existingImage ? { existingImage: pet.existingImage } : {}),
-            ...(pet.document ? { document: pet.document } :
-              pet.existingDocument ? { existingDocument: pet.existingDocument } : {})
-          }))
         };
 
         const formData = toFormData(payload);
-        handleLoading(true)
+        handleLoading(true);
 
         const res = selectedRow
-          ? await PetProfileApi.updatePet(selectedRow._id, formData)
-          : await PetProfileApi.createPet(formData);
+          ? await CustomerApi.updatePet(selectedRow._id, formData)
+          : await CustomerApi.createPet(formData);
 
-        toast.success(res?.data?.message || "Operation successful");
+        toast.success(res?.data?.message || 'Operation successful');
         getAllPets();
         setOpen(false);
         setSelectedRow(null);
         formik.resetForm();
       } catch (err) {
-        console.error("Error:", err);
-        toast.error(err.response?.data?.message || "Operation failed");
+        console.error('Error:', err);
+        toast.error(err.response?.data?.message || 'Operation failed');
       } finally {
         setIsLoading(false);
-        handleLoading(false)
+        handleLoading(false);
       }
     },
   });
@@ -206,134 +126,70 @@ const Customers = () => {
   useEffect(() => {
     if (selectedRow) {
       formik.setValues({
-        first_name: selectedRow?.userId?.first_name || "",
-        last_name: selectedRow?.userId?.last_name || "",
-        phone_number: selectedRow?.userId?.phone_number || "",
-        email: selectedRow?.userId?.email || "",
-        address: selectedRow?.userId?.address || "",
-        petinfo: [
-          {
-            petName: selectedRow?.petName || "",
-            petType: selectedRow?.petType?._id || "",
-            breed: selectedRow?.breed?._id || "",
-            dob: selectedRow?.dob || "",
-            gender: selectedRow?.gender || "",
-            weight: selectedRow?.weight || "",
-            activity_level: selectedRow?.activity_level || "",
-            day_Habits: selectedRow?.day_Habits || "",
-            personality: selectedRow?.personality || "",
-            health_issues: selectedRow?.health_issues || "",
-            special_care: selectedRow?.special_care || "",
-            microchip_number: selectedRow?.microchip_number || "",
-            warning: selectedRow?.warning || "",
-            dietary_requirements: selectedRow?.dietary_requirements || "",
-            life_usage: selectedRow?.life_usage || "",
-            image: null,
-            document: null,
-            existingImage: selectedRow?.image || null,
-            existingDocument: selectedRow?.document || null,
-          },
-        ],
+        first_name: selectedRow?.first_name || '',
+        last_name: selectedRow?.last_name || '',
+        phone_number: selectedRow?.phone_number || 'not available',
+        email: selectedRow?.email || '',
+        address: selectedRow?.address || '',
+        gender: selectedRow?.gender || '',
+        city: selectedRow?.city || '',
+        country: selectedRow?.country || '',
+        birthday: selectedRow?.birthday || '',
       });
-      setIdForBreed(selectedRow?.petType?._id || "");
     }
   }, [selectedRow]);
 
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      handleLoading(true)
-      await PetProfileApi.deletePet(deleteModal._id);
-      toast.success("Pet deleted successfully");
+      handleLoading(true);
+      await CustomerApi.deletePet(deleteModal._id);
+      toast.success('Pet deleted successfully');
       getAllPets();
       setDeleteModal(null);
     } catch (err) {
-      console.error("Error deleting:", err);
-      toast.error(err.response?.data?.message || "Failed to delete pet");
+      console.error('Error deleting:', err);
+      toast.error(err.response?.data?.message || 'Failed to delete pet');
     } finally {
       setIsLoading(false);
-      handleLoading(false)
+      handleLoading(false);
     }
   };
 
-  const handleAddPet = () => {
-    formik.setFieldValue("petinfo", [
-      ...formik.values.petinfo,
-      {
-        petName: "",
-        petType: "",
-        breed: "",
-        dob: "",
-        gender: "",
-        weight: "",
-        activity_level: "",
-        day_Habits: "",
-        personality: "",
-        health_issues: "",
-        special_care: "",
-        microchip_number: "",
-        warning: "",
-        dietary_requirements: "",
-        life_usage: "",
-        image: null,
-        document: null,
-        existingImage: null,
-        existingDocument: null,
-      },
-    ]);
-  };
-
-  const handleRemovePet = (index) => {
-    const petinfo = [...formik.values.petinfo];
-    petinfo.splice(index, 1);
-    formik.setFieldValue("petinfo", petinfo);
-  };
-
-  const handleImageChange = (event, index) => {
-    const file = event.target.files[0];
-    if (file) {
-      const petinfo = [...formik.values.petinfo];
-      petinfo[index] = {
-        ...petinfo[index],
-        image: file,
-        existingImage: null
-      };
-      formik.setFieldValue("petinfo", petinfo);
+  const handleCountry = async () => {
+    try {
+      const res = await MasterApi.country();
+      setCountryData(res?.data?.data);
+    } catch (err) {
+      console.log(err);
     }
   };
 
-  const handleDocumentChange = (event, index) => {
-    const file = event.target.files[0];
-    if (file) {
-      const petinfo = [...formik.values.petinfo];
-      petinfo[index] = {
-        ...petinfo[index],
-        document: file,
-        existingDocument: null
-      };
-      formik.setFieldValue("petinfo", petinfo);
+  const getCityName = async (countryId) => {
+    try {
+      const res = await MasterApi.city(countryId);
+      setCityData(res.data?.data);
+    } catch (err) {
+      console.log(err);
     }
   };
 
-  const removeImage = (index) => {
-    const petinfo = [...formik.values.petinfo];
-    petinfo[index] = {
-      ...petinfo[index],
-      image: null,
-      existingImage: null
+  useEffect(() => {
+    getCityName(selectedRow?.city);
+    getSubscriptionByUserId(selectedRow?._id);
+  }, [selectedRow]);
+
+  const countryOptions = countryData?.map((item) => {
+    return {
+      value: item?._id,
+      label: `${item?.name}`,
     };
-    formik.setFieldValue("petinfo", petinfo);
-  };
+  });
 
-  const removeDocument = (index) => {
-    const petinfo = [...formik.values.petinfo];
-    petinfo[index] = {
-      ...petinfo[index],
-      document: null,
-      existingDocument: null
-    };
-    formik.setFieldValue("petinfo", petinfo);
-  };
+  const cityOptions = cityData?.map((item) => ({
+    value: item?._id,
+    label: item?.name,
+  }));
 
   const handleModalClose = () => {
     setOpen(false);
@@ -341,85 +197,116 @@ const Customers = () => {
     formik.resetForm();
   };
 
-const customerColumns = useMemo(() => [
-  {
-    headerName: "S.No",
-    field: "serial",
-    valueGetter: (params) => params.node.rowIndex + 1,
-    minWidth: 80,
-  },
-  {
-    headerName: "Name",
-    field: "name",
-    cellRenderer: (params) => params?.data?.name || "N/A",
-  },
-  {
-    headerName: "Age",
-    field: "age",
-    cellRenderer: (params) => params?.data?.age || "N/A",
-  },
-  {
-    headerName: "Location",
-    field: "location",
-    cellRenderer: (params) => params?.data?.location || "N/A",
-  },
-  {
-    headerName: "Contact No",
-    field: "contactNumber",
-    cellRenderer: (params) => params?.data?.contactNumber || "N/A",
-  },
-  {
-    headerName: "Subscriptions",
-    field: "subscriptions",
-    cellRenderer: (params) =>
-      Array.isArray(params?.data?.subscriptions) && params.data.subscriptions.length > 0
-        ? params.data.subscriptions.join(", ")
-        : "N/A",
-  },
-  {
-    headerName: "Fitness Goal",
-    field: "fitnessGoal",
-    cellRenderer: (params) => params?.data?.fitnessGoal || "N/A",
-  },
-  {
-    headerName: "Actions",
-    field: "actions",
-    minWidth: 150,
-    cellRenderer: (params) => (
-      <div className="flex items-center space-x-3 mt-2">
-        <button
-          className="text-primary transition-colors cursor-pointer"
-          onClick={() => {
-            setOpen(true);
-            setSelectedRow(params?.data);
-          }}
-        >
-          <FaRegEdit size={18} />
-        </button>
-        <button
+  const formatTime12Hour = (timeStr) => {
+    const [hourStr, minute] = timeStr.split(':');
+    let hour = parseInt(hourStr, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12; // Convert '0' to '12'
+    return `${hour}:${minute} ${ampm}`;
+  };
+
+  const customerColumns = useMemo(
+    () => [
+      {
+        headerName: 'Name',
+        field: 'name',
+        cellRenderer: (params) => {
+          const first = params?.data?.first_name || '';
+          const last = params?.data?.last_name || '';
+          return `${first} ${last}`.trim() || 'N/A';
+        },
+      },
+      {
+        headerName: 'Age',
+        field: 'age',
+        cellRenderer: (params) => params?.data?.age ?? 'N/A',
+      },
+      {
+        headerName: 'Gender',
+        field: 'gender',
+        cellRenderer: (params) => params?.data?.gender || 'N/A',
+      },
+
+      {
+        headerName: 'Location',
+        field: 'location',
+        cellRenderer: (params) => {
+          const street = params?.data?.address || '';
+          const city = params?.data?.city?.name || '';
+          const country = params?.data?.country?.name || '';
+          return `${street}${city ? ', ' + city : ''}${country ? ', ' + country : ''}` || 'N/A';
+        },
+      },
+      {
+        headerName: 'Address',
+        field: 'address',
+        cellRenderer: (params) => params?.data?.address || 'N/A',
+      },
+      {
+        headerName: 'Contact No',
+        field: 'phone_number',
+        cellRenderer: (params) => params?.data?.phone_number || 'N/A',
+      },
+      {
+        headerName: 'Birthday',
+        field: 'birthday',
+        cellRenderer: (params) => {
+          const date = params?.data?.birthday;
+          return date ? new Date(date).toLocaleDateString() : 'N/A';
+        },
+      },
+      {
+        headerName: 'Status',
+        field: 'status',
+        cellRenderer: (params) => params?.data?.status || 'N/A',
+      },
+
+      {
+        headerName: 'Actions',
+        field: 'actions',
+        minWidth: 150,
+        cellRenderer: (params) => (
+          <div className='flex items-center space-x-3 mt-2'>
+            <button
+              className='text-primary transition-colors cursor-pointer'
+              onClick={() => {
+                setOpen(true);
+                setSelectedRow(params?.data);
+              }}
+            >
+              <FaEye size={18} />
+            </button>
+            {/* <button
           className="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
           onClick={() => setDeleteModal(params?.data)}
         >
           <MdOutlineDeleteOutline size={20} />
-        </button>
-      </div>
-    ),
-  },
-], [setOpen, setSelectedRow, setDeleteModal]);
+        </button> */}
+          </div>
+        ),
+      },
+    ],
+    [setOpen, setSelectedRow, setDeleteModal]
+  );
+
+  useEffect(() => {
+    getAllCustomers();
+    handleCountry();
+  }, []);
 
   return (
     <>
-      <div className="p-5">
+      <div className='p-5'>
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-4xl font-bold text-primary">Customers</h2>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='text-4xl font-bold text-primary'>Customers</h2>
           </div>
 
           <Table2
             column={customerColumns}
-            internalRowData={dummyCustomerList}
-            searchLabel={"Customers"}
-            sheetName={"pet"}
+            internalRowData={allUsers}
+            searchLabel={'Customers'}
+            sheetName={'pet'}
             setModalOpen={setOpen}
             isAdd={false}
           />
@@ -427,35 +314,58 @@ const customerColumns = useMemo(() => [
 
         {open && (
           <SidebarField
-            title={selectedRow ? "Update Customer" : "Add New Customer"}
+            title={selectedRow ? 'Update Customer' : 'Add New Customer'}
             handleClose={handleModalClose}
-            button1={
-              <Button
-                onClick={formik.handleSubmit}
-                text={selectedRow ? "Update" : "Save"}
-                type="submit"
-                disabled={isLoading}
-              />
-            }
+            // button1={
+            //   <Button
+            //     onClick={formik.handleSubmit}
+            //     text={selectedRow ? "Update" : "Save"}
+            //     type="submit"
+            //     disabled={isLoading}
+            //   />
+            // }
             button2={
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={handleModalClose}
-                text="Cancel"
+                text='Close'
                 disabled={isLoading}
               />
             }
           >
-            <form onSubmit={formik.handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
-                  Client Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={formik.handleSubmit} className='space-y-6'>
+              <div className='space-y-4'>
+                <div className='space-y-4'>
+                  <div className='flex justify-between items-center'>
+                    <h3 className='text-xl font-semibold text-gray-800 pb-2'>Client Information</h3>
+                    {selectedRow?.status && (
+                      <span
+                        className={`
+          text-sm font-medium px-3 py-1 rounded-full
+          ${
+            selectedRow.status === 'Approved'
+              ? 'bg-green-100 text-green-700'
+              : selectedRow.status === 'Pending'
+                ? 'bg-yellow-100 text-yellow-700'
+                : selectedRow.status === 'Rejected'
+                  ? 'bg-red-100 text-red-700'
+                  : selectedRow.status === 'Blocked'
+                    ? 'bg-gray-200 text-gray-700'
+                    : 'bg-blue-100 text-blue-700'
+          }
+        `}
+                      >
+                        {selectedRow.status}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <InputField
-                    name="first_name"
-                    label="First Name"
-                    placeholder="Enter First Name"
+                    name='first_name'
+                    label='First Name'
+                    placeholder='Enter First Name'
                     isRequired
                     value={formik.values.first_name}
                     onChange={formik.handleChange}
@@ -463,9 +373,9 @@ const customerColumns = useMemo(() => [
                     disabled={!!selectedRow}
                   />
                   <InputField
-                    name="last_name"
-                    label="Last Name"
-                    placeholder="Enter Last Name"
+                    name='last_name'
+                    label='Last Name'
+                    placeholder='Enter Last Name'
                     isRequired
                     value={formik.values.last_name}
                     error={formik.touched.last_name && formik.errors.last_name}
@@ -473,19 +383,18 @@ const customerColumns = useMemo(() => [
                     disabled={!!selectedRow}
                   />
                   <InputField
-                    name="phone_number"
-                    label="Contact Number"
-                    placeholder="Enter Phone Number"
+                    name='phone_number'
+                    label='Contact Number'
+                    placeholder='Enter Phone Number'
                     value={formik.values.phone_number}
                     onChange={formik.handleChange}
                     error={formik.touched.phone_number && formik.errors.phone_number}
                     disabled={!!selectedRow}
-                  // isRequired
                   />
                   <InputField
-                    name="email"
-                    label="Email Address"
-                    placeholder="Enter Email"
+                    name='email'
+                    label='Email Address'
+                    placeholder='Enter Email'
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     error={formik.touched.email && formik.errors.email}
@@ -493,332 +402,161 @@ const customerColumns = useMemo(() => [
                     disabled={!!selectedRow}
                   />
                 </div>
+
                 <InputField
-                  name="address"
-                  label="Address"
-                  placeholder="Enter Full Address"
+                  name='address'
+                  label='Address'
+                  placeholder='Enter Full Address'
                   value={formik.values.address}
                   onChange={formik.handleChange}
                   error={formik.touched.address && formik.errors.address}
-                  // isRequired
                   disabled={!!selectedRow}
                 />
+
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <InputField
+                    name='birthday'
+                    label='Birthday'
+                    type='date'
+                    value={formik.values.birthday}
+                    onChange={formik.handleChange}
+                    error={formik.touched.birthday && formik.errors.birthday}
+                  />
+
+                  <InputField
+                    name='gender'
+                    label='Gender'
+                    type='select'
+                    options={[
+                      { label: 'Select Gender', value: '' },
+                      { label: 'Male', value: 'Male' },
+                      { label: 'Female', value: 'Female' },
+                      { label: 'Others', value: 'Others' },
+                    ]}
+                    value={formik.values.gender}
+                    onChange={formik.handleChange}
+                    error={formik.touched.gender && formik.errors.gender}
+                  />
+
+                  <InputField
+                    name='country'
+                    label='Country'
+                    type='select'
+                    options={[{ label: 'Select Country', value: '' }, ...countryOptions]}
+                    value={formik.values.country}
+                    onChange={formik.handleChange}
+                    error={formik.touched.country && formik.errors.country}
+                    disabled={true}
+                  />
+
+                  <InputField
+                    name='city'
+                    label='City'
+                    type='select'
+                    options={[{ label: 'Select City', value: '' }, ...cityOptions]}
+                    value={formik.values.city}
+                    onChange={formik.handleChange}
+                    error={formik.touched.city && formik.errors.city}
+                  />
+
+                  {/* <InputField
+        name="zipcode"
+        label="Zipcode"
+        placeholder="Enter Zipcode"
+        value={formik.values.zipcode}
+        onChange={formik.handleChange}
+        error={formik.touched.zipcode && formik.errors.zipcode}
+      /> */}
+
+                  {/* <InputField
+        name="status"
+        label="Status"
+        type="select"
+        options={[
+          { label: "Pending", value: "Pending" },
+          { label: "Approved", value: "Approved" },
+          { label: "Unapproved", value: "Unapproved" },
+          { label: "Blocked", value: "Blocked" },
+          { label: "Rejected", value: "Rejected" },
+        ]}
+        value={formik.values.status}
+        onChange={formik.handleChange}
+        error={formik.touched.status && formik.errors.status}
+      /> */}
+                </div>
               </div>
+              <div className='w-[100%]'>
+                <h3 className='text-xl font-semibold text-gray-800 pb-2 border-t border-gray-300 pt-3'>Customer Subscriptions</h3>
+                {userSubscriptions?.map((booking, index) => {
+                  const sub = booking.subscription;
+                  const address = sub?.Address;
 
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
-                  Pet Information
-                </h3>
-                {formik.values.petinfo.map((pet, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-200 rounded-lg p-4 relative bg-gray-50"
-                  >
-                    {formik.values.petinfo.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePet(index)}
-                        className="absolute top-3 right-3 text-red-600 hover:text-red-800"
-                        disabled={isLoading}
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                    )}
-                    <h4 className="text-lg font-medium mb-4 text-gray-700">
-                      Pet {index + 1}
-                    </h4>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Pet Image {pet.image || pet.existingImage ? (
-                          <span className="text-green-500 ml-2">✓ Uploaded</span>
-                        ) : null}
-                      </label>
-                      {pet.image || pet.existingImage ? (
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={
-                              pet.image ?
-                                URL.createObjectURL(pet.image) :
-                                pet.existingImage
-                            }
-                            alt="Pet preview"
-                            className="h-24 w-24 object-cover rounded-lg border border-gray-300"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="text-red-600 hover:text-red-800"
-                            disabled={isLoading}
-                          >
-                            <FaTimes size={18} />
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-primary transition-colors bg-white">
-                          <div className="flex flex-col items-center">
-                            <FaUpload className="text-gray-400 mb-2 text-2xl" />
-                            <span className="text-sm text-gray-600">
-                              Click to upload image
-                            </span>
-                            <span className="text-xs text-gray-500 mt-1">
-                              jpeg|jpg|png|gif|tiff|bmp|webp (Max 1MB)
-                            </span>
-                          </div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => handleImageChange(e, index)}
-                            ref={el => fileInputRefs.current[index] = { ...fileInputRefs.current[index], image: el }}
-                            key={`image-input-${index}`}
-                          />
-                        </label>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <InputField
-                        name={`petinfo[${index}].petName`}
-                        label="Pet Name"
-                        placeholder="Enter pet name"
-                        value={pet.petName}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.petinfo?.[index]?.petName &&
-                          formik.errors.petinfo?.[index]?.petName
-                        }
-                        isRequired
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].petType`}
-                        label="Pet Type"
-                        type="select"
-                        options={petTypeData.map((pt) => ({
-                          label: pt.name,
-                          value: pt._id,
-                        }))}
-                        value={pet.petType}
-                        onChange={(e) => {
-                          setIdForBreed(e.target.value);
-                          formik.handleChange(e);
-                        }}
-                        error={
-                          formik.touched.petinfo?.[index]?.petType &&
-                          formik.errors.petinfo?.[index]?.petType
-                        }
-                        isRequired
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].breed`}
-                        label="Breed"
-                        type="select"
-                        options={getFilteredBreeds(pet.petType)}
-                        value={pet.breed}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.petinfo?.[index]?.breed &&
-                          formik.errors.petinfo?.[index]?.breed
-                        }
-                        isRequired
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].gender`}
-                        label="Gender"
-                        type="select"
-                        options={[
-                          { label: "Male", value: "Male" },
-                          { label: "Female", value: "Female" },
-                        ]}
-                        value={pet.gender}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.petinfo?.[index]?.gender &&
-                          formik.errors.petinfo?.[index]?.gender
-                        }
-                        isRequired
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].weight`}
-                        label="Weight (kg)"
-                        placeholder="Enter weight"
-                        value={pet.weight}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.petinfo?.[index]?.weight &&
-                          formik.errors.petinfo?.[index]?.weight
-                        }
-                        isRequired
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].dob`}
-                        label="Date of Birth"
-                        type="date"
-                        value={pet.dob}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.petinfo?.[index]?.dob &&
-                          formik.errors.petinfo?.[index]?.dob
-                        }
-                        isRequired
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].activity_level`}
-                        label="Activity Level"
-                        type="select"
-                        placeholder={"Select Activity"}
-                        options={[
-                          { label: "Lazy", value: "Lazy" },
-                          { label: "Fairly Active", value: "Fairly Active" },
-                          { label: "Often Active", value: "Often Active" },
-                        ]}
-                        value={pet.activity_level}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.petinfo?.[index]?.activity_level &&
-                          formik.errors.petinfo?.[index]?.activity_level
-                        }
-                        isRequired
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].day_Habits`}
-                        label="Day Habits"
-                        type="select"
-                        options={[
-                          { label: "At Home", value: "At Home" },
-                          { label: "Outside", value: "Outside" },
-                          { label: "Mix of Both", value: "Mix Of Both" },
-                        ]}
-                        value={pet.day_Habits}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.petinfo?.[index]?.day_Habits &&
-                          formik.errors.petinfo?.[index]?.day_Habits
-                        }
-                        isRequired
-                        disabled={isLoading}
-                      />
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-1 gap-4">
-                      <InputField
-                        name={`petinfo[${index}].personality`}
-                        label="Personality"
-                        placeholder="Describe pet's personality"
-                        value={pet.personality}
-                        onChange={formik.handleChange}
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].health_issues`}
-                        label="Health Issues"
-                        placeholder="Any health concerns"
-                        value={pet.health_issues}
-                        onChange={formik.handleChange}
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].special_care`}
-                        label="Special Care"
-                        placeholder="Special care requirements"
-                        value={pet.special_care}
-                        onChange={formik.handleChange}
-                        disabled={isLoading}
-                      />
-
-                      {/* Document Upload */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Documents {pet.document || pet.existingDocument ? (
-                            <span className="text-green-500 ml-2">✓ Uploaded</span>
-                          ) : null}
-                        </label>
-                        {pet.document || pet.existingDocument ? (
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm text-gray-700">
-                              {pet.document?.name || "Document uploaded"}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => removeDocument(index)}
-                              className="text-red-600 hover:text-red-800"
-                              disabled={isLoading}
-                            >
-                              <FaTimes size={18} />
-                            </button>
-                          </div>
-                        ) : (
-                          <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-primary transition-colors bg-white">
-                            <div className="flex flex-col items-center">
-                              <FaUpload className="text-gray-400 mb-2 text-2xl" />
-                              <span className="text-sm text-gray-600">
-                                Click to upload document
-                              </span>
-                              <span className="text-xs text-gray-500 mt-1">
-                                pdf|doc|docx|txt (Max 1MB)
-                              </span>
-                            </div>
-                            <input
-                              type="file"
-                              className="hidden"
-                              onChange={(e) => handleDocumentChange(e, index)}
-                              disabled={isLoading}
+                  return (
+                    <div
+                      key={booking._id || index}
+                      className='p-4 w-full shadow-md rounded-lg mb-6 bg-white'
+                    >
+                      <div className='flex gap-4'>
+                        <div className='w-50'>
+                          {sub?.media && (
+                            <img
+                              src={sub.media}
+                              alt='Subscription'
+                              className='w-full max-h-64 object-cover rounded-md'
                             />
-                          </label>
-                        )}
+                          )}
+                        </div>
+                        <div>
+                          <h2 className='text-xl font-bold text-gray-800 mb-2'>{sub?.name}</h2>
+
+                          <p>
+                            <strong>Trainer:</strong> {sub?.trainer?.first_name}{' '}
+                            {sub?.trainer?.last_name}
+                          </p>
+                          <p>
+                            <strong>Category:</strong> {sub?.categoryId?.cName}
+                          </p>
+                          <p>
+                            <strong>Session:</strong> {sub?.sessionType?.sessionName}
+                          </p>
+                          <p>
+                            <strong>Price:</strong> AED {sub?.price}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex  mt-2 gap-8">
+                        <div className='flex items-center gap-1 text-sm text-gray-600'>
+                        <FiClock className='text-yellow-500' />
+                        <span>
+                          {formatTime12Hour(sub.startTime)} - {formatTime12Hour(sub.endTime)}
+                        </span>
                       </div>
 
-                      <InputField
-                        name={`petinfo[${index}].microchip_number`}
-                        label="Microchip Number"
-                        placeholder="Enter microchip number"
-                        value={pet.microchip_number}
-                        onChange={formik.handleChange}
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].warning`}
-                        label="Warning"
-                        placeholder="Any warnings about the pet"
-                        value={pet.warning}
-                        onChange={formik.handleChange}
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].dietary_requirements`}
-                        label="Dietary Requirements"
-                        placeholder="Special dietary needs"
-                        value={pet.dietary_requirements}
-                        onChange={formik.handleChange}
-                        disabled={isLoading}
-                      />
-                      <InputField
-                        name={`petinfo[${index}].life_usage`}
-                        label="Life Usage"
-                        placeholder="Pet's daily routine"
-                        value={pet.life_usage}
-                        onChange={formik.handleChange}
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-                ))}
+                      <div>
+                        {sub.date?.length === 2 && (
+                        <p className='text-sm text-gray-600 flex'>
+                          <FiCalendar /> {new Date(sub.date[0]).toLocaleDateString()} to{' '}{new Date(sub.date[1]).toLocaleDateString()}
+                        </p>
+                      )}
+                      {sub.date?.length === 1 && (
+                        <p className='text-sm text-gray-600 flex'>
+                          <FiCalendar /> {new Date(sub.date[0]).toLocaleDateString()}
+                        </p>
+                      )}
+                      </div>
+                      </div>
+                      <div className='flex items-center gap-1 text-sm text-gray-600 line-clamp-1'>
+                        <FiMapPin className='text-red-500' />
+                        <span>
+                          {sub?.Address?.streetName}, {sub?.Address?.city?.name},{' '}
+                          {sub?.Address?.country?.name}
+                        </span>
+                      </div>
 
-                <button
-                  type="button"
-                  onClick={handleAddPet}
-                  className="mt-4 flex items-center cursor-pointer justify-center gap-2 px-4 py-2 text-white bg-primary rounded-lg transition-colors w-full md:w-auto"
-                  disabled={isLoading}
-                >
-                  <FaPlus /> Add Another Pet
-                </button>
+                      
+                    </div>
+                  );
+                })}
               </div>
             </form>
           </SidebarField>

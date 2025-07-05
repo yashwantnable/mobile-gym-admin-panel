@@ -5,7 +5,8 @@ export const user_role = {
 };
 
 // const localUrl = "http://192.168.1.5:5008";
-const localUrl = "http://192.168.1.17:5009";
+const localUrl = "http://192.168.1.17:5000";
+// const localUrl = "http://192.168.1.30:5000";
 // const liveUrl = "https://groomer.nablean.com";
 // const deliveryLocalUrl = "http://192.168.29.30:5001";
 // const deliveryLiveUrl = "http://192.168.29.30:5001";
