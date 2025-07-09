@@ -12,42 +12,31 @@ import { CategoryApi } from '../../Api/Category.Api';
 import { Table2 } from '../../Components/Table/Table2';
 import { FiEdit } from 'react-icons/fi';
 import { MdOutlineDeleteOutline } from 'react-icons/md';
- 
 
-const SubscriptionTable = ({ setOpen,setSelectedRow,setDeleteModal,expired=false}) => {
+const SubscriptionTable = ({ setOpen,allSubscription, setFilters, filters,handleChange, setSelectedRow, setDeleteModal, expired = false }) => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [trainerOptions, setTrainerOptions] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
-  const [filters, setFilters] = useState({
-    trainerId: "",
-    categoryId: "",
-    location: "",
-    isExpired: "",
-  });
- console.log("locationOptions:",locationOptions);
- 
-   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ [name]: value }));
-  };
+  // const [filters, setFilters] = useState({
+  //   trainerId: '',
+  //   categoryId: '',
+  //   location: '',
+  //   isExpired: '',
+  // });
+  console.log('locationOptions:', locationOptions);
+
+
 
   const handleApplyFilters = () => {
     const parsedFilters = {
       trainerId: filters.trainerId || undefined,
       categoryId: filters.categoryId || undefined,
       locationId: filters.location || undefined,
-      isExpired:
-        filters.isExpired === ""
-          ? undefined
-          : filters.isExpired === "true"
-          ? true
-          : false,
+      isExpired: filters.isExpired === '' ? undefined : filters.isExpired === 'true' ? true : false,
     };
     onFilterChange(parsedFilters);
   };
-
-
 
   // Fetch filter dropdown options
   useEffect(() => {
@@ -69,38 +58,35 @@ const SubscriptionTable = ({ setOpen,setSelectedRow,setDeleteModal,expired=false
   }, []);
 
   useEffect(() => {
-  const fetchInitialData = async () => {
-    try {
-      const response = await SubscriptionApi.getAllSubscriptionFilter();
-      setSubscriptions(response.data || []);
-    } catch (err) {
-      console.error('Error fetching subscriptions:', err);
-    }
-  };
-  fetchInitialData();
-}, []); // runs once on first render only
-
+    const fetchInitialData = async () => {
+      try {
+        const response = await SubscriptionApi.getAllSubscriptionFilter();
+        setSubscriptions(response.data || []);
+      } catch (err) {
+        console.error('Error fetching subscriptions:', err);
+      }
+    };
+    fetchInitialData();
+  }, []); // runs once on first render only
 
   // Fetch filtered subscriptions
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await SubscriptionApi.getAllSubscriptionFilter({
-        ...filters,
-        isExpired: expired, // add `isExpired` as part of the payload
-      });
-      setSubscriptions(response.data || []);
-      console.log("response:",response?.data?.data?.subscriptions);
-      
-    } catch (err) {
-      console.error('Error fetching subscriptions:', err);
-    }
-  };
-  fetchData();
-}, [filters, expired]);
+    const fetchData = async () => {
+      try {
+        const response = await SubscriptionApi.getAllSubscriptionFilter({
+          ...filters,
+          isExpired: expired, // add `isExpired` as part of the payload
+        });
+        setSubscriptions(response.data || []);
+        console.log('response:', response?.data?.data?.subscriptions);
+      } catch (err) {
+        console.error('Error fetching subscriptions:', err);
+      }
+    };
+    fetchData();
+  }, [filters, expired]);
 
-
- const Columns = useMemo(
+  const Columns = useMemo(
     () => [
       {
         headerName: 'Name',
@@ -187,7 +173,7 @@ const SubscriptionTable = ({ setOpen,setSelectedRow,setDeleteModal,expired=false
     ],
     [setOpen, setSelectedRow, setDeleteModal]
   );
-  
+
   const formatTime12Hour = (timeStr) => {
     const [hourStr, minute] = timeStr.split(':');
     let hour = parseInt(hourStr, 10);
@@ -196,88 +182,109 @@ const SubscriptionTable = ({ setOpen,setSelectedRow,setDeleteModal,expired=false
     return `${hour}:${minute} ${ampm}`;
   };
 
-// console.log("subscriptions:",subscriptions?.data?.subscriptions);
-
+  // console.log("subscriptions:",subscriptions?.data?.subscriptions);
 
   return (
-    <div className="p-6">
-        
-      <div className="p-6">
-      {/* Filter Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        {/* Trainer Dropdown */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Trainer</label>
-          <select
-            name="trainerId"
-            value={filters.trainerId}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">All Trainers</option>
-            {trainerOptions.map((trainer) => (
-              <option key={trainer._id} value={trainer._id}>
-                {trainer.first_name}
-                {trainer.last_name}
+    <div className='p-6'>
+      <div className='p-6'>
+        {/* Filter Bar */}
+        <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm'>
+          {/* Trainer Dropdown */}
+          <div className='space-y-1'>
+            <label className='block text-sm font-medium text-gray-700'>Trainer</label>
+            <select
+              name='trainerId'
+              value={filters.trainerId}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            >
+              <option value='' className='text-gray-400'>
+                All Trainers
               </option>
-            ))}
-          </select>
-        </div>
+              {trainerOptions.map((trainer) => (
+                <option
+                  key={trainer._id}
+                  value={trainer._id}
+                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
+                >
+                  {trainer.first_name} {trainer.last_name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Category Dropdown */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Category</label>
-          <select
-            name="categoryId"
-            value={filters.categoryId}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">All Categories</option>
-            {categoryOptions.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.cName}
+          {/* Category Dropdown */}
+          <div className='space-y-1'>
+            <label className='block text-sm font-medium text-gray-700'>Category</label>
+            <select
+              name='categoryId'
+              value={filters.categoryId}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            >
+              <option value='' className='text-gray-400'>
+                All Categories
               </option>
-            ))}
-          </select>
-        </div>
+              {categoryOptions.map((category) => (
+                <option
+                  key={category._id}
+                  value={category._id}
+                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
+                >
+                  {category.cName}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Location Dropdown */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Location</label>
-          <select
-            name="location"
-            value={filters.location}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">All Locations</option>
-            {locationOptions.map((loc) => (
-              <option key={loc._id} value={loc._id}>
-                {loc?.streetName},{loc?.City?.name}
+          {/* Location Dropdown */}
+          <div className='space-y-1'>
+            <label className='block text-sm font-medium text-gray-700'>Location</label>
+            <select
+              name='location'
+              value={filters.location}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            >
+              <option value='' className='text-gray-400'>
+                All Locations
               </option>
-            ))}
-          </select>
+              {locationOptions.map((loc) => (
+                <option
+                  key={loc._id}
+                  value={loc._id}
+                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
+                >
+                  {loc?.streetName}, {loc?.City?.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* isExpired Dropdown */}
+          <div className='space-y-1'>
+            <label className='block text-sm font-medium text-gray-700'>Expired</label>
+            <select
+              name='isExpired'
+              value={filters.isExpired}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            >
+              <option value='' className='text-gray-400'>
+                All
+              </option>
+              <option value={true} className='py-2 hover:bg-blue-50 hover:text-blue-600'>
+                Expired
+              </option>
+              <option value={false} className='py-2 hover:bg-blue-50 hover:text-blue-600'>
+                Not Expired
+              </option>
+            </select>
+          </div>
         </div>
 
-        {/* isExpired Dropdown */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Expired</label>
-          <select
-            name="isExpired"
-            value={filters.isExpired}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">All</option>
-            <option value={true}>Expired</option>
-            <option value={false}>Not Expired</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Apply Filters Button */}
-      {/* <div className="mb-6">
+        {/* Apply Filters Button */}
+        {/* <div className="mb-6">
         <button
           onClick={handleApplyFilters}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -286,15 +293,15 @@ const SubscriptionTable = ({ setOpen,setSelectedRow,setDeleteModal,expired=false
         </button>
       </div> */}
 
-      {/* Subscription Table */}
-      <Table2
-        column={Columns}
-        internalRowData={subscriptions?.data?.subscriptions}
-        searchLabel={"Subscription"}
-        sheetName={"Subscription"}
-        setModalOpen={setOpen}
-      />
-    </div>
+        {/* Subscription Table */}
+        <Table2
+          column={Columns}
+          internalRowData={allSubscription}
+          searchLabel={'Subscription'}
+          sheetName={'Subscription'}
+          setModalOpen={setOpen}
+        />
+      </div>
     </div>
   );
 };

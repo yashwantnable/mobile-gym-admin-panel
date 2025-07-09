@@ -25,14 +25,13 @@ const formatClassEvents = (allClasses) => {
 
 const renderEventContent = (eventInfo) => {
   const { extendedProps } = eventInfo?.event;
-  console.log('extendedProps:', extendedProps);
+  // console.log('extendedProps:', extendedProps);
   const coords = extendedProps?.Address?.location?.coordinates;
 
-const latitude = coords?.[1];
-const longitude = coords?.[0];
+  const latitude = coords?.[1];
+  const longitude = coords?.[0];
 
-const isValidCoords = latitude !== undefined && longitude !== undefined;
-
+  const isValidCoords = latitude !== undefined && longitude !== undefined;
 
   return (
     <Tooltip.Provider>
@@ -49,26 +48,23 @@ const isValidCoords = latitude !== undefined && longitude !== undefined;
             sideOffset={8}
           >
             <div className='flex flex-col gap-2'>
-             {isValidCoords && (
-  <div className='w-full h-32 rounded-md overflow-hidden'>
-    <MapContainer
-      center={[latitude, longitude]}
-      zoom={15}
-      scrollWheelZoom={false}
-      dragging={false}
-      doubleClickZoom={false}
-      zoomControl={false}
-      attributionControl={false}
-      style={{ height: '100%', width: '100%' }}
-    >
-      <TileLayer
-        url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      />
-      <Marker position={[latitude, longitude]} />
-    </MapContainer>
-  </div>
-)}
-
+              {isValidCoords && (
+                <div className='w-full h-32 rounded-md overflow-hidden'>
+                  <MapContainer
+                    center={[latitude, longitude]}
+                    zoom={15}
+                    scrollWheelZoom={false}
+                    dragging={false}
+                    doubleClickZoom={false}
+                    zoomControl={false}
+                    attributionControl={false}
+                    style={{ height: '100%', width: '100%' }}
+                  >
+                    <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' />
+                    <Marker position={[latitude, longitude]} />
+                  </MapContainer>
+                </div>
+              )}
 
               <div className='text-base font-semibold text-gray-900'>{extendedProps?.name}</div>
               <div className='flex justify-between text-sm'>
@@ -103,7 +99,7 @@ const isValidCoords = latitude !== undefined && longitude !== undefined;
   );
 };
 
-const ClassCalendar = ({ allClasses }) => {
+const ClassCalendar = ({ allClasses, onEventClick, setSelectedRow }) => {
   const events = formatClassEvents(allClasses);
 
   return (
@@ -118,6 +114,17 @@ const ClassCalendar = ({ allClasses }) => {
         }}
         events={events}
         eventContent={renderEventContent}
+        eventClick={(info) => {
+          info.jsEvent.preventDefault();
+
+          if (setSelectedRow) {
+            setSelectedRow(info.event.id); // Pass the ID here
+          }
+
+          if (onEventClick) {
+            onEventClick(info.event.extendedProps);
+          }
+        }}
         slotMinTime='06:00:00'
         slotMaxTime='22:00:00'
         height='auto'

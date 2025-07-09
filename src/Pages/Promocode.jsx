@@ -141,12 +141,14 @@ const PromoCodeManagement = () => {
       .min(1, "Must allow at least 1 use")
       .required("Max uses is required"),
     description: Yup.string().required("description is required"),
+    termsAndConditions: Yup.string().required("terms and Conditions are required"),
   });
   console.log("selectedPromo update:", selectedPromo);
 
   const formik = useFormik({
     initialValues: {
       code: selectedPromo?.code || generatedCode,
+      image: selectedPromo?.image || "",
       discountType: selectedPromo?.discountType || "",
       discountValue: selectedPromo?.discountValue?.$numberDecimal || "",
       minOrderAmount: selectedPromo?.minOrderAmount?.$numberDecimal || "",
@@ -156,38 +158,56 @@ const PromoCodeManagement = () => {
       // endDate: selectedPromo?.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       maxUses: selectedPromo?.maxUses?.$numberDecimal || "",
       description: selectedPromo?.description || "",
+      termsAndConditions: selectedPromo?.termsAndConditions || "",
       isActive: selectedPromo?.isActive ?? true,
     },
     // validationSchema,
     enableReinitialize: true,
-    onSubmit: async (values) => {
-      handleLoading(true);
-      try {
-        const payload = {
-          ...values,
-          startDate: new Date(values.startDate).toISOString(),
-          endDate: new Date(values.endDate).toISOString(),
-        };
+   onSubmit: async (values) => {
+  handleLoading(true);
 
-        let res;
+  try {
+    const formData = new FormData();
 
-        if (selectedPromo) {
-          res = await PromoCodeApi.updatePromoCode(selectedPromo._id, payload);
-        } else {
-          res = await PromoCodeApi.createPromoCode(payload);
-        }
-        console.log(res.data?.data);
-        setPromoCodes(res.data?.data);
+    // Append all values
+    formData.append("code", values.code);
+    formData.append("discountType", values.discountType);
+    formData.append("discountValue", values.discountValue);
+    formData.append("minOrderAmount", values.minOrderAmount);
+    formData.append("startDate", new Date(values.startDate).toISOString());
+    formData.append("endDate", new Date(values.endDate).toISOString());
+    formData.append("maxUses", values.maxUses);
+    formData.append("description", values.description);
+    formData.append("termsAndConditions", values.termsAndConditions);
+    formData.append("isActive", values.isActive);
 
-        fetchPromoCodes();
-        setOpenSidebar(false);
-      } catch (err) {
-        console.error("Error saving promo code:", err);
-      }
-      handleLoading(false);
-      setSelectedPromo();
-      setPromoCodes();
-    },
+    // Image handling
+    if (values.image && typeof values.image !== "string") {
+      // if it's a File (not a URL)
+      formData.append("image", values.image);
+    }
+
+    let res;
+
+    if (selectedPromo) {
+      res = await PromoCodeApi.updatePromoCode(selectedPromo._id, formData);
+    } else {
+      res = await PromoCodeApi.createPromoCode(formData);
+    }
+
+    console.log(res.data?.data);
+    setPromoCodes(res.data?.data);
+    fetchPromoCodes();
+    setOpenSidebar(false);
+  } catch (err) {
+    console.error("Error saving promo code:", err);
+  }
+
+  handleLoading(false);
+  setSelectedPromo();
+  setPromoCodes();
+},
+
   });
 
   const handleDelete = async () => {
@@ -265,58 +285,52 @@ const PromoCodeManagement = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Promo Codes</h1>
+    <div className='p-6'>
+      <div className='flex justify-between items-center mb-8'>
+        <h1 className='text-3xl font-bold text-gray-800'>Promo Codes</h1>
         <Button
-          text="Add Promo Code"
-          icon={<FaPlus className="mr-2" />}
+          text='Add Promo Code'
+          icon={<FaPlus className='mr-2' />}
           onClick={() => {
             setSelectedPromo(null);
             setOpenSidebar(true);
           }}
-          className="px-6 py-3"
+          className='px-6 py-3'
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
         <AnimatePresence>
           {promoCodes?.map((promo) => (
             <motion.div
               key={promo._id}
               variants={cardVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              whileHover="hover"
-              className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100"
+              initial='hidden'
+              animate='visible'
+              exit='hidden'
+              whileHover='hover'
+              className='bg-white rounded-xl shadow-md overflow-hidden border border-gray-100'
             >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center">
-                    <div className="bg-indigo-100 p-3 rounded-full mr-4">
-                      <MdDiscount className="text-indigo-600 text-2xl" />
+              <div className='p-6'>
+                <div className='flex justify-between items-start mb-4'>
+                  <div className='flex items-center'>
+                    <div className='bg-indigo-100 p-3 rounded-full mr-4'>
+                      <MdDiscount className='text-indigo-600 text-2xl' />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800">
-                        {promo.code}
-                      </h3>
+                      <h3 className='text-xl font-bold text-gray-800'>{promo.code}</h3>
                       <div
                         className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(getStatusBadge(promo.isActive, promo.startDate, promo.endDate))}`}
                       >
-                        {getStatusBadge(
-                          promo.isActive,
-                          promo.startDate,
-                          promo.endDate
-                        )}
+                        {getStatusBadge(promo.isActive, promo.startDate, promo.endDate)}
                       </div>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className='flex space-x-2'>
                     <button
                       onClick={() => copyToClipboard(promo.code)}
-                      className="text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors"
-                      title="Copy code"
+                      className='text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors'
+                      title='Copy code'
                     >
                       <MdOutlineContentCopy size={20} />
                     </button>
@@ -325,71 +339,64 @@ const PromoCodeManagement = () => {
                         setSelectedPromo(promo);
                         setOpenSidebar(true);
                       }}
-                      className="text-gray-500 cursor-pointer hover:text-indigo-600 transition-colors"
-                      title="Edit"
+                      className='text-gray-500 cursor-pointer hover:text-indigo-600 transition-colors'
+                      title='Edit'
                     >
                       <FaRegEdit size={18} />
                     </button>
                     <button
                       onClick={() => setDeleteModal(promo)}
-                      className="text-gray-500 cursor-pointer hover:text-red-600 transition-colors"
-                      title="Delete"
+                      className='text-gray-500 cursor-pointer hover:text-red-600 transition-colors'
+                      title='Delete'
                     >
                       <MdOutlineDeleteOutline size={20} />
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center">
-                    {promo.discountType === "Percentage" ? (
-                      <MdPercent className="text-green-500 mr-1" size={20} />
+                <div className='flex items-center justify-between mb-3'>
+                  <div className='flex items-center'>
+                    {promo.discountType === 'Percentage' ? (
+                      <MdPercent className='text-green-500 mr-1' size={20} />
                     ) : (
-                      <MdAttachMoney
-                        className="text-green-500 mr-1"
-                        size={20}
-                      />
+                      <MdAttachMoney className='text-green-500 mr-1' size={20} />
                     )}
-                    <span className="font-bold text-gray-800">
+                    <span className='font-bold text-gray-800'>
                       {promo.discountValue?.$numberDecimal}
-                      {promo.discountType === "Percentage" ? "%" : ""} off
+                      {promo.discountType === 'Percentage' ? '%' : ''} off
                     </span>
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className='text-sm text-gray-500'>
                     Min. order: ${promo.minOrderAmount?.$numberDecimal}
                   </div>
                 </div>
 
-                {promo.discountType === "Percentage" && (
-                  <div className="text-sm text-gray-500 mb-4">
+                {promo.discountType === 'Percentage' && (
+                  <div className='text-sm text-gray-500 mb-4'>
                     Min discount: ${promo.maxDiscountAmount?.$numberDecimal}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-                  <div className="flex items-center">
-                    <MdEventAvailable className="mr-1" size={16} />
-                    <span>
-                      {new Date(promo.startDate).toLocaleDateString()}
-                    </span>
+                <div className='flex items-center justify-between text-sm text-gray-500 mb-2'>
+                  <div className='flex items-center'>
+                    <MdEventAvailable className='mr-1' size={16} />
+                    <span>{new Date(promo.startDate).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center">
-                    <MdEventBusy className="mr-1" size={16} />
+                  <div className='flex items-center'>
+                    <MdEventBusy className='mr-1' size={16} />
                     <span>{new Date(promo.endDate).toLocaleDateString()}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                  <div className="text-sm">
-                    <span className="font-medium">Uses: </span>
-                    <span className="text-gray-500">
-                      {parseInt(promo.maxUses?.$numberDecimal)}
-                    </span>
+                <div className='mt-4 pt-4 border-t border-gray-100 flex justify-between items-center'>
+                  <div className='text-sm'>
+                    <span className='font-medium'>Uses: </span>
+                    <span className='text-gray-500'>{parseInt(promo.maxUses?.$numberDecimal)}</span>
                   </div>
                   {promo.isActive && (
                     <button
                       onClick={() => copyToClipboard(promo.code)}
-                      className="text-sm cursor-pointer text-indigo-600 hover:text-indigo-800 font-medium"
+                      className='text-sm cursor-pointer text-indigo-600 hover:text-indigo-800 font-medium'
                     >
                       Copy Code
                     </button>
@@ -405,20 +412,18 @@ const PromoCodeManagement = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center py-12"
+          className='flex flex-col items-center justify-center py-12'
         >
-          <div className="bg-indigo-100 p-6 rounded-full mb-4">
-            <MdDiscount className="text-indigo-600 text-4xl" />
+          <div className='bg-indigo-100 p-6 rounded-full mb-4'>
+            <MdDiscount className='text-indigo-600 text-4xl' />
           </div>
-          <h3 className="text-xl font-medium text-gray-800 mb-2">
-            No promo codes yet
-          </h3>
-          <p className="text-gray-500 mb-6">
+          <h3 className='text-xl font-medium text-gray-800 mb-2'>No promo codes yet</h3>
+          <p className='text-gray-500 mb-6'>
             Create your first promo code to attract more customers
           </p>
           <Button
-            text="Create Promo Code"
-            icon={<FaPlus className="mr-2" />}
+            text='Create Promo Code'
+            icon={<FaPlus className='mr-2' />}
             onClick={() => setOpenSidebar(true)}
           />
         </motion.div>
@@ -426,36 +431,63 @@ const PromoCodeManagement = () => {
 
       {openSidebar && (
         <SidebarField
-          title={selectedPromo ? "Edit Promo Code" : "Create New Promo Code"}
+          title={selectedPromo ? 'Edit Promo Code' : 'Create New Promo Code'}
           handleClose={() => {
             setOpenSidebar(false);
             setSelectedPromo(null);
           }}
-
-           button1={
+          button1={
             <Button
-              variant="outline"
+              variant='outline'
               onClick={() => formik.resetForm()}
-              text="Reset"
-              className="w-full"
+              text='Reset'
+              className='w-full'
             />
           }
           button2={
             <Button
-              text={selectedPromo ? "Update" : "Create"}
+              text={selectedPromo ? 'Update' : 'Create'}
               onClick={formik.handleSubmit}
-              type="submit"
-              className="w-full"
+              type='submit'
+              className='w-full'
             />
           }
-         
         >
-          <form onSubmit={formik.handleSubmit} className="space-y-4">
-            <div className="relative">
+          <form onSubmit={formik.handleSubmit} className='space-y-4'>
+            <div className='relative'>
+              {/* Image Upload */}
               <InputField
-                name="code"
-                label="Promo Code"
-                placeholder="e.g. SUMMER20"
+                name='image'
+                label='Image'
+                type='file'
+                accept='image/*'
+                isRequired
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    formik.setFieldValue('image', file);
+                  }
+                }}
+                onBlur={formik.handleBlur}
+                error={formik.touched.image && formik.errors.image}
+              />
+             {selectedPromo?.image&& (
+              <img src={selectedPromo?.image} alt='Preview'
+                  className='w-32 h-32 object-cover rounded-md mt-2 border' />
+             )}
+              {/* Image Preview */}
+              {formik.values.image && typeof formik.values.image === 'object' && (
+                <img
+                  src={URL.createObjectURL(formik.values.image)}
+                  alt='Preview'
+                  className='w-32 h-32 object-cover rounded-md mt-2 border'
+                />
+              )}
+
+              <InputField
+                name='code'
+                label='Promo Code'
+                placeholder='e.g. SUMMER20'
                 value={formik.values.code}
                 onChange={formik.handleChange}
                 error={formik.touched.code && formik.errors.code}
@@ -463,61 +495,52 @@ const PromoCodeManagement = () => {
               />
               {!selectedPromo && (
                 <button
-                  type="button"
+                  type='button'
                   onClick={handleGenerateNewCode}
-                  className="absolute right-3 top-0 cursor-pointer text-gray-500 hover:text-indigo-600 transition-colors"
-                  title="Generate new code"
+                  className='absolute right-3 top-0 cursor-pointer text-gray-500 hover:text-indigo-600 transition-colors'
+                  title='Generate new code'
                 >
                   <MdAutorenew size={20} />
                 </button>
               )}
               {!selectedPromo && (
-                <p className="text-xs text-gray-500 mt-1">
-                  We've generated a code for you. Feel free to edit it or
-                  generate a new one.
+                <p className='text-xs text-gray-500 mt-1'>
+                  We've generated a code for you. Feel free to edit it or generate a new one.
                 </p>
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className='grid grid-cols-2 gap-4'>
               <InputField
-                name="discountType"
-                label="Discount Type"
-                type="select"
-                options={[{ label: "Percentage", value: "Percentage" }]}
+                name='discountType'
+                label='Discount Type'
+                type='select'
+                options={[{ label: 'Percentage', value: 'Percentage' }]}
                 value={formik.values.discountType}
                 onChange={formik.handleChange}
-                error={
-                  formik.touched.discountType && formik.errors.discountType
-                }
+                error={formik.touched.discountType && formik.errors.discountType}
                 isRequired
               />
 
               <InputField
-                name="discountValue"
+                name='discountValue'
                 label={
-                  formik.values.discountType === "Percentage"
-                    ? "Discount Percentage"
-                    : "Discount Amount"
+                  formik.values.discountType === 'Percentage'
+                    ? 'Discount Percentage'
+                    : 'Discount Amount'
                 }
-                type="number"
+                type='number'
                 placeholder={
-                  formik.values.discountType === "Percentage"
-                    ? "set discount percentage"
-                    : "set fixed discount amount"
+                  formik.values.discountType === 'Percentage'
+                    ? 'set discount percentage'
+                    : 'set fixed discount amount'
                 }
                 value={formik.values.discountValue}
                 onChange={formik.handleChange}
-                error={
-                  formik.touched.discountValue && formik.errors.discountValue
-                }
+                error={formik.touched.discountValue && formik.errors.discountValue}
                 isRequired
                 icon={
-                  formik.values.discountType === "Percentage" ? (
-                    <MdPercent />
-                  ) : (
-                    <MdAttachMoney />
-                  )
+                  formik.values.discountType === 'Percentage' ? <MdPercent /> : <MdAttachMoney />
                 }
               />
             </div>
@@ -540,24 +563,22 @@ const PromoCodeManagement = () => {
             )} */}
 
             <InputField
-              name="minOrderAmount"
-              label="Minimum Order Amount"
-              type="number"
-              placeholder="set Minimum Order Amount"
+              name='minOrderAmount'
+              label='Minimum Order Amount'
+              type='number'
+              placeholder='set Minimum Order Amount'
               value={formik.values.minOrderAmount}
               onChange={formik.handleChange}
-              error={
-                formik.touched.minOrderAmount && formik.errors.minOrderAmount
-              }
+              error={formik.touched.minOrderAmount && formik.errors.minOrderAmount}
               isRequired
               icon={<MdAttachMoney />}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className='grid grid-cols-2 gap-4'>
               <InputField
-                name="startDate"
-                label="Start Date"
-                type="date"
+                name='startDate'
+                label='Start Date'
+                type='date'
                 value={formatDate(formik.values.startDate)}
                 onChange={formik.handleChange}
                 error={formik.touched.startDate && formik.errors.startDate}
@@ -565,9 +586,9 @@ const PromoCodeManagement = () => {
               />
 
               <InputField
-                name="endDate"
-                label="End Date"
-                type="date"
+                name='endDate'
+                label='End Date'
+                type='date'
                 value={formatDate(formik.values.endDate)}
                 onChange={formik.handleChange}
                 error={formik.touched.endDate && formik.errors.endDate}
@@ -576,10 +597,10 @@ const PromoCodeManagement = () => {
             </div>
 
             <InputField
-              name="maxUses"
-              label="Maximum Uses"
-              type="number"
-              placeholder="set maximum uses of PROMO CODE"
+              name='maxUses'
+              label='Maximum Uses'
+              type='number'
+              placeholder='set maximum uses of PROMO CODE'
               value={formik.values.maxUses}
               onChange={formik.handleChange}
               error={formik.touched.maxUses && formik.errors.maxUses}
@@ -599,11 +620,18 @@ const PromoCodeManagement = () => {
                         ]}
                     /> */}
             <InputField
-              name="description"
-              label="description"
+              name='description'
+              label='Description'
               value={formik.values.description}
               onChange={formik.handleChange}
               error={formik.touched.description && formik.errors.description}
+            />
+            <InputField
+              name='termsAndConditions'
+              label='Terms and Conditions'
+              value={formik.values.termsAndConditions}
+              onChange={formik.handleChange}
+              error={formik.touched.termsAndConditions && formik.errors.termsAndConditions}
             />
           </form>
         </SidebarField>
@@ -614,7 +642,7 @@ const PromoCodeManagement = () => {
           deleteModal={deleteModal}
           setDeleteModal={setDeleteModal}
           handleDelete={handleDelete}
-          title="Delete Promo Code"
+          title='Delete Promo Code'
           message={`Are you sure you want to delete the promo code "${deleteModal.code}"? This action cannot be undone.`}
         />
       )}

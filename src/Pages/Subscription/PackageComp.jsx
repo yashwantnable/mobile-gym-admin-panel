@@ -5,7 +5,7 @@ import { useFormik } from 'formik';
 import { PackageApi } from '../../Api/Subscription.api';
 import { toast } from 'react-toastify';
 import { useLoading } from '../../Components/loader/LoaderContext';
-import { FiCalendar, FiEdit, FiPackage, FiTrash2 } from 'react-icons/fi';
+import { FiCalendar, FiEdit, FiPackage, FiPlus, FiTrash, FiTrash2 } from 'react-icons/fi';
 import Button from '../../Components/Button';
 
 const PackageComp = ({ activeTab, isOpen, setOpen }) => {
@@ -20,6 +20,7 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
       duration: selectedRow?.duration || '', // e.g., 'monthly'
       numberOfClasses: selectedRow?.numberOfClasses || '',
       image: selectedRow?.image || '', // file or existing path
+      features: selectedRow?.features || [''],
     },
     // validationSchema: packageValidationSchema,
     enableReinitialize: true,
@@ -31,7 +32,9 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
       formData.append('price', values.price);
       formData.append('duration', values.duration);
       formData.append('numberOfClasses', values.numberOfClasses);
-
+      values.features.forEach((feature) => {
+  formData.append('features[]', feature);
+});
       if (values.image instanceof File) {
         formData.append('image', values.image);
       }
@@ -52,7 +55,7 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
         }
 
         resetForm();
-        allPackages();
+        setAllpackages();
         setOpen(null);
         setSelectedRow(null);
       } catch (error) {
@@ -107,7 +110,7 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
 
   useEffect(() => {
     getPackages();
-  }, []);
+  }, [activeTab==="packages"]);
   return (
     <div>
       {activeTab === 'packages' && (
@@ -281,6 +284,60 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
               onBlur={formik.handleBlur}
               error={formik.touched.duration && formik.errors.duration}
             />
+          </div>
+
+               {/* Features Input Section */}
+          <div>
+            <label className='block text-md font-medium text-gray-700 mb-1'>
+              Features <span className='text-red-500'>*</span>
+            </label>
+
+            {formik.values.features.map((feature, index) => (
+              <div key={index} className='flex gap-2 items-center mb-2'>
+                <input
+                  type='text'
+                  name={`features[${index}]`}
+                  value={feature}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className='flex-1 px-3 py-2 border rounded border-gray-300'
+                  placeholder={`Feature ${index + 1}`}
+                />
+
+                {/* Remove Button (if more than 1 feature) */}
+                {formik.values.features.length > 1 && (
+                  <button
+                    type='button'
+                    onClick={() => {
+                      const updated = [...formik.values.features];
+                      updated.splice(index, 1);
+                      formik.setFieldValue('features', updated);
+                    }}
+                    className='text-red-500 hover:text-red-700'
+                  >
+                    <FiTrash />
+                  </button>
+                )}
+
+                {/* Add Button (only on last item) */}
+                {index === formik.values.features.length - 1 && (
+                  <button
+                    type='button'
+                    onClick={() =>
+                      formik.setFieldValue('features', [...formik.values.features, ''])
+                    }
+                    className='text-primary hover:text-blue-600'
+                  >
+                    <FiPlus />
+                  </button>
+                )}
+              </div>
+            ))}
+
+            {/* Optional Error Display */}
+            {formik.touched.features && typeof formik.errors.features === 'string' && (
+              <p className='text-red-500 text-sm mt-1'>{formik.errors.features}</p>
+            )}
           </div>
 
           {/* 🧩 Actions */}

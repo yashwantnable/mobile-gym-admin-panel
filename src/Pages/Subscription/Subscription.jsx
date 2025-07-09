@@ -10,7 +10,7 @@ import { CategoryApi } from '../../Api/Category.Api';
 import { MasterApi } from '../../Api/Master.api';
 import DeleteModal from '../../Components/DeleteModal';
 import DatePicker from 'react-datepicker';
-import { FiEdit, FiTrash2, FiCalendar, FiClock, FiMapPin } from 'react-icons/fi';
+import { FiEdit, FiPlus, FiTrash, FiTrash2, FiCalendar, FiClock, FiMapPin } from 'react-icons/fi';
 import { TrainerApi } from '../../Api/Trainer.api';
 import { useLoading } from '../../Components/loader/LoaderContext';
 import WeeklyCalendar from './WeeklyCalendar';
@@ -106,6 +106,17 @@ const Subscription = () => {
   const [deleteModal, setDeleteModal] = useState(null);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [tenureOptions, setTenureOptions] = useState([]);
+  const [filters, setFilters] = useState({
+    trainerId: '',
+    categoryId: '',
+    location: '',
+    isExpired: '',
+  });
+
+    const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ [name]: value }));
+  };
 
   const Columns = useMemo(
     () => [
@@ -247,25 +258,106 @@ const Subscription = () => {
 
     description: Yup.string(),
   });
-  const allSubscriptions = async (expired) => {
-    try {
-      handleLoading(true);
-      const res = await SubscriptionApi.getAllSubscription(expired || false);
-      const allData = res?.data?.data || [];
 
-      setAllSubscription(allData);
+  //   const allSubscriptions = async (expired) => {
+  //     try {
+  //       handleLoading(true);
+  //       const res = await SubscriptionApi.getAllSubscription(expired || false);
+  //       const allData = res?.data?.data || [];
 
-      const singleClassOnly = allData.filter((sub) => sub.isSingleClass === true);
-      setAllClasses(singleClassOnly);
+  //       setAllSubscription(allData);
 
-      console.log('all subscriptions:', allData);
-    } catch (err) {
-      toast.error('Error fetching subscriptions');
-      console.error(err);
-    } finally {
-      handleLoading(false);
+  //       // const singleClassOnly = allData.filter((sub) => sub.isSingleClass === true);
+  //       // setAllClasses(singleClassOnly);
+
+  //       console.log('all subscriptions:', allData);
+  //     } catch (err) {
+  //       toast.error('Error fetching subscriptions');
+  //       console.error(err);
+  //     } finally {
+  //       handleLoading(false);
+  //     }
+  //   };
+
+  // const getAllClass = async (expired) => {
+  //   try {
+  //     handleLoading(true);
+
+  //     const payload = {
+  //       expired: expired || false,
+  //     };
+
+  //     if (activeTab === "classes") {
+  //       payload.isSingleClass = true;
+  //     }
+
+  //     const res = await SubscriptionApi.getAllSubscriptionFilter(payload);
+  //     const allData = res?.data?.data?.subscriptions || [];
+  //     console.log("allData:",allData)
+  //     setAllSubscription(allData);
+
+  //     console.log('all subscriptions:', allData);
+  //   } catch (err) {
+  //     toast.error('Error fetching subscriptions');
+  //     console.error(err);
+  //   } finally {
+  //     handleLoading(false);
+  //   }
+  // };
+ const fetchSubscriptions = async (expired = false) => {
+  try {
+    handleLoading(true);
+    let allData = [];
+
+    if (activeTab === 'classes') {
+      const payload = {
+        expired,
+        isSingleClass: true,
+      };
+      const res = await SubscriptionApi.getAllSubscriptionFilter(payload);
+      allData = res?.data?.data?.subscriptions || [];
+    } else {
+      // Apply filters only in 'subscriptions' tab
+      const payload = {
+        expired,
+        ...filters, // Apply trainerId, categoryId, location, isExpired (if any)
+      };
+      const res = await SubscriptionApi.getAllSubscriptionFilter(payload);
+      allData = res?.data?.data?.subscriptions || [];
     }
-  };
+
+    setAllSubscription(allData);
+    console.log('all subscriptions:', allData);
+  } catch (err) {
+    toast.error('Error fetching subscriptions');
+    console.error(err);
+  } finally {
+    handleLoading(false);
+  }
+};
+
+
+  const handleEventClick = (eventData) => {
+  // Prefill formik values
+  formik.setValues({
+    ...formik.initialValues,
+    ...eventData,
+    trainer: eventData.trainer?._id || '',
+    categoryId: eventData.categoryId?._id || '',
+    sessionType: eventData.sessionType?._id || '',
+    Address: eventData.Address?._id || '',
+    date: eventData.date,
+  });
+
+  // Open modal
+  setOpen('class');
+};
+
+
+
+  // useEffect(() => {
+  //   getAllClass(false);
+  // }, [activeTab === "classes"]);
 
   console.log('all single classes:', allClasses);
   const getAllLocations = async (isExpire) => {
@@ -305,10 +397,10 @@ const Subscription = () => {
 
   const handleDelete = async () => {
     try {
-      const res = await SubscriptionApi.DeleteSubscription(deleteModal?._id);
+      const res = await SubscriptionApi.DeleteSubscription(deleteModal||deleteModal?._id);
       toast.success('Subscription deleted successfully');
       setDeleteModal(null);
-      allSubscriptions();
+      fetchSubscriptions();
     } catch (err) {
       toast.error('error:', err);
     }
@@ -384,9 +476,14 @@ const Subscription = () => {
       formData.append('endTime', values.endTime);
       formData.append('Address', values.Address);
       formData.append('isSingleClass', String(values.isSingleClass));
+     
 
       if (values.date) {
         formData.append('date', JSON.stringify(values.date));
+      }
+
+      if (values.features && values.features.length > 0) {
+        formData.append('features', JSON.stringify(values.features));
       }
 
       if (values.media) {
@@ -403,13 +500,8 @@ const Subscription = () => {
           toast.success('Subscription created successfully');
         }
 
-        console.log('FormData entries:');
-        for (let pair of formData.entries()) {
-          console.log(`${pair[0]}:`, pair[1]);
-        }
-
         resetForm();
-        allSubscriptions();
+        fetchSubscriptions();
         setOpen(null);
         setSelectedRow(null);
       } catch (error) {
@@ -464,11 +556,11 @@ const Subscription = () => {
     });
   };
 
-  useEffect(() => {
-    // const isExpired = activeTab === "expired";
-    console.log('isExpired:', isExpire);
-    allSubscriptions(isExpire);
-  }, [isExpire]);
+  // useEffect(() => {
+  //   // const isExpired = activeTab === "expired";
+  //   console.log('isExpired:', isExpire);
+  //   allSubscriptions(isExpire);
+  // }, [isExpire]);
 
   const tabs = [
     { key: 'subscription', label: 'Subscription' },
@@ -483,7 +575,11 @@ const Subscription = () => {
   };
 
   useEffect(() => {
-    allSubscriptions();
+    fetchSubscriptions();
+  }, [activeTab,filters]);
+
+  useEffect(() => {
+    fetchSubscriptions();
     getAllLocations();
     getAllCategories();
     handleCountry();
@@ -521,7 +617,6 @@ const Subscription = () => {
           )} */}
         </div>
       </div>
-      
 
       {/* Subscription Cards Section */}
 
@@ -529,115 +624,24 @@ const Subscription = () => {
       {activeTab === 'classes' && (
         <div className='bg-white rounded-lg shadow-lg'>
           <div className='p-6'>
-            <ClassCalendar allClasses={allClasses} />
+            <ClassCalendar allClasses={allSubscription} onEventClick={handleEventClick} setSelectedRow={setSelectedRow}/>
+
           </div>
         </div>
       )}
 
       {activeTab === 'subscription' && (
         <div>
-          <SubscriptionTable setSelectedRow={setSelectedRow} setOpen={setOpen}/>
+          <SubscriptionTable
+            allSubscription={allSubscription}
+            filters={filters}
+            setFilters={setFilters}
+            setDeleteModal={setDeleteModal}
+            handleChange={handleFilterChange}
+            setSelectedRow={setSelectedRow}
+            setOpen={setOpen}
+          />
         </div>
-        // <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-10 mx-auto'>
-        //   {allSubscription.map((sub) => (
-        //     <div
-        //       key={sub._id}
-        //       className='relative group bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-blue-100'
-        //     >
-        //       {/* Top-right action buttons with fade-in effect */}
-        //       <div className='absolute top-4 right-4 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-        //         <button
-        //           onClick={() => {
-        //             setSelectedRow(sub);
-        //             setOpen('subscription');
-        //           }}
-        //           className='p-2 bg-white/90 backdrop-blur-sm shadow-md text-primary rounded-full hover:bg-primary hover:text-white transition-all'
-        //           title='Edit'
-        //         >
-        //           <FiEdit size={16} />
-        //         </button>
-        //         <button
-        //           onClick={() => setDeleteModal(sub)}
-        //           className='p-2 bg-white/90 backdrop-blur-sm shadow-md text-red-600 rounded-full hover:bg-red-600 hover:text-white transition-all'
-        //           title='Delete'
-        //         >
-        //           <FiTrash2 size={16} />
-        //         </button>
-        //       </div>
-
-        //       {/* Image with gradient overlay */}
-        //       {sub.media && (
-        //         <div className='relative h-48 overflow-hidden'>
-        //           <img
-        //             src={sub.media}
-        //             alt={sub.name}
-        //             className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
-        //           />
-        //           <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
-        //           <span className='absolute top-3 left-3 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full'>
-        //             {sub.sessionType?.sessionName}
-        //           </span>
-        //         </div>
-        //       )}
-
-        //       {/* Content */}
-        //       <div className='p-5 flex flex-col gap-3'>
-        //         <div>
-        //           <h2 className='text-xl font-bold text-gray-800 capitalize line-clamp-1'>
-        //             {sub.name}
-        //           </h2>
-        //           <p className='text-sm text-gray-500'>
-        //             with {sub?.trainer?.first_name} {sub?.trainer?.last_name}
-        //           </p>
-        //         </div>
-
-        //         {/* Date and time badge */}
-        //         <div className='flex flex-wrap gap-2'>
-        //           {sub.date?.length === 2 && (
-        //             <span className='inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs'>
-        //               <FiCalendar className='w-3 h-3 mr-1' />
-        //               {new Date(sub.date[0]).toLocaleDateString()} -{' '}
-        //               {new Date(sub.date[1]).toLocaleDateString()}
-        //             </span>
-        //           )}
-        //           {sub.date?.length === 1 && (
-        //             <span className='inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs'>
-        //               <FiCalendar className='w-3 h-3 mr-1' />
-        //               {new Date(sub.date[0]).toLocaleDateString()}
-        //             </span>
-        //           )}
-
-        //           <span className='inline-flex items-center px-3 py-1 rounded-full bg-purple-50 text-purple-800 text-xs'>
-        //             <FiClock className='w-3 h-3 mr-1' />
-        //             {formatTime12Hour(sub.startTime)} - {formatTime12Hour(sub.endTime)}
-        //           </span>
-        //         </div>
-
-        //         {/* Location */}
-        //         <div className='flex items-start gap-2 text-sm text-gray-600'>
-        //           <FiMapPin className='w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400' />
-        //           <span className='line-clamp-2'>
-        //             {sub?.Address?.streetName}, {sub?.Address?.city?.name},{' '}
-        //             {sub?.Address?.country?.name}
-        //           </span>
-        //         </div>
-
-        //         {/* Description */}
-        //         {/* {sub.description && (
-        //   <p className='text-sm text-gray-700 mt-1 line-clamp-3'>{sub.description}</p>
-        // )} */}
-
-        //         {/* Price and action button */}
-        //         <div className='mt-4 flex items-center justify-end'>
-        //           <div>
-        //             {/* <span className='text-xs text-gray-500'></span> */}
-        //             <p className='text-lg font-bold text-primary'>AED {sub.price}</p>
-        //           </div>
-        //         </div>
-        //       </div>
-        //     </div>
-        //   ))}
-        // </div>
       )}
 
       {open === 'subscription' && (
@@ -1154,11 +1158,18 @@ const Subscription = () => {
             onBlur={formik.handleBlur}
             error={formik.touched.description && formik.errors.description}
           />
+         
+
           {/* You can add coordinates input or other fields here */}
 
+          <div className="flex gap-4 justify-center">
+           { selectedRow && <button onClick={()=>setDeleteModal(selectedRow)} className='px-4 py-2 border border-red-500 text-red-500 rounded-lg'>
+            Delete
+          </button>}
           <button type='submit' className='px-4 py-2 bg-primary text-white rounded-lg'>
             {selectedRow ? 'update' : 'Submit'}
           </button>
+          </div>
         </form>
       </Modal>
 
