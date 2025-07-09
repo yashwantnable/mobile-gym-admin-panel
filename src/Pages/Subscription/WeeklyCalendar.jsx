@@ -49,15 +49,28 @@ const WeeklyCalendar = ({ currentDate, onDateClick, getItemsForDate, colorClass,
     return date.toDateString() === today.toDateString();
   };
 
-  const getItemsForTimeSlot = (date, timeSlot) => {
-    const dateStr = formatDateString(date);
-    const items = getItemsForDate(dateStr);
-    
-    if (activeTab === 'classes') {
-      return items.filter(item => item.slot === timeSlot);
-    }
-    return items;
-  };
+const getItemsForTimeSlot = (date, timeSlot) => {
+  const items = getItemsForDate(formatDateString(date));
+  const dateStr = formatDateString(date);
+
+  if (activeTab === 'classes') {
+    return items.filter(item => {
+      if (!item.startTime || !item.date?.[0]) return false;
+
+      const itemDateStr = formatDateString(new Date(item.date[0]));
+      const [itemHour] = item.startTime.split(':');
+      const [slotHour] = timeSlot.split(':');
+
+      return (
+        itemDateStr === dateStr &&
+        parseInt(itemHour, 10) === parseInt(slotHour, 10)
+      );
+    });
+  }
+
+  return items;
+};
+
 
   const renderSubscriptionRange = (subscription, date) => {
     const dateStr = formatDateString(date);

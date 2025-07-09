@@ -487,76 +487,81 @@ const Customers = () => {
               </div>
               <div className='w-[100%]'>
                 <h3 className='text-xl font-semibold text-gray-800 pb-2 border-t border-gray-300 pt-3'>Customer Subscriptions</h3>
-                {userSubscriptions?.map((booking, index) => {
-                  const sub = booking.subscription;
-                  const address = sub?.Address;
+                {userSubscriptions.length > 0 ? (
+  userSubscriptions.map((booking, index) => {
+    const sub = booking.subscription;
+    const address = sub?.Address;
 
-                  return (
-                    <div
-                      key={booking._id || index}
-                      className='p-4 w-full shadow-md rounded-lg mb-6 bg-white'
-                    >
-                      <div className='flex gap-4'>
-                        <div className='w-50'>
-                          {sub?.media && (
-                            <img
-                              src={sub.media}
-                              alt='Subscription'
-                              className='w-full max-h-64 object-cover rounded-md'
-                            />
-                          )}
-                        </div>
-                        <div>
-                          <h2 className='text-xl font-bold text-gray-800 mb-2'>{sub?.name}</h2>
+    return (
+      <div
+        key={booking._id || index}
+        className='p-4 w-full shadow-md rounded-lg mb-6 bg-white'
+      >
+        <div className='flex gap-4'>
+          <div className='w-50'>
+            {sub?.media && (
+              <img
+                src={sub.media}
+                alt='Subscription'
+                className='w-full max-h-64 object-cover rounded-md'
+              />
+            )}
+          </div>
+          <div>
+            <h2 className='text-xl font-bold text-gray-800 mb-2'>{sub?.name}</h2>
+            <p>
+              <strong>Trainer:</strong> {sub?.trainer?.first_name} {sub?.trainer?.last_name}
+            </p>
+            <p>
+              <strong>Category:</strong> {sub?.categoryId?.cName}
+            </p>
+            <p>
+              <strong>Session:</strong> {sub?.sessionType?.sessionName}
+            </p>
+            <p>
+              <strong>Price:</strong> AED {sub?.price}
+            </p>
+          </div>
+        </div>
 
-                          <p>
-                            <strong>Trainer:</strong> {sub?.trainer?.first_name}{' '}
-                            {sub?.trainer?.last_name}
-                          </p>
-                          <p>
-                            <strong>Category:</strong> {sub?.categoryId?.cName}
-                          </p>
-                          <p>
-                            <strong>Session:</strong> {sub?.sessionType?.sessionName}
-                          </p>
-                          <p>
-                            <strong>Price:</strong> AED {sub?.price}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex  mt-2 gap-8">
-                        <div className='flex items-center gap-1 text-sm text-gray-600'>
-                        <FiClock className='text-yellow-500' />
-                        <span>
-                          {formatTime12Hour(sub.startTime)} - {formatTime12Hour(sub.endTime)}
-                        </span>
-                      </div>
+        <div className='flex mt-2 gap-8'>
+          <div className='flex items-center gap-1 text-sm text-gray-600'>
+            <FiClock className='text-yellow-500' />
+            <span>
+              {formatTime12Hour(sub.startTime)} - {formatTime12Hour(sub.endTime)}
+            </span>
+          </div>
 
-                      <div>
-                        {sub.date?.length === 2 && (
-                        <p className='text-sm text-gray-600 flex'>
-                          <FiCalendar /> {new Date(sub.date[0]).toLocaleDateString()} to{' '}{new Date(sub.date[1]).toLocaleDateString()}
-                        </p>
-                      )}
-                      {sub.date?.length === 1 && (
-                        <p className='text-sm text-gray-600 flex'>
-                          <FiCalendar /> {new Date(sub.date[0]).toLocaleDateString()}
-                        </p>
-                      )}
-                      </div>
-                      </div>
-                      <div className='flex items-center gap-1 text-sm text-gray-600 line-clamp-1'>
-                        <FiMapPin className='text-red-500' />
-                        <span>
-                          {sub?.Address?.streetName}, {sub?.Address?.city?.name},{' '}
-                          {sub?.Address?.country?.name}
-                        </span>
-                      </div>
+          <div className='flex items-center gap-1 text-sm text-gray-600'>
+            <FiCalendar />
+            {sub.date?.length === 2 ? (
+              <span>
+                {new Date(sub.date[0]).toLocaleDateString()} to{' '}
+                {new Date(sub.date[1]).toLocaleDateString()}
+              </span>
+            ) : (
+              sub.date?.length === 1 && (
+                <span>{new Date(sub.date[0]).toLocaleDateString()}</span>
+              )
+            )}
+          </div>
+        </div>
 
-                      
-                    </div>
-                  );
-                })}
+        <div className='flex items-center gap-1 text-sm text-gray-600 line-clamp-1'>
+          <FiMapPin className='text-red-500' />
+          <span>
+            {address?.streetName}, {address?.city?.name}, {address?.country?.name}
+          </span>
+        </div>
+      </div>
+    );
+  })
+) : (
+  <div>
+    <h4>User didn't subscribe to any classes or packages.</h4>
+  </div>
+)}
+
               </div>
             </form>
           </SidebarField>

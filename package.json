@@ -19,6 +19,7 @@
     "@fullcalendar/resource-timeline": "^6.1.18",
     "@fullcalendar/timegrid": "^6.1.18",
     "@popperjs/core": "^2.11.8",
+    "@radix-ui/react-tooltip": "^1.2.7",
     "@reduxjs/toolkit": "^2.6.1",
     "@tailwindcss/vite": "^4.0.15",
     "@tanstack/react-table": "^8.21.3",

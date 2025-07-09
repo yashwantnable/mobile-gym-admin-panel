@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import SidebarField from '../../Components/SideBarField';
 import Button from '../../Components/Button';
 import InputField from '../../Components/InputField';
-import { SubscriptionApi } from '../../Api/Subscription.api';
+import { PackageApi, SubscriptionApi } from '../../Api/Subscription.api';
 import { toast } from 'react-toastify';
 import { CategoryApi } from '../../Api/Category.Api';
 import { MasterApi } from '../../Api/Master.api';
@@ -15,6 +15,11 @@ import { TrainerApi } from '../../Api/Trainer.api';
 import { useLoading } from '../../Components/loader/LoaderContext';
 import WeeklyCalendar from './WeeklyCalendar';
 import Modal from '../../Components/Modal';
+import PackageComp from './PackageComp';
+import ClassCalendar from './ClassCalendar';
+import { Table2 } from '../../Components/Table/Table2';
+import { MdOutlineDeleteOutline } from 'react-icons/md';
+import SubscriptionTable from './SubscriptionTable';
 
 const Subscription = () => {
   const initialClasses = [
@@ -87,12 +92,11 @@ const Subscription = () => {
   const [classes, setClasses] = useState(initialClasses);
   const { handleLoading } = useLoading();
   const [open, setOpen] = useState(null);
-  const [isClassOpen, setIsClassOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [activeTab, setActiveTab] = useState('subscription');
   const [isExpire, setIsExpire] = useState(false);
-  const [subscriptions, setSubscriptions] = useState([]);
   const [allSubscription, setAllSubscription] = useState([]);
+  const [allClasses, setAllClasses] = useState([]);
   const [locationData, setLocationData] = useState([]);
   const [countryData, setCountryData] = useState([]);
   const [allTrainer, setAllTrainer] = useState([]);
@@ -102,6 +106,94 @@ const Subscription = () => {
   const [deleteModal, setDeleteModal] = useState(null);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [tenureOptions, setTenureOptions] = useState([]);
+
+  const Columns = useMemo(
+    () => [
+      {
+        headerName: 'Name',
+        field: 'name',
+        cellRenderer: (params) => params?.data?.name || 'N/A',
+      },
+      {
+        headerName: 'Trainer',
+        field: 'trainer',
+        cellRenderer: (params) => {
+          const trainer = params?.data?.trainer;
+          return trainer ? `${trainer.first_name || ''} ${trainer.last_name || ''}`.trim() : 'N/A';
+        },
+      },
+      {
+        headerName: 'Date',
+        field: 'date',
+        cellRenderer: (params) => {
+          const dates = params?.data?.date;
+          if (!dates?.length) return 'N/A';
+          if (dates.length === 2) {
+            return `${new Date(dates[0]).toLocaleDateString()} - ${new Date(
+              dates[1]
+            ).toLocaleDateString()}`;
+          }
+          return new Date(dates[0]).toLocaleDateString();
+        },
+      },
+      {
+        headerName: 'Time',
+        field: 'startTime',
+        cellRenderer: (params) => {
+          const start = params?.data?.startTime;
+          const end = params?.data?.endTime;
+          if (!start || !end) return 'N/A';
+          return `${formatTime12Hour(start)} - ${formatTime12Hour(end)}`;
+        },
+      },
+      {
+        headerName: 'Location',
+        field: 'Address',
+        cellRenderer: (params) => {
+          const a = params?.data?.Address;
+          const street = a?.streetName || '';
+          const city = a?.city?.name || '';
+          const country = a?.country?.name || '';
+          return `${street}${city ? ', ' + city : ''}${country ? ', ' + country : ''}` || 'N/A';
+        },
+      },
+      {
+        headerName: 'Price (AED)',
+        field: 'price',
+        cellRenderer: (params) => `AED ${params?.data?.price ?? 'N/A'}`,
+      },
+      {
+        headerName: 'Status',
+        field: 'status',
+        cellRenderer: (params) => params?.data?.status || 'Active',
+      },
+      {
+        headerName: 'Actions',
+        field: 'actions',
+        minWidth: 150,
+        cellRenderer: (params) => (
+          <div className='flex items-center space-x-3 mt-2'>
+            <button
+              className='text-primary transition-colors cursor-pointer'
+              onClick={() => {
+                setOpen('subscription');
+                setSelectedRow(params?.data);
+              }}
+            >
+              <FiEdit size={18} />
+            </button>
+            <button
+              className='text-red-600 hover:text-red-800 transition-colors cursor-pointer'
+              onClick={() => setDeleteModal(params?.data)}
+            >
+              <MdOutlineDeleteOutline size={20} />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [setOpen, setSelectedRow, setDeleteModal]
+  );
 
   const countryOptions = countryData.map((item) => {
     return {
@@ -155,20 +247,27 @@ const Subscription = () => {
 
     description: Yup.string(),
   });
-
-  const allSubscriptions = async (exipred) => {
+  const allSubscriptions = async (expired) => {
     try {
       handleLoading(true);
-      const res = await SubscriptionApi.getAllSubscription(exipred ? exipred : false);
-      setAllSubscription(res?.data?.data);
-      console.log('all subscriptions:', res?.data?.data);
+      const res = await SubscriptionApi.getAllSubscription(expired || false);
+      const allData = res?.data?.data || [];
+
+      setAllSubscription(allData);
+
+      const singleClassOnly = allData.filter((sub) => sub.isSingleClass === true);
+      setAllClasses(singleClassOnly);
+
+      console.log('all subscriptions:', allData);
     } catch (err) {
-      toast.error('error:', err);
+      toast.error('Error fetching subscriptions');
+      console.error(err);
     } finally {
       handleLoading(false);
     }
   };
 
+  console.log('all single classes:', allClasses);
   const getAllLocations = async (isExpire) => {
     try {
       handleLoading(true);
@@ -259,7 +358,6 @@ const Subscription = () => {
     initialValues: {
       name: selectedRow?.name || '',
       Address: selectedRow?.Address || '',
-      // coordinates: selectedRow?.location?.coordinates || [0, 0],  // NEW FIELD
       categoryId: selectedRow?.categoryId?._id || '',
       media: selectedRow?.media || '',
       sessionType: selectedRow?.sessionType?._id || '',
@@ -269,9 +367,7 @@ const Subscription = () => {
       endTime: selectedRow?.endTime || '',
       price: selectedRow?.price || '',
       description: selectedRow?.description || '',
-      // streetName: selectedRow?.streetName || '',
-      // country: selectedRow?.country?._id || "",
-      // city: selectedRow?.city?._id || "",
+      isSingleClass: selectedRow?.isSingleClass ?? activeTab === 'classes',
     },
     validationSchema: subscriptionValidationSchema,
     enableReinitialize: true,
@@ -284,25 +380,14 @@ const Subscription = () => {
       formData.append('price', values.price);
       formData.append('description', values.description);
       formData.append('trainer', values.trainer);
-      // formData.append('streetName', values.streetName);
-      // formData.append('city', values.city);
-      // formData.append('country', values.country);
       formData.append('startTime', values.startTime);
       formData.append('endTime', values.endTime);
       formData.append('Address', values.Address);
+      formData.append('isSingleClass', String(values.isSingleClass));
 
       if (values.date) {
         formData.append('date', JSON.stringify(values.date));
       }
-
-      // if (values.location && values.location.type === "Point") {
-      //   formData.append('location', JSON.stringify(values.location));
-      // } else if (
-      //   Array.isArray(values.coordinates) &&
-      //   values.coordinates.length === 2
-      // ) {
-      //   formData.append('coordinates', JSON.stringify(values.coordinates)); // NEW FIELD
-      // }
 
       if (values.media) {
         formData.append('media', values.media);
@@ -317,6 +402,7 @@ const Subscription = () => {
           res = await SubscriptionApi.createSubscription(formData);
           toast.success('Subscription created successfully');
         }
+
         console.log('FormData entries:');
         for (let pair of formData.entries()) {
           console.log(`${pair[0]}:`, pair[1]);
@@ -332,56 +418,6 @@ const Subscription = () => {
       }
     },
   });
-
-   const packageFormik = useFormik({
-  initialValues: {
-    name: selectedRow?.name || '',
-    price: selectedRow?.price || '',
-    duration: selectedRow?.duration || '', // e.g., 'monthly'
-    numberOfClasses: selectedRow?.numberOfClasses || '',
-    image: selectedRow?.image || '', // file or existing path
-  },
-  // validationSchema: packageValidationSchema,
-  enableReinitialize: true,
-
-  onSubmit: async (values, { resetForm }) => {
-    const formData = new FormData();
-
-    formData.append('name', values.name);
-    formData.append('price', values.price);
-    formData.append('duration', values.duration);
-    formData.append('numberOfClasses', values.numberOfClasses);
-
-    if (values.image instanceof File) {
-      formData.append('image', values.image); // file input
-    }
-
-    try {
-      let res;
-      if (selectedRow?._id) {
-        res = await PackageApi.updatePackage(selectedRow._id, formData);
-        toast.success('Package updated successfully');
-      } else {
-        res = await PackageApi.createPackage(formData);
-        toast.success('Package created successfully');
-      }
-
-      console.log('FormData entries:');
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
-      }
-
-      resetForm();
-      allPackages(); // Load/reload the package list
-      setOpen(null);
-      setSelectedRow(null);
-    } catch (error) {
-      console.error('Package submission error:', error);
-      toast.error('Failed to save package');
-    }
-  },
-});
-
 
   const handleCountry = async () => {
     try {
@@ -419,8 +455,13 @@ const Subscription = () => {
     }
   };
 
-  const getClassesForDate = (date) => {
-    return classes.filter((cls) => cls.date === date);
+  const getClassesForDate = (targetDate) => {
+    const selectedDate = new Date(targetDate).toDateString();
+
+    return allClasses.filter((cls) => {
+      const classDate = new Date(cls.date[0]).toDateString();
+      return classDate === selectedDate;
+    });
   };
 
   useEffect(() => {
@@ -475,31 +516,12 @@ const Subscription = () => {
           {activeTab === 'classes' && (
             <Button text='Create Class' onClick={() => setOpen('class')} />
           )}
-          {activeTab === 'packages' && (
+          {/* {activeTab === 'packages' && (
             <Button text='Create package' onClick={() => setOpen('package')} />
-          )}
+          )} */}
         </div>
       </div>
-      {activeTab === 'subscription' && (
-        <div className='flex space-x-4 mb-4'>
-          <button
-            className={`px-4 py-2 rounded-lg ${
-              !isExpire ? 'text-primary font-semibold' : 'text-gray-700'
-            }`}
-            onClick={() => setIsExpire(false)}
-          >
-            Non Expired
-          </button>
-          <button
-            className={`px-4 py-2 rounded-lg ${
-              isExpire ? 'text-primary font-semibold' : 'text-gray-700'
-            }`}
-            onClick={() => setIsExpire(true)}
-          >
-            Expired
-          </button>
-        </div>
-      )}
+      
 
       {/* Subscription Cards Section */}
 
@@ -507,130 +529,115 @@ const Subscription = () => {
       {activeTab === 'classes' && (
         <div className='bg-white rounded-lg shadow-lg'>
           <div className='p-6'>
-            <WeeklyCalendar
-              currentDate={currentDate}
-              onDateClick={handleDateClick}
-              getItemsForDate={
-                activeTab === 'subscriptions'
-                  ? getSubscriptionsForDate
-                  : activeTab === 'packages'
-                    ? getPackagesForDate
-                    : getClassesForDate
-              }
-              colorClass={
-                activeTab === 'subscriptions'
-                  ? 'bg-blue-100 text-blue-800 border-blue-200'
-                  : activeTab === 'packages'
-                    ? 'bg-green-100 text-green-800 border-green-200'
-                    : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-              }
-              activeTab={activeTab}
-            />
+            <ClassCalendar allClasses={allClasses} />
           </div>
         </div>
       )}
 
       {activeTab === 'subscription' && (
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-10 mx-auto'>
-          {allSubscription.map((sub) => (
-            <div
-              key={sub._id}
-              className='relative group bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-blue-100'
-            >
-              {/* Top-right action buttons with fade-in effect */}
-              <div className='absolute top-4 right-4 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                <button
-                  onClick={() => {
-                    setSelectedRow(sub);
-                    setOpen('subscription');
-                  }}
-                  className='p-2 bg-white/90 backdrop-blur-sm shadow-md text-primary rounded-full hover:bg-primary hover:text-white transition-all'
-                  title='Edit'
-                >
-                  <FiEdit size={16} />
-                </button>
-                <button
-                  onClick={() => setDeleteModal(sub)}
-                  className='p-2 bg-white/90 backdrop-blur-sm shadow-md text-red-600 rounded-full hover:bg-red-600 hover:text-white transition-all'
-                  title='Delete'
-                >
-                  <FiTrash2 size={16} />
-                </button>
-              </div>
-
-              {/* Image with gradient overlay */}
-              {sub.media && (
-                <div className='relative h-48 overflow-hidden'>
-                  <img
-                    src={sub.media}
-                    alt={sub.name}
-                    className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
-                  />
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
-                  <span className='absolute top-3 left-3 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full'>
-                    {sub.sessionType?.sessionName}
-                  </span>
-                </div>
-              )}
-
-              {/* Content */}
-              <div className='p-5 flex flex-col gap-3'>
-                <div>
-                  <h2 className='text-xl font-bold text-gray-800 capitalize line-clamp-1'>
-                    {sub.name}
-                  </h2>
-                  <p className='text-sm text-gray-500'>
-                    with {sub?.trainer?.first_name} {sub?.trainer?.last_name}
-                  </p>
-                </div>
-
-                {/* Date and time badge */}
-                <div className='flex flex-wrap gap-2'>
-                  {sub.date?.length === 2 && (
-                    <span className='inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs'>
-                      <FiCalendar className='w-3 h-3 mr-1' />
-                      {new Date(sub.date[0]).toLocaleDateString()} -{' '}
-                      {new Date(sub.date[1]).toLocaleDateString()}
-                    </span>
-                  )}
-                  {sub.date?.length === 1 && (
-                    <span className='inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs'>
-                      <FiCalendar className='w-3 h-3 mr-1' />
-                      {new Date(sub.date[0]).toLocaleDateString()}
-                    </span>
-                  )}
-
-                  <span className='inline-flex items-center px-3 py-1 rounded-full bg-purple-50 text-purple-800 text-xs'>
-                    <FiClock className='w-3 h-3 mr-1' />
-                    {formatTime12Hour(sub.startTime)} - {formatTime12Hour(sub.endTime)}
-                  </span>
-                </div>
-
-                {/* Location */}
-                <div className='flex items-start gap-2 text-sm text-gray-600'>
-                  <FiMapPin className='w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400' />
-                  <span className='line-clamp-2'>
-                    {sub?.Address?.streetName}, {sub?.Address?.city?.name},{' '}
-                    {sub?.Address?.country?.name}
-                  </span>
-                </div>
-
-                {/* Description */}
-                {/* {sub.description && (
-          <p className='text-sm text-gray-700 mt-1 line-clamp-3'>{sub.description}</p>
-        )} */}
-
-                {/* Price and action button */}
-                <div className='mt-4 flex items-center justify-end'>
-                  <div>
-                    {/* <span className='text-xs text-gray-500'></span> */}
-                    <p className='text-lg font-bold text-primary'>AED {sub.price}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div>
+          <SubscriptionTable setSelectedRow={setSelectedRow} setOpen={setOpen}/>
         </div>
+        // <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-10 mx-auto'>
+        //   {allSubscription.map((sub) => (
+        //     <div
+        //       key={sub._id}
+        //       className='relative group bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-blue-100'
+        //     >
+        //       {/* Top-right action buttons with fade-in effect */}
+        //       <div className='absolute top-4 right-4 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+        //         <button
+        //           onClick={() => {
+        //             setSelectedRow(sub);
+        //             setOpen('subscription');
+        //           }}
+        //           className='p-2 bg-white/90 backdrop-blur-sm shadow-md text-primary rounded-full hover:bg-primary hover:text-white transition-all'
+        //           title='Edit'
+        //         >
+        //           <FiEdit size={16} />
+        //         </button>
+        //         <button
+        //           onClick={() => setDeleteModal(sub)}
+        //           className='p-2 bg-white/90 backdrop-blur-sm shadow-md text-red-600 rounded-full hover:bg-red-600 hover:text-white transition-all'
+        //           title='Delete'
+        //         >
+        //           <FiTrash2 size={16} />
+        //         </button>
+        //       </div>
+
+        //       {/* Image with gradient overlay */}
+        //       {sub.media && (
+        //         <div className='relative h-48 overflow-hidden'>
+        //           <img
+        //             src={sub.media}
+        //             alt={sub.name}
+        //             className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+        //           />
+        //           <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+        //           <span className='absolute top-3 left-3 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full'>
+        //             {sub.sessionType?.sessionName}
+        //           </span>
+        //         </div>
+        //       )}
+
+        //       {/* Content */}
+        //       <div className='p-5 flex flex-col gap-3'>
+        //         <div>
+        //           <h2 className='text-xl font-bold text-gray-800 capitalize line-clamp-1'>
+        //             {sub.name}
+        //           </h2>
+        //           <p className='text-sm text-gray-500'>
+        //             with {sub?.trainer?.first_name} {sub?.trainer?.last_name}
+        //           </p>
+        //         </div>
+
+        //         {/* Date and time badge */}
+        //         <div className='flex flex-wrap gap-2'>
+        //           {sub.date?.length === 2 && (
+        //             <span className='inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs'>
+        //               <FiCalendar className='w-3 h-3 mr-1' />
+        //               {new Date(sub.date[0]).toLocaleDateString()} -{' '}
+        //               {new Date(sub.date[1]).toLocaleDateString()}
+        //             </span>
+        //           )}
+        //           {sub.date?.length === 1 && (
+        //             <span className='inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs'>
+        //               <FiCalendar className='w-3 h-3 mr-1' />
+        //               {new Date(sub.date[0]).toLocaleDateString()}
+        //             </span>
+        //           )}
+
+        //           <span className='inline-flex items-center px-3 py-1 rounded-full bg-purple-50 text-purple-800 text-xs'>
+        //             <FiClock className='w-3 h-3 mr-1' />
+        //             {formatTime12Hour(sub.startTime)} - {formatTime12Hour(sub.endTime)}
+        //           </span>
+        //         </div>
+
+        //         {/* Location */}
+        //         <div className='flex items-start gap-2 text-sm text-gray-600'>
+        //           <FiMapPin className='w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400' />
+        //           <span className='line-clamp-2'>
+        //             {sub?.Address?.streetName}, {sub?.Address?.city?.name},{' '}
+        //             {sub?.Address?.country?.name}
+        //           </span>
+        //         </div>
+
+        //         {/* Description */}
+        //         {/* {sub.description && (
+        //   <p className='text-sm text-gray-700 mt-1 line-clamp-3'>{sub.description}</p>
+        // )} */}
+
+        //         {/* Price and action button */}
+        //         <div className='mt-4 flex items-center justify-end'>
+        //           <div>
+        //             {/* <span className='text-xs text-gray-500'></span> */}
+        //             <p className='text-lg font-bold text-primary'>AED {sub.price}</p>
+        //           </div>
+        //         </div>
+        //       </div>
+        //     </div>
+        //   ))}
+        // </div>
       )}
 
       {open === 'subscription' && (
@@ -1062,17 +1069,24 @@ const Subscription = () => {
                 Dates <span className='text-red-500'>*</span>
               </label>
               <DatePicker
-                selected={formik.values.date?.[0] || null}
-                startDate={formik.values.date?.[0] || null}
-                endDate={formik.values.date?.[1] || null}
+                selected={formik.values.date?.[0] ? new Date(formik.values.date[0]) : null}
+                startDate={formik.values.date?.[0] ? new Date(formik.values.date[0]) : null}
+                endDate={formik.values.date?.[1] ? new Date(formik.values.date[1]) : null}
                 onChange={(dates) => {
-                  const [start] = dates;
+                  const [start, end] = dates;
 
-                  // If only start is selected, make end same as start
-                  if (start) {
-                    formik.setFieldValue('date', [start]);
-                  } else if (start && end) {
-                    formik.setFieldValue('date', [start, end]);
+                  const toLocalDateString = (date) =>
+                    date
+                      ? new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString()
+                      : null;
+
+                  if (start && end) {
+                    formik.setFieldValue('date', [
+                      toLocalDateString(start),
+                      toLocalDateString(end),
+                    ]);
+                  } else if (start) {
+                    formik.setFieldValue('date', [toLocalDateString(start)]);
                   } else {
                     formik.setFieldValue('date', []);
                   }
@@ -1143,93 +1157,12 @@ const Subscription = () => {
           {/* You can add coordinates input or other fields here */}
 
           <button type='submit' className='px-4 py-2 bg-primary text-white rounded-lg'>
-            Submit
+            {selectedRow ? 'update' : 'Submit'}
           </button>
         </form>
       </Modal>
 
-      <Modal isOpen={open === 'package'} onClose={() => setOpen(null)} title={`Manage Classes`}>
-        <form onSubmit={formik.handleSubmit} className='space-y-4'>
-          <InputField
-            name='media'
-            label='Image'
-            type='file'
-            accept='image/*'
-            isRequired
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                formik.setFieldValue('media', file);
-              }
-            }}
-            onBlur={formik.handleBlur}
-            error={formik.touched.media && formik.errors.media}
-          />
-
-          <InputField
-            name='name'
-            label='Name'
-            placeholder='Enter name'
-            isRequired
-            value={formik.values.name}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={formik.touched.name && formik.errors.name}
-          />
-
-          <div className='flex gap-4'>
-            <div className='w-full'>
-              <InputField
-                name='price'
-                label='price'
-                placeholder='Enter price'
-                isRequired
-                type='number'
-                value={formik.values.price}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.price && formik.errors.price}
-              />
-            </div>
-            <div className='w-full'>
-              <InputField
-                name='noOfClasses'
-                label='No Of Classes'
-                placeholder='Enter number Of Classes'
-                isRequired
-                type='number'
-                value={formik.values.noOfClasses}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.noOfClasses && formik.errors.noOfClasses}
-              />
-            </div>
-            <div className='w-full'>
-              <InputField
-                name='duration'
-                label='Choose Duration'
-                type='select'
-                isRequired
-                options={[
-                  { label: 'Monthly', value: 'monthly' },
-                  { label: 'Weekly', value: 'weekly' },
-                  { label: 'Daily', value: 'daily' },
-                ]}
-                value={formik.values.duration}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.duration && formik.errors.duration}
-              />
-            </div>
-          </div>
-
-          {/* You can add coordinates input or other fields here */}
-
-          <button type='submit' className='px-4 py-2 bg-primary text-white rounded-lg'>
-            Submit
-          </button>
-        </form>
-      </Modal>
+      <PackageComp setOpen={setOpen} isOpen={open === 'package'} activeTab={activeTab} />
 
       {deleteModal && (
         <DeleteModal
