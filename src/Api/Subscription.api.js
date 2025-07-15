@@ -9,6 +9,7 @@ export const SubscriptionApi = {
   getSubscriptionByCatId: (id) => Api.get(`/subscription/get-subscription-by-category-id/${id}`),
   DeleteSubscription: (id, payload) => Api.delete(`/subscription/delete-subscription/${id}`, payload),
   DeleteSubscription: (id, payload) => Api.delete(`/subscription/delete-subscription/${id}`, payload),
+  SubscriptionByTrainerId: (trainerId,expired) => Api.get(`/subscription/get-subscriptions-by-trainer/${trainerId}?isExpired=${expired}`),
 };
 export const PackageApi = {
   getAllPackage: (payload) => Api.post(`/package/get-all-packages?`, payload),

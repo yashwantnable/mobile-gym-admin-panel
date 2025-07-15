@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 const Login = () => {
   const navigate = useNavigate();
   const [isPwdShow, setIsPwdShow] = useState(false);
+  const [activeTab, setActiveTab] = useState("admin"); // 'admin' or 'trainer'
   const { handleLoading } = useLoading();
   const dispatch = useDispatch();
 
@@ -20,8 +21,7 @@ const Login = () => {
     emailOrPhone: Yup.string()
       .min(3, "Must be at least 3 characters")
       .required("Email or phone is required"),
-    password: Yup.string()
-      .required("Password is required"),
+    password: Yup.string().required("Password is required"),
   });
 
   const formik = useFormik({
@@ -30,11 +30,16 @@ const Login = () => {
       password: "",
     },
     validationSchema,
+    
     onSubmit: async (values) => {
       handleLoading(true);
+      const roleIdMap = { admin: 1, trainer: 2 };
+      const authType = roleIdMap[activeTab];
       try {
-        await dispatch(login(values)).unwrap();
-        navigate("/");
+        // You can modify the payload based on the active tab here
+        const payload = { ...values, role: activeTab };
+        await dispatch(login({ authType, credentials: values })).unwrap();
+        navigate(activeTab === "admin" ? "/" : "/trainer");
       } catch (e) {
         console.error("Login error:", e);
         toast.error("Invalid credentials. Please try again.");
@@ -47,54 +52,70 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
-      {/* Left Side - Branding */}
+      {/* Branding Left */}
       <div className="bg-primary w-full md:w-1/2 lg:w-2/5 min-h-[40vh] md:min-h-screen flex justify-center items-center p-8">
-        <div className="max-w-md w-full">
-          <img
-            src={logo}
-            alt="Company Logo"
-            className="w-full h-auto max-h-60 object-contain"
-          />
-          <h1 className="text-white text-2xl md:text-3xl font-bold mt-6 text-center">
-            Welcome Back
-          </h1>
-          <p className="text-white opacity-80 mt-2 text-center">
-            Sign in to access your admin dashboard
+        <div className="max-w-md w-full text-center">
+          <img src={logo} alt="Company Logo" className="w-full max-h-60 object-contain mx-auto" />
+          <h1 className="text-white text-3xl font-bold mt-6">Welcome Back</h1>
+          <p className="text-white opacity-80 mt-2">
+            Sign in to access your {activeTab === "admin" ? "admin" : "trainer"} dashboard
           </p>
         </div>
       </div>
 
-      {/* Right Side - Login Form */}
+      {/* Login Right */}
       <div className="w-full md:w-1/2 lg:w-3/5 flex justify-center items-center p-6 md:p-12">
         <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 md:p-10">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
-              Admin Portal
-            </h2>
-            <p className="text-gray-600 mt-2">
-              Please enter your credentials to login
+          {/* Tab Navigation */}
+          <div className="flex justify-center mb-6 space-x-4">
+            <button
+              onClick={() => setActiveTab("admin")}
+              className={`px-4 py-2 rounded-full font-semibold text-sm ${
+                activeTab === "admin"
+                  ? "bg-primary text-white shadow"
+                  : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              Admin
+            </button>
+            <button
+              onClick={() => setActiveTab("trainer")}
+              className={`px-4 py-2 rounded-full font-semibold text-sm ${
+                activeTab === "trainer"
+                  ? "bg-primary text-white shadow"
+                  : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              Trainer
+            </button>
+          </div>
+
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Login</h2>
+            <p className="text-gray-600 mt-1">
+              Please enter your credentials to login as {activeTab}
             </p>
           </div>
 
+          {/* Login Form */}
           <form onSubmit={formik.handleSubmit} className="space-y-6">
-            <div>
-              <div className="relative">
-                <div className="absolute left-0 pl-3 top-[2.80rem]  flex items-center pointer-events-none">
-                  <FaEnvelope className="text-gray-400" />
-                </div>
-                <InputField
-                  name="emailOrPhone"
-                  label="Email"
-                  placeholder="Enter email"
-                  value={formik.values.emailOrPhone}
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
-                  error={formik.touched.emailOrPhone && formik.errors.emailOrPhone}
-                  isRequired
-                  className="w-full px-4 py-2 border rounded-lg outline-none border-[#d1d5db] pl-8"
-                />
-
+            <div className="relative">
+              <div className="absolute left-0 pl-3 top-[2.80rem] flex items-center pointer-events-none">
+                <FaEnvelope className="text-gray-400" />
               </div>
+              <InputField
+                name="emailOrPhone"
+                label="Email or Phone"
+                placeholder="Enter email or phone"
+                value={formik.values.emailOrPhone}
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.emailOrPhone && formik.errors.emailOrPhone
+                }
+                isRequired
+                className="w-full px-4 py-2 border rounded-lg outline-none border-[#d1d5db] pl-8"
+              />
             </div>
 
             <div>
@@ -128,47 +149,30 @@ const Login = () => {
               )}
             </div>
 
-            <div className="flex items-center justify-between">
-              {/* <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div> */}
-
-              <div className="text-sm">
-                <button
-                  type="button"
-                  className="font-medium text-primary hover:text-primary-dark cursor-pointer"
-                >
-                  Forgot password?
-                </button>
-              </div>
-            </div>
-
-            <div>
+            <div className="flex justify-end">
               <button
-                type="submit"
-                disabled={formik.isSubmitting}
-                className="w-full bg-primary cursor-pointer hover:bg-primary-dark text-white py-3 px-4 rounded-lg font-medium shadow-sm hover:shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                type="button"
+                className="text-sm text-primary hover:text-primary-dark"
               >
-                {formik.isSubmitting ? 'Logging in...' : 'Login'}
+                Forgot password?
               </button>
             </div>
+
+            <button
+              type="submit"
+              disabled={formik.isSubmitting}
+              className="w-full bg-primary text-white py-3 rounded-lg font-semibold shadow hover:shadow-md transition duration-300"
+            >
+              {formik.isSubmitting ? "Logging in..." : "Login"}
+            </button>
           </form>
 
-          {/* Optional: Footer links */}
-          <div className="mt-8 text-center text-sm text-gray-500">
+          <div className="mt-6 text-center text-sm text-gray-500">
             <p>
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <button
                 className="text-primary hover:text-primary-dark font-medium"
-                onClick={() => navigate('#')}
+                onClick={() => navigate("#")}
               >
                 Contact support
               </button>

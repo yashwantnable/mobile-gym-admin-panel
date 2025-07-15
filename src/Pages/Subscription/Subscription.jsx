@@ -113,7 +113,7 @@ const Subscription = () => {
     isExpired: '',
   });
 
-    const handleFilterChange = (e) => {
+  const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ [name]: value }));
   };
@@ -259,25 +259,22 @@ const Subscription = () => {
     description: Yup.string(),
   });
 
-  //   const allSubscriptions = async (expired) => {
-  //     try {
-  //       handleLoading(true);
-  //       const res = await SubscriptionApi.getAllSubscription(expired || false);
-  //       const allData = res?.data?.data || [];
+  const allSubscriptions = async (expired) => {
+    try {
+      handleLoading(true);
+      const res = await SubscriptionApi.getAllSubscription(expired || false);
+      const allData = res?.data?.data || [];
 
-  //       setAllSubscription(allData);
+      setAllSubscription(allData);
 
-  //       // const singleClassOnly = allData.filter((sub) => sub.isSingleClass === true);
-  //       // setAllClasses(singleClassOnly);
-
-  //       console.log('all subscriptions:', allData);
-  //     } catch (err) {
-  //       toast.error('Error fetching subscriptions');
-  //       console.error(err);
-  //     } finally {
-  //       handleLoading(false);
-  //     }
-  //   };
+      console.log('all subscriptions:', res?.data?.data);
+    } catch (err) {
+      toast.error('Error fetching subscriptions');
+      console.error(err);
+    } finally {
+      handleLoading(false);
+    }
+  };
 
   // const getAllClass = async (expired) => {
   //   try {
@@ -304,56 +301,53 @@ const Subscription = () => {
   //     handleLoading(false);
   //   }
   // };
- const fetchSubscriptions = async (expired = false) => {
-  try {
-    handleLoading(true);
-    let allData = [];
+  const fetchSubscriptions = async (expired = false) => {
+    try {
+      handleLoading(true);
+      let allData = [];
 
-    if (activeTab === 'classes') {
-      const payload = {
-        expired,
-        isSingleClass: true,
-      };
-      const res = await SubscriptionApi.getAllSubscriptionFilter(payload);
-      allData = res?.data?.data?.subscriptions || [];
-    } else {
-      // Apply filters only in 'subscriptions' tab
-      const payload = {
-        expired,
-        ...filters, // Apply trainerId, categoryId, location, isExpired (if any)
-      };
-      const res = await SubscriptionApi.getAllSubscriptionFilter(payload);
-      allData = res?.data?.data?.subscriptions || [];
+      if (activeTab === 'classes') {
+        const payload = {
+          expired,
+          isSingleClass: true,
+        };
+        const res = await SubscriptionApi.getAllSubscriptionFilter(payload);
+        allData = res?.data?.data?.subscriptions || [];
+      } else {
+        const payload = {
+          expired,
+          isSingleClass: false,
+          ...(filters && { filters }),
+        };
+        const res = await SubscriptionApi.getAllSubscriptionFilter(payload);
+        allData = res?.data?.data?.subscriptions || [];
+        console.log('all subscriptions:', allData);
+      }
+
+      setAllSubscription(allData);
+    } catch (err) {
+      toast.error('Error fetching subscriptions');
+      console.error(err);
+    } finally {
+      handleLoading(false);
     }
-
-    setAllSubscription(allData);
-    console.log('all subscriptions:', allData);
-  } catch (err) {
-    toast.error('Error fetching subscriptions');
-    console.error(err);
-  } finally {
-    handleLoading(false);
-  }
-};
-
+  };
 
   const handleEventClick = (eventData) => {
-  // Prefill formik values
-  formik.setValues({
-    ...formik.initialValues,
-    ...eventData,
-    trainer: eventData.trainer?._id || '',
-    categoryId: eventData.categoryId?._id || '',
-    sessionType: eventData.sessionType?._id || '',
-    Address: eventData.Address?._id || '',
-    date: eventData.date,
-  });
+    // Prefill formik values
+    formik.setValues({
+      ...formik.initialValues,
+      ...eventData,
+      trainer: eventData.trainer?._id || '',
+      categoryId: eventData.categoryId?._id || '',
+      sessionType: eventData.sessionType?._id || '',
+      Address: eventData.Address?._id || '',
+      date: eventData.date,
+    });
 
-  // Open modal
-  setOpen('class');
-};
-
-
+    // Open modal
+    setOpen('class');
+  };
 
   // useEffect(() => {
   //   getAllClass(false);
@@ -397,7 +391,7 @@ const Subscription = () => {
 
   const handleDelete = async () => {
     try {
-      const res = await SubscriptionApi.DeleteSubscription(deleteModal||deleteModal?._id);
+      const res = await SubscriptionApi.DeleteSubscription(deleteModal || deleteModal?._id);
       toast.success('Subscription deleted successfully');
       setDeleteModal(null);
       fetchSubscriptions();
@@ -476,7 +470,6 @@ const Subscription = () => {
       formData.append('endTime', values.endTime);
       formData.append('Address', values.Address);
       formData.append('isSingleClass', String(values.isSingleClass));
-     
 
       if (values.date) {
         formData.append('date', JSON.stringify(values.date));
@@ -556,12 +549,6 @@ const Subscription = () => {
     });
   };
 
-  // useEffect(() => {
-  //   // const isExpired = activeTab === "expired";
-  //   console.log('isExpired:', isExpire);
-  //   allSubscriptions(isExpire);
-  // }, [isExpire]);
-
   const tabs = [
     { key: 'subscription', label: 'Subscription' },
     { key: 'classes', label: 'Classes' },
@@ -576,7 +563,7 @@ const Subscription = () => {
 
   useEffect(() => {
     fetchSubscriptions();
-  }, [activeTab,filters]);
+  }, [activeTab, filters]);
 
   useEffect(() => {
     fetchSubscriptions();
@@ -624,8 +611,11 @@ const Subscription = () => {
       {activeTab === 'classes' && (
         <div className='bg-white rounded-lg shadow-lg'>
           <div className='p-6'>
-            <ClassCalendar allClasses={allSubscription} onEventClick={handleEventClick} setSelectedRow={setSelectedRow}/>
-
+            <ClassCalendar
+              allClasses={allSubscription}
+              onEventClick={handleEventClick}
+              setSelectedRow={setSelectedRow}
+            />
           </div>
         </div>
       )}
@@ -1067,39 +1057,26 @@ const Subscription = () => {
 
           {/* Time Fields */}
           <div className='flex justify-between gap-4'>
-            {/* Date Range */}
+            {/* Single Date */}
             <div className='w-full'>
               <label className='block text-md font-medium text-gray-700 mb-1'>
-                Dates <span className='text-red-500'>*</span>
+                Date <span className='text-red-500'>*</span>
               </label>
+
               <DatePicker
+                /* single date value */
                 selected={formik.values.date?.[0] ? new Date(formik.values.date[0]) : null}
-                startDate={formik.values.date?.[0] ? new Date(formik.values.date[0]) : null}
-                endDate={formik.values.date?.[1] ? new Date(formik.values.date[1]) : null}
-                onChange={(dates) => {
-                  const [start, end] = dates;
+                /* update Formik */
+                onChange={(date) => {
+                  const toLocalISO = (d) =>
+                    d ? new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString() : null;
 
-                  const toLocalDateString = (date) =>
-                    date
-                      ? new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString()
-                      : null;
-
-                  if (start && end) {
-                    formik.setFieldValue('date', [
-                      toLocalDateString(start),
-                      toLocalDateString(end),
-                    ]);
-                  } else if (start) {
-                    formik.setFieldValue('date', [toLocalDateString(start)]);
-                  } else {
-                    formik.setFieldValue('date', []);
-                  }
+                  formik.setFieldValue('date', date ? [toLocalISO(date)] : []);
                 }}
-                selectsRange
                 required
                 isClearable
                 minDate={new Date()}
-                placeholderText='Select dates'
+                placeholderText='Select date'
                 dateFormat='dd/MM/yyyy'
                 className='border outline-none border-gray-300 rounded-lg px-3 py-2 w-full bg-white'
               />
@@ -1158,17 +1135,21 @@ const Subscription = () => {
             onBlur={formik.handleBlur}
             error={formik.touched.description && formik.errors.description}
           />
-         
 
           {/* You can add coordinates input or other fields here */}
 
-          <div className="flex gap-4 justify-center">
-           { selectedRow && <button onClick={()=>setDeleteModal(selectedRow)} className='px-4 py-2 border border-red-500 text-red-500 rounded-lg'>
-            Delete
-          </button>}
-          <button type='submit' className='px-4 py-2 bg-primary text-white rounded-lg'>
-            {selectedRow ? 'update' : 'Submit'}
-          </button>
+          <div className='flex gap-4 justify-center'>
+            {selectedRow && (
+              <button
+                onClick={() => setDeleteModal(selectedRow)}
+                className='px-4 py-2 border border-red-500 text-red-500 rounded-lg'
+              >
+                Delete
+              </button>
+            )}
+            <button type='submit' className='px-4 py-2 bg-primary text-white rounded-lg'>
+              {selectedRow ? 'update' : 'Submit'}
+            </button>
           </div>
         </form>
       </Modal>

@@ -9,4 +9,8 @@ export const TrainerApi = {
   DeleteTrainer: (id, payload) => Api.delete(`/trainer/delete-trainer/${id}`, payload),
 
   getAvailableTrainer: (payload) => Api.post('/admin/get-all-available-trainers-booking', payload),
+  getAvailableTrainer: (payload) => Api.put('trainer/update-trainer-profiles/:id', payload),
+
+
+  // updateSubscriptionStatusByTrainer:(subscriptionId,payload)=> Api.post()
 };

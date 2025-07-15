@@ -42,6 +42,8 @@ import MySessions from './Pages/Services/MySessions';
 import LocationMaster from './Pages/Master/LocationMaster';
 import { LoaderProvider } from './Components/loader/LoaderContext';
 import Loader from './components/loader/Loader';
+import TrainerDashboard from './Pages/TrainerPages/TrainerDashboard';
+import TrainerSessions from './Pages/TrainerPages/TrainerSessions';
 
 
 const App = () => {
@@ -50,8 +52,14 @@ const App = () => {
       <Route path="/login" element={<PublicRoute children={<Login />} />} />
       <Route path="/" element={<Layout />}>
         {/* All components  */}
-        <Route path="/" element={<ProtectedRoute children={<Dashboard />} />} />
-        <Route path="/master/categories" element={<ProtectedRoute children={<Categories />} />} />
+        {/* <Route path="/" element={<ProtectedRoute children={<Dashboard />} />} /> */}
+        <Route index element={<ProtectedRoute allowedRoles={["admin"]}> <Dashboard /></ProtectedRoute>
+          }
+        />
+        {/* <Route path="/master/categories" element={<ProtectedRoute children={<Categories />} />} /> */}
+         <Route path="master/categories" element={<ProtectedRoute allowedRoles={["admin"]}><Categories /></ProtectedRoute>
+          }
+        />
         <Route path="/master/sessions" element={<ProtectedRoute children={<MySessions />} />} >
           {/* <Route path='my-service' element={<ProtectedRoute children={<MyService />} />} /> */}
         </Route>
@@ -82,6 +90,24 @@ const App = () => {
         {/* <Route path='/articles/tips/:id' element={<ProtectedRoute children={<BlogPost />} />} /> */}
         <Route path='/system-settings' element={<ProtectedRoute children={<SystemSettings />} />} />
       </Route>
+      <Route path="/trainer" element={<Layout />}>
+        <Route
+          index
+          element={
+            <ProtectedRoute allowedRoles={["trainer"]}>
+              <TrainerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='my-sessions'
+          element={
+            <ProtectedRoute allowedRoles={["trainer"]}>
+              <TrainerSessions />
+            </ProtectedRoute>
+          }
+        />
+        </Route>
     </>
   ))
   return (

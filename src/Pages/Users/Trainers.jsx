@@ -1,56 +1,50 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import SidebarField from "../../Components/SideBarField";
-import InputField from "../../Components/InputField";
-import Button from "../../Components/Button";
-import { FaCamera, FaRegEdit, FaTimes } from "react-icons/fa";
-import { MasterApi } from "../../Api/Master.api";
-import { toast } from "react-toastify";
-import { ServiceApi } from "../../Api/Service.api";
-import { useLoading } from "../../Components/loader/LoaderContext";
-import { MdOutlineDeleteOutline } from "react-icons/md";
-import DeleteModal from "../../Components/DeleteModal";
-import { Table2 } from "../../Components/Table/Table2";
-import PhoneInputField from "../../Components/PhoneInputField";
-import { dummyTrainerList } from "./EmployeeData";
-import { TrainerApi } from "../../Api/Trainer.api";
+import React, { useEffect, useMemo, useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import SidebarField from '../../Components/SideBarField';
+import InputField from '../../Components/InputField';
+import Button from '../../Components/Button';
+import { FaCamera, FaEye, FaEyeSlash, FaLock, FaRegEdit, FaTimes } from 'react-icons/fa';
+import { MasterApi } from '../../Api/Master.api';
+import { toast } from 'react-toastify';
+import { ServiceApi } from '../../Api/Service.api';
+import { useLoading } from '../../Components/loader/LoaderContext';
+import { MdOutlineDeleteOutline } from 'react-icons/md';
+import DeleteModal from '../../Components/DeleteModal';
+import { Table2 } from '../../Components/Table/Table2';
+import PhoneInputField from '../../Components/PhoneInputField';
+import { dummyTrainerList } from './EmployeeData';
+import { TrainerApi } from '../../Api/Trainer.api';
 
 const Trainers = () => {
   const [open, setOpen] = useState(false);
-  const [experienceType, setExperienceType] = useState("");
+  const [experienceType, setExperienceType] = useState('');
   const [allTrainer, setAllTrainer] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [countryData, setCountryData] = useState([]);
   const [cityData, setCityData] = useState([]);
   const [selectedRow, setSelectedRow] = useState([]);
-  const [countryId, setCountryId] = useState("");
+  const [countryId, setCountryId] = useState('');
   const [services, setServices] = useState([]);
   const [deleteModal, setDeleteModal] = useState(null);
 
   const validationSchema = Yup.object({
-    first_name: Yup.string().required("First Name is required"),
-    last_name: Yup.string().required("Last Name is required"),
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    phone_number: Yup.string().required("Phone Number is required"),
-    address: Yup.string().required("Address is required"),
-    gender: Yup.string().required("Gender is required"),
-    age: Yup.number()
-      .min(18, "Age must be at least 18")
-      .required("Age is required"),
-    country: Yup.string().required("Country is required"),
-    city: Yup.string().required("City is required"),
-    password: selectedRow?._id
-      ? ""
-      : Yup.string().required("Password is required"),
-    specialization: Yup.string().required("Specialization is required"),
-    experience: Yup.string().required("Experience is required"),
-    experienceYear: Yup.number().when("experience", {
-      is: "EXPERIENCE",
-      then: (schema) => schema.required("Years of Experience is required"),
+    first_name: Yup.string().required('First Name is required'),
+    last_name: Yup.string().required('Last Name is required'),
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    phone_number: Yup.string().required('Phone Number is required'),
+    address: Yup.string().required('Address is required'),
+    gender: Yup.string().required('Gender is required'),
+    age: Yup.number().min(18, 'Age must be at least 18').required('Age is required'),
+    country: Yup.string().required('Country is required'),
+    city: Yup.string().required('City is required'),
+    password: selectedRow?._id ? '' : Yup.string().required('Password is required'),
+    specialization: Yup.string().required('Specialization is required'),
+    experience: Yup.string().required('Experience is required'),
+    experienceYear: Yup.number().when('experience', {
+      is: 'EXPERIENCE',
+      then: (schema) => schema.required('Years of Experience is required'),
     }),
   });
 
@@ -59,20 +53,20 @@ const Trainers = () => {
   const formik = useFormik({
     initialValues: {
       // serviceProvider: selectedRow?.serviceProvider || [],
-      first_name: selectedRow?.first_name || "",
-      last_name: selectedRow?.last_name || "",
-      email: selectedRow?.email || "",
-      phone_number: selectedRow?.phone_number || "",
-      address: selectedRow?.address || "",
-      gender: selectedRow?.gender || "",
-      age: selectedRow?.age || "",
+      first_name: selectedRow?.first_name || '',
+      last_name: selectedRow?.last_name || '',
+      email: selectedRow?.email || '',
+      phone_number: selectedRow?.phone_number || '',
+      address: selectedRow?.address || '',
+      gender: selectedRow?.gender || '',
+      age: selectedRow?.age || '',
       profile_image: selectedRow?.profile_image || null,
-      country: selectedRow?.country?._id || "",
-      city: selectedRow?.city?._id || "",
-      password: selectedRow?.password || "",
-      specialization: selectedRow?.specialization || "",
-      experience: selectedRow?.experience || "",
-      experienceYear: selectedRow?.experienceYear || "",
+      country: selectedRow?.country?._id || '',
+      city: selectedRow?.city?._id || '',
+      password: selectedRow?.password || '',
+      specialization: selectedRow?.specialization || '',
+      experience: selectedRow?.experience || '',
+      experienceYear: selectedRow?.experienceYear || '',
     },
     validationSchema,
     enableReinitialize: true,
@@ -80,34 +74,30 @@ const Trainers = () => {
       handleLoading(true);
 
       const formData = new FormData();
-      formData.append("first_name", values.first_name);
-      formData.append("last_name", values.last_name);
-      formData.append("email", values.email);
-      formData.append("phone_number", values.phone_number);
-      formData.append("address", values.address);
-      formData.append("gender", values.gender);
-      formData.append("age", values.age);
-      formData.append("country", values.country);
-      formData.append("city", values.city);
-      formData.append("password", values.password);
-      formData.append("specialization", values.specialization);
-      formData.append("experience", values.experience);
-      formData.append("experienceYear", values.experienceYear);
+      formData.append('first_name', values.first_name);
+      formData.append('last_name', values.last_name);
+      formData.append('email', values.email);
+      formData.append('phone_number', values.phone_number);
+      formData.append('address', values.address);
+      formData.append('gender', values.gender);
+      formData.append('age', values.age);
+      formData.append('country', values.country);
+      formData.append('city', values.city);
+      formData.append('password', values.password);
+      formData.append('specialization', values.specialization);
+      formData.append('experience', values.experience);
+      formData.append('experienceYear', values.experienceYear);
       if (values.profile_image) {
-        formData.append("profile_image", values.profile_image);
+        formData.append('profile_image', values.profile_image);
       }
-      console.log("Form Submitted:", values);
-      console.log("selectedRow:", selectedRow?._id);
+      console.log('Form Submitted:', values);
+      console.log('selectedRow:', selectedRow?._id);
       try {
         const res = selectedRow?._id
           ? await TrainerApi.updateTrainer(selectedRow?._id, formData)
           : await TrainerApi.createTrainer(formData);
         console.log(res.data?.data);
-        toast.success(
-          selectedRow?._id
-            ? "User updated successfully"
-            : "user created successfully"
-        );
+        toast.success(selectedRow?._id ? 'User updated successfully' : 'user created successfully');
       } catch (err) {
         console.log(err);
       }
@@ -122,8 +112,8 @@ const Trainers = () => {
     handleLoading(true);
     try {
       const res = await TrainerApi.getAllTrainers();
-      console.log("trainers:",res?.data?.data);
-      
+      console.log('trainers:', res?.data?.data);
+
       setAllTrainer(res?.data?.data);
     } catch (err) {
       toast.error(err);
@@ -154,8 +144,8 @@ const Trainers = () => {
   //   }
   //   handleLoading(false);
   // };
-  console.log("allTrainer:",allTrainer);
-  
+  console.log('allTrainer:', allTrainer);
+
   useEffect(() => {
     getTrainer();
   }, []);
@@ -170,12 +160,12 @@ const Trainers = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (!file.type.match("image.*")) {
-        formik.setFieldError("profile_image", "Please select an image file");
+      if (!file.type.match('image.*')) {
+        formik.setFieldError('profile_image', 'Please select an image file');
         return;
       }
       if (file.size > 2 * 1024 * 1024) {
-        formik.setFieldError("profile_image", "Image must be less than 2MB");
+        formik.setFieldError('profile_image', 'Image must be less than 2MB');
         return;
       }
 
@@ -184,17 +174,17 @@ const Trainers = () => {
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
-      formik.setFieldValue("profile_image", file);
-      formik.setFieldError("profile_image", undefined);
+      formik.setFieldValue('profile_image', file);
+      formik.setFieldError('profile_image', undefined);
     }
   };
 
   const removeImage = () => {
     setImagePreview(null);
-    formik.setFieldValue("profile_image", null);
+    formik.setFieldValue('profile_image', null);
   };
 
-   const cityDataforEdit = async (countryId) => {
+  const cityDataforEdit = async (countryId) => {
     try {
       const res = await MasterApi.city(countryId);
       setCityData(res.data?.data);
@@ -202,7 +192,7 @@ const Trainers = () => {
       console.log(err);
     }
   };
-  
+
   const handleCountry = async () => {
     try {
       const res = await MasterApi.country();
@@ -212,11 +202,10 @@ const Trainers = () => {
     }
   };
 
- 
   const handleCountryChange = async (e) => {
     const selectedCountryId = e.target.value;
     setCountryId(selectedCountryId);
-    formik.setFieldValue("country", selectedCountryId);
+    formik.setFieldValue('country', selectedCountryId);
 
     if (selectedCountryId) {
       try {
@@ -227,7 +216,6 @@ const Trainers = () => {
       }
     }
   };
- 
 
   // useEffect(() => {
   //   handleCountryChange();
@@ -250,132 +238,133 @@ const Trainers = () => {
     label: item?.name,
   }));
 
- const trainerColumns = useMemo(() => [
-  {
-    headerName: "Profile Image",
-    field: "profile_image",
-    cellRenderer: (params) =>
-      params?.data?.profile_image ? (
-        <img
-          src={params.data.profile_image}
-          alt="Profile"
-          className="w-10 h-10 rounded-full object-cover"
-        />
-      ) : (
-        "N/A"
-      ),
-  },
-  {
-    headerName: "Name",
-    field: "first_name",
-    cellRenderer: (params) =>
-      `${params?.data?.first_name || ""} ${params?.data?.last_name || ""}`,
-  },
-  {
-    headerName: "Email",
-    field: "email",
-  },
-  {
-    headerName: "Phone Number",
-    field: "phone_number",
-  },
-  {
-    headerName: "Address",
-    field: "address",
-  },
-  {
-    headerName: "Gender",
-    field: "gender",
-  },
-  {
-    headerName: "Age",
-    field: "age",
-  },
- {
-  headerName: "Country",
-  field: "country",
-  cellRenderer: (params) => params?.data?.country?.name || "N/A",
-},
-{
-  headerName: "City",
-  field: "city",
-  cellRenderer: (params) => params?.data?.city?.name || "N/A",
-},
-  {
-    headerName: "Specialization",
-    field: "specialization",
-  },
-  {
-    headerName: "Experience",
-    field: "experience",
-  },
-  {
-    headerName: "Experience Years",
-    field: "experienceYear",
-    cellRenderer: (params) =>
-      params?.data?.experience === "EXPERIENCE"
-        ? params?.data?.experienceYear || "N/A"
-        : "-",
-  },
-  {
-    headerName: "Certificates",
-    field: "certificates",
-    cellRenderer: (params) =>
-      params?.data?.certificates ? (
-        <a
-          href={params.data.certificates}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline"
-        >
-          View
-        </a>
-      ) : (
-        "N/A"
-      ),
-  },
-  {
-    headerName: "ID Proof",
-    field: "idProof",
-    cellRenderer: (params) =>
-      params?.data?.idProof ? (
-        <a
-          href={params.data.idProof}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline"
-        >
-          View
-        </a>
-      ) : (
-        "N/A"
-      ),
-  },
-  {
-    headerName: "Actions",
-    field: "actions",
-    minWidth: 150,
-    cellRenderer: (params) => (
-      <div className="flex items-center space-x-3 mt-2">
-        <button
-          className="text-primary transition-colors cursor-pointer"
-          onClick={() => {
-            setOpen(true);
-            setSelectedRow(params?.data);
-          }}
-        >
-          <FaRegEdit size={18} />
-        </button>
-        <button
-          className="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
-          onClick={() => setDeleteModal(params?.data)}
-        >
-          <MdOutlineDeleteOutline size={20} />
-        </button>
-      </div>
-    ),
-  },
-], [setOpen, setSelectedRow, setDeleteModal]);
+  const trainerColumns = useMemo(
+    () => [
+      {
+        headerName: 'Profile Image',
+        field: 'profile_image',
+        cellRenderer: (params) =>
+          params?.data?.profile_image ? (
+            <img
+              src={params.data.profile_image}
+              alt='Profile'
+              className='w-10 h-10 rounded-full object-cover'
+            />
+          ) : (
+            'N/A'
+          ),
+      },
+      {
+        headerName: 'Name',
+        field: 'first_name',
+        cellRenderer: (params) =>
+          `${params?.data?.first_name || ''} ${params?.data?.last_name || ''}`,
+      },
+      {
+        headerName: 'Email',
+        field: 'email',
+      },
+      {
+        headerName: 'Phone Number',
+        field: 'phone_number',
+      },
+      {
+        headerName: 'Address',
+        field: 'address',
+      },
+      {
+        headerName: 'Gender',
+        field: 'gender',
+      },
+      {
+        headerName: 'Age',
+        field: 'age',
+      },
+      {
+        headerName: 'Country',
+        field: 'country',
+        cellRenderer: (params) => params?.data?.country?.name || 'N/A',
+      },
+      {
+        headerName: 'City',
+        field: 'city',
+        cellRenderer: (params) => params?.data?.city?.name || 'N/A',
+      },
+      {
+        headerName: 'Specialization',
+        field: 'specialization',
+      },
+      {
+        headerName: 'Experience',
+        field: 'experience',
+      },
+      {
+        headerName: 'Experience Years',
+        field: 'experienceYear',
+        cellRenderer: (params) =>
+          params?.data?.experience === 'EXPERIENCE' ? params?.data?.experienceYear || 'N/A' : '-',
+      },
+      {
+        headerName: 'Certificates',
+        field: 'certificates',
+        cellRenderer: (params) =>
+          params?.data?.certificates ? (
+            <a
+              href={params.data.certificates}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-blue-600 underline'
+            >
+              View
+            </a>
+          ) : (
+            'N/A'
+          ),
+      },
+      {
+        headerName: 'ID Proof',
+        field: 'idProof',
+        cellRenderer: (params) =>
+          params?.data?.idProof ? (
+            <a
+              href={params.data.idProof}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-blue-600 underline'
+            >
+              View
+            </a>
+          ) : (
+            'N/A'
+          ),
+      },
+      {
+        headerName: 'Actions',
+        field: 'actions',
+        minWidth: 150,
+        cellRenderer: (params) => (
+          <div className='flex items-center space-x-3 mt-2'>
+            <button
+              className='text-primary transition-colors cursor-pointer'
+              onClick={() => {
+                setOpen(true);
+                setSelectedRow(params?.data);
+              }}
+            >
+              <FaRegEdit size={18} />
+            </button>
+            <button
+              className='text-red-600 hover:text-red-800 transition-colors cursor-pointer'
+              onClick={() => setDeleteModal(params?.data)}
+            >
+              <MdOutlineDeleteOutline size={20} />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [setOpen, setSelectedRow, setDeleteModal]
+  );
 
   const handleClose = () => {
     setOpen(false);
@@ -386,87 +375,80 @@ const Trainers = () => {
 
   return (
     <>
-      <div className="m-4">
-        <h2 className="text-primary text-3xl font-semibold">Trainer</h2>
+      <div className='m-4'>
+        <h2 className='text-primary text-3xl font-semibold'>Trainer</h2>
         <div>
           <Table2
             column={trainerColumns}
             internalRowData={allTrainer}
-            searchLabel={"Trainer"}
-            sheetName={"groomers"}
+            searchLabel={'Trainer'}
+            sheetName={'groomers'}
             setModalOpen={setOpen}
             isAdd={true}
           />
 
           {open && (
             <SidebarField
-              title="Add New Trainer"
+              title={selectedRow?._id ? `Update Trainer` : `Add New Trainer`}
               handleClose={handleClose}
               button1={
                 <Button
                   onClick={formik.handleSubmit}
-                  text={selectedRow?._id ? "Update" : "Save"}
-                  type="submit"
+                  text={selectedRow?._id ? 'Update' : 'Save'}
+                  type='submit'
                 />
               }
-              button2={
-                <Button variant="outline" onClick={handleClose} text="Cancel" />
-              }
+              button2={<Button variant='outline' onClick={handleClose} text='Cancel' />}
             >
-              <form onSubmit={formik.handleSubmit} className="space-y-4">
-                <div className="flex flex-col items-center mb-6">
-                  <div className="relative group">
+              <form onSubmit={formik.handleSubmit} className='space-y-4'>
+                <div className='flex flex-col items-center mb-6'>
+                  <div className='relative group'>
                     <div
                       className={`w-32 mb-3 h-32 rounded-full border-2 ${
-                        formik.errors.profile_image
-                          ? "border-red-500"
-                          : "border-gray-300"
+                        formik.errors.profile_image ? 'border-red-500' : 'border-gray-300'
                       } flex items-center justify-center overflow-hidden bg-gray-100 transition-all duration-200 hover:border-primary`}
                     >
                       {imagePreview ? (
                         <>
                           <img
                             src={imagePreview}
-                            alt="Profile Preview"
-                            className="w-full h-full object-cover"
+                            alt='Profile Preview'
+                            className='w-full h-full object-cover'
                           />
                           <button
-                            type="button"
+                            type='button'
                             onClick={removeImage}
-                            className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            className='absolute top-2 right-2 bg-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200'
                           >
-                            <FaTimes className="text-red-500 w-4 h-4" />
+                            <FaTimes className='text-red-500 w-4 h-4' />
                           </button>
                         </>
                       ) : (
-                        <div className="flex flex-col items-center justify-center text-gray-400">
-                          <FaCamera className="w-8 h-8 mb-2" />
-                          <span className="text-xs">Add Photo</span>
+                        <div className='flex flex-col items-center justify-center text-gray-400'>
+                          <FaCamera className='w-8 h-8 mb-2' />
+                          <span className='text-xs'>Add Photo</span>
                         </div>
                       )}
                     </div>
 
-                    <label className="mt-4 cursor-pointer">
-                      <span className="px-4 py-2 bg-primary ml-2 text-white rounded-lg hover:bg-primary-dark transition-colors duration-200 text-sm">
-                        {imagePreview ? "Change Photo" : "Upload Photo"}
+                    <label className='mt-4 cursor-pointer'>
+                      <span className='px-4 py-2 bg-primary ml-2 text-white rounded-lg hover:bg-primary-dark transition-colors duration-200 text-sm'>
+                        {imagePreview ? 'Change Photo' : 'Upload Photo'}
                       </span>
                       <input
-                        type="file"
-                        name="profile_image"
-                        className="hidden"
-                        accept="image/*"
+                        type='file'
+                        name='profile_image'
+                        className='hidden'
+                        accept='image/*'
                         onChange={handleImageChange}
                         onBlur={formik.handleBlur}
                       />
                     </label>
                   </div>
 
-                  {formik.touched.profile_image &&
-                    formik.errors.profile_image && (
-                      <div className="mt-2 text-sm text-red-600">
-                        {formik.errors.profile_image}
-                      </div>
-                    )}
+                  {formik.touched.profile_image && formik.errors.profile_image && (
+                    <div className='mt-2 text-sm text-red-600'>{formik.errors.profile_image}</div>
+                  )}
                 </div>
 
                 {/* <InputField
@@ -486,9 +468,9 @@ const Trainers = () => {
                 /> */}
 
                 <InputField
-                  name="first_name"
-                  label="First Name"
-                  placeholder="Enter First Name"
+                  name='first_name'
+                  label='First Name'
+                  placeholder='Enter First Name'
                   isRequired
                   value={formik.values.first_name}
                   error={formik.touched.first_name && formik.errors.first_name}
@@ -496,9 +478,9 @@ const Trainers = () => {
                   onBlur={formik.handleBlur}
                 />
                 <InputField
-                  name="last_name"
-                  label="Last Name"
-                  placeholder="Enter Last Name"
+                  name='last_name'
+                  label='Last Name'
+                  placeholder='Enter Last Name'
                   isRequired
                   value={formik.values.last_name}
                   error={formik.touched.last_name && formik.errors.last_name}
@@ -507,10 +489,10 @@ const Trainers = () => {
                 />
 
                 <InputField
-                  name="email"
-                  label="Email"
-                  placeholder="Enter Email"
-                  type="email"
+                  name='email'
+                  label='Email'
+                  placeholder='Enter Email'
+                  type='email'
                   isRequired
                   value={formik.values.email}
                   error={formik.touched.email && formik.errors.email}
@@ -518,8 +500,8 @@ const Trainers = () => {
                   onBlur={formik.handleBlur}
                 />
                 <PhoneInputField
-                  name="phone_number"
-                  label="Phone Number"
+                  name='phone_number'
+                  label='Phone Number'
                   value={formik.values.phone_number}
                   error={formik.errors.phone_number}
                   touched={formik.touched.phone_number}
@@ -528,9 +510,9 @@ const Trainers = () => {
                   isRequired
                 />
                 <InputField
-                  name="address"
-                  label="Address"
-                  placeholder="Enter Address"
+                  name='address'
+                  label='Address'
+                  placeholder='Enter Address'
                   isRequired
                   value={formik.values.address}
                   error={formik.touched.address && formik.errors.address}
@@ -538,13 +520,13 @@ const Trainers = () => {
                   onBlur={formik.handleBlur}
                 />
                 <InputField
-                  name="gender"
-                  label="Gender"
-                  type="select"
+                  name='gender'
+                  label='Gender'
+                  type='select'
                   options={[
-                    { label: "Male", value: "Male" },
-                    { label: "Female", value: "Female" },
-                    { label: "Other", value: "Other" },
+                    { label: 'Male', value: 'Male' },
+                    { label: 'Female', value: 'Female' },
+                    { label: 'Other', value: 'Other' },
                   ]}
                   isRequired
                   value={formik.values.gender}
@@ -553,9 +535,9 @@ const Trainers = () => {
                   onBlur={formik.handleBlur}
                 />
                 <InputField
-                  name="age"
-                  label="Age"
-                  type="number"
+                  name='age'
+                  label='Age'
+                  type='number'
                   isRequired
                   value={formik.values.age}
                   error={formik.touched.age && formik.errors.age}
@@ -564,9 +546,9 @@ const Trainers = () => {
                 />
                 {/* {JSON.stringify(formik.values.country)} */}
                 <InputField
-                  name="country"
-                  label="Country"
-                  type="select"
+                  name='country'
+                  label='Country'
+                  type='select'
                   options={countryOptions}
                   isRequired
                   value={formik.values.country}
@@ -576,9 +558,9 @@ const Trainers = () => {
                 />
                 {/* {JSON.stringify(formik.values.city)} */}
                 <InputField
-                  name="city"
-                  label="City"
-                  type="select"
+                  name='city'
+                  label='City'
+                  type='select'
                   options={cityOptions}
                   isRequired
                   value={formik.values.city}
@@ -586,66 +568,79 @@ const Trainers = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {!selectedRow?._id && (
-                  <InputField
-                    name="password"
-                    label="Password"
-                    type={showPassword ? "text" : "password"}
-                    isRequired
-                    value={formik.values.password}
-                    error={formik.touched.password && formik.errors.password}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                )}
+
+                <div>
+                  <label
+                    htmlFor='password'
+                    className='block text-gray-700 dark:bg-themeBG dark:text-themeText font-medium mb-2'
+                  >
+                    Password <span className='text-red-500'>*</span>
+                  </label>
+                  <div className='relative'>
+                    <div className='absolute top-4 left-0 pl-3 flex items-center pointer-events-none'>
+                      <FaLock className='text-gray-400' />
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name='password'
+                      id='password'
+                      placeholder='Enter your password'
+                      className='w-full pl-8 pr-10 py-3 border border-gray-300 rounded-lg outline-none'
+                      value={formik.values.password}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                    <button
+                      type='button'
+                      className='absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600'
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                  {formik.touched.password && formik.errors.password && (
+                    <p className='mt-1 text-sm text-red-600'>{formik.errors.password}</p>
+                  )}
+                </div>
                 <InputField
-                  name="specialization"
-                  label="Specialization"
-                  placeholder="Enter Specialization"
+                  name='specialization'
+                  label='Specialization'
+                  placeholder='Enter Specialization'
                   isRequired
                   value={formik.values.specialization}
-                  error={
-                    formik.touched.specialization &&
-                    formik.errors.specialization
-                  }
+                  error={formik.touched.specialization && formik.errors.specialization}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
                 <InputField
-                  name="Id Proof"
-                  label="Id Proof"
+                  name='Id Proof'
+                  label='Id Proof'
                   // placeholder="Enter Certificates"
                   isRequired
-                  type={"file"}
+                  type={'file'}
                   value={formik.values.idProof}
-                  error={
-                    formik.touched.idProof &&
-                    formik.errors.idProof
-                  }
+                  error={formik.touched.idProof && formik.errors.idProof}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
                 <InputField
-                  name="Certificates"
-                  label="Certificates"
-                  placeholder="Enter Certificates"
+                  name='Certificates'
+                  label='Certificates'
+                  placeholder='Enter Certificates'
                   isRequired
-                  type={"file"}
+                  type={'file'}
                   value={formik.values.certificates}
-                  error={
-                    formik.touched.certificates &&
-                    formik.errors.certificates
-                  }
+                  error={formik.touched.certificates && formik.errors.certificates}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
                 <InputField
-                  name="experience"
-                  label="Experience"
-                  type="select"
+                  name='experience'
+                  label='Experience'
+                  type='select'
                   options={[
-                    { label: "Experience", value: "EXPERIENCE" },
-                    { label: "Fresher", value: "FRESHER" },
+                    { label: 'Experience', value: 'EXPERIENCE' },
+                    { label: 'Fresher', value: 'FRESHER' },
                   ]}
                   isRequired
                   value={formik.values.experience}
@@ -656,16 +651,13 @@ const Trainers = () => {
                   }}
                   onBlur={formik.handleBlur}
                 />
-                {formik.values.experience === "EXPERIENCE" && (
+                {formik.values.experience === 'EXPERIENCE' && (
                   <InputField
-                    name="experienceYear"
-                    label="How many years of experience?"
-                    placeholder="Enter years of experience"
+                    name='experienceYear'
+                    label='How many years of experience?'
+                    placeholder='Enter years of experience'
                     value={formik.values.experienceYear}
-                    error={
-                      formik.touched.experienceYear &&
-                      formik.errors.experienceYear
-                    }
+                    error={formik.touched.experienceYear && formik.errors.experienceYear}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   />

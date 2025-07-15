@@ -1,16 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaUser } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 const TopBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-
+  const user = useSelector((state) => state?.store?.currentUser);
+  const isTrainer  = user?.user_role?.name === 'trainer';
+  console.log("user:",user);
+  
   const handleLogout = () => {
     // Optional: clear localStorage, Redux, etc.
     // localStorage.removeItem("token");
     navigate("/login");
+  };
+
+    const goToAccount = () => {
+    if (isTrainer) {
+      navigate('/account');           // 🔗 route to “My Account”
+    }
   };
 
   // Close dropdown if clicking outside
@@ -26,7 +36,22 @@ const TopBar = () => {
 
   return (
     <nav className="bg-primary p-4 flex items-center justify-end shadow-md pr-20">
-      <span className='text-white text-2xl font-bold'>Admin Portal</span>
+       <div
+        onClick={goToAccount}
+        className={`flex items-center gap-2 ${
+          isTrainer ? 'cursor-pointer' : 'cursor-default'
+        }`}
+      >
+        <img
+          src={user?.profile_image}
+          alt="avatar"
+          width={30}
+          className="rounded-full"
+        />
+        <span className="text-white text-2xl font-bold">
+          hello! {user?.first_name}
+        </span>
+      </div>
 
       {/* <div className="relative" ref={dropdownRef}>
         <button onClick={() => setIsOpen(!isOpen)} className="text-white focus:outline-none">

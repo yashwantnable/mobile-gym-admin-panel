@@ -12,6 +12,7 @@ import {
 import { Pie, Bar } from "react-chartjs-2";
 import { FaDumbbell, FaUserFriends, FaUsers, FaDollarSign } from "react-icons/fa";
 import { useLoading } from "../Components/loader/LoaderContext";
+import { DashboardApi } from "../Api/Dashboard.api";
 
 ChartJS.register(
   ArcElement,
@@ -26,14 +27,21 @@ ChartJS.register(
 const Dashboard = () => {
   const { handleLoading } = useLoading();
 
-  const [dashboardData, setDashboardData] = useState({
-    totalSessions: 189,
-    totalTrainers: 45,
-    totalCustomers: 1780,
-    totalRevenue: 126000,
-    activeSessions: 84,
-    activeTrainers: 84,
-  });
+  const [dashboardData, setDashboardData] = useState();
+
+  const getAlldashboardData=async()=>{
+    try{
+      handleLoading(true)
+      const res= await DashboardApi.getDashboardData();
+      setDashboardData(res?.data?.data);
+      
+    }catch(err){
+      console.error("error:",err)
+    }finally{
+      handleLoading(false)
+    }
+  }
+
 
   const [monthlySessionStats, setMonthlySessionStats] = useState([
     { month: "Jan", count: 220 },
@@ -89,27 +97,30 @@ const Dashboard = () => {
     ],
   };
 
+  useEffect(()=>{
+    getAlldashboardData()
+  },[])
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        {/* Total Sessions */}
-        <Card title="Total Sessions" value={dashboardData.totalSessions} icon={<FaDumbbell />} color="bg-indigo-100 text-indigo-600" />
+        {/* Total Subscriptions */}
+        <Card title="Total Subsccriptions" value={dashboardData?.totalSubscriptions} icon={<FaDumbbell />} color="bg-indigo-100 text-indigo-600" />
 
         {/* Total Trainers */}
-        <Card title="Total Trainers" value={dashboardData.totalTrainers} icon={<FaUserFriends />} color="bg-green-100 text-green-600" />
+        <Card title="Total Trainers" value={dashboardData?.totalTrainer} icon={<FaUserFriends />} color="bg-green-100 text-green-600" />
 
         {/* Total Customers */}
-        <Card title="Total Customers" value={dashboardData.totalCustomers} icon={<FaUsers />} color="bg-blue-100 text-blue-600" />
+        <Card title="Total Customers" value={dashboardData?.totalCustomers} icon={<FaUsers />} color="bg-blue-100 text-blue-600" />
 
         {/* Total Revenue */}
-        <Card title="Total Revenue" value={`AED ${dashboardData.totalRevenue.toLocaleString()}`} icon={<FaDollarSign />} color="bg-yellow-100 text-yellow-600" />
+        <Card title="Total Revenue" value={dashboardData?.totalRevenue} icon={<FaDollarSign />} color="bg-yellow-100 text-yellow-600" />
 
         {/* Active Sessions */}
-        <Card title="Active Sessions" value={dashboardData.activeSessions} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" />
+        <Card title="Active Sessions" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" />
 
         {/* Active Trainers */}
-        <Card title="Active Trainers" value={dashboardData.activeTrainers} icon={<FaUserFriends />} color="bg-pink-100 text-pink-600" />
+        <Card title="Active Packages" value={dashboardData?.totalPackages} icon={<FaUserFriends />} color="bg-pink-100 text-pink-600" />
       </div>
 
       {/* Charts */}

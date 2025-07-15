@@ -24,7 +24,7 @@ const SubscriptionTable = ({ setOpen,allSubscription, setFilters, filters,handle
   //   location: '',
   //   isExpired: '',
   // });
-  console.log('locationOptions:', locationOptions);
+  console.log('allSubscription:', allSubscription);
 
 
 
@@ -57,34 +57,34 @@ const SubscriptionTable = ({ setOpen,allSubscription, setFilters, filters,handle
     fetchOptions();
   }, []);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const response = await SubscriptionApi.getAllSubscriptionFilter();
-        setSubscriptions(response.data || []);
-      } catch (err) {
-        console.error('Error fetching subscriptions:', err);
-      }
-    };
-    fetchInitialData();
-  }, []); // runs once on first render only
+  // useEffect(() => {
+  //   const fetchInitialData = async () => {
+  //     try {
+  //       const response = await SubscriptionApi.getAllSubscriptionFilter();
+  //       setSubscriptions(response.data || []);
+  //     } catch (err) {
+  //       console.error('Error fetching subscriptions:', err);
+  //     }
+  //   };
+  //   fetchInitialData();
+  // }, []); 
 
   // Fetch filtered subscriptions
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await SubscriptionApi.getAllSubscriptionFilter({
-          ...filters,
-          isExpired: expired, // add `isExpired` as part of the payload
-        });
-        setSubscriptions(response.data || []);
-        console.log('response:', response?.data?.data?.subscriptions);
-      } catch (err) {
-        console.error('Error fetching subscriptions:', err);
-      }
-    };
-    fetchData();
-  }, [filters, expired]);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await SubscriptionApi.getAllSubscriptionFilter({
+  //         ...filters,
+  //         isExpired: expired, // add `isExpired` as part of the payload
+  //       });
+  //       setSubscriptions(response.data || []);
+  //       console.log('response:', response?.data?.data?.subscriptions);
+  //     } catch (err) {
+  //       console.error('Error fetching subscriptions:', err);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [filters, expired]);
 
   const Columns = useMemo(
     () => [
