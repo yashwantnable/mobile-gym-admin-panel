@@ -5,6 +5,7 @@ import { Table2 } from '../../Components/Table/Table2';
 import { FaEye } from 'react-icons/fa';
 import { IoMdArrowRoundBack } from 'react-icons/io';
 import { RatingApi } from '../../Api/Ratings.api';
+import { toast } from 'react-toastify';
 
 const SubscriptionRating = () => {
   const [allSubscriptionReviews, setAllSubscriptionReviews] = useState(null);
@@ -17,51 +18,51 @@ const SubscriptionRating = () => {
 const ReviewColumns = useMemo(
   () => [
     {
-      headerName: 'Customer Name',
+      headerName: 'Name',
       field: 'created_by.first_name',
       minWidth: 160,
       valueGetter: (params) =>
         params.data?.created_by?.first_name?.trim() || 'N/A',
     },
     {
-      headerName: 'Customer Email',
+      headerName: 'Email',
       field: 'created_by.email',
       minWidth: 200,
       valueGetter: (params) => params.data?.created_by?.email || 'N/A',
     },
+    // {
+    //   headerName: 'Trainer Name',
+    //   field: 'trainer.first_name',
+    //   minWidth: 160,
+    //   valueGetter: (params) =>
+    //     params.data?.trainer?.first_name?.trim() || 'N/A',
+    // },
+    // {
+    //   headerName: 'Trainer Email',
+    //   field: 'trainer.email',
+    //   minWidth: 200,
+    //   valueGetter: (params) => params.data?.trainer?.email || 'N/A',
+    // },
     {
-      headerName: 'Trainer Name',
-      field: 'trainer.first_name',
-      minWidth: 160,
-      valueGetter: (params) =>
-        params.data?.trainer?.first_name?.trim() || 'N/A',
-    },
-    {
-      headerName: 'Trainer Email',
-      field: 'trainer.email',
-      minWidth: 200,
-      valueGetter: (params) => params.data?.trainer?.email || 'N/A',
-    },
-    {
-      headerName: 'Subscription Name',
+      headerName: 'Subscription',
       field: 'subscriptionId.name',
       minWidth: 200,
       valueGetter: (params) =>
         params.data?.subscriptionId?.name || 'N/A',
     },
+    // {
+    //   headerName: 'Subscription Location',
+    //   field: 'subscriptionId.streetName',
+    //   minWidth: 150,
+    //   valueGetter: (params) =>
+    //     params.data?.subscriptionId?.streetName || 'N/A',
+    // },
     {
-      headerName: 'Subscription Location',
-      field: 'subscriptionId.location',
-      minWidth: 150,
-      valueGetter: (params) =>
-        params.data?.subscriptionId?.location || 'N/A',
-    },
-    {
-      headerName: 'Session Name',
-      field: 'sessionId.sessionName',
+      headerName: 'Session',
+      field: 'subscriptionId.sessionType',
       minWidth: 180,
       valueGetter: (params) =>
-        params.data?.sessionId?.sessionName || 'N/A',
+        params.data?.subscriptionId?.sessionType || 'N/A',
     },
     {
       headerName: 'Rating',

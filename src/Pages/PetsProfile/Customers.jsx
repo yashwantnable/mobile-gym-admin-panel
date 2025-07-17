@@ -31,17 +31,34 @@ const Customers = () => {
   const [deleteModal, setDeleteModal] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRefs = useRef([]);
+  const [locationOptions, setLocationOptions] = useState([]);
+    const [categoryOptions, setCategoryOptions] = useState([]);
+  const [filters, setFilters] = useState({
+    country: '',
+    city: '',
+    gender: '',
+    isActive: '',
+  });
+   const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
   const { handleLoading } = useLoading();
+
+  // const handleLoading = (state) => setLoading(state);
 
   const getAllCustomers = async () => {
     handleLoading(true);
     try {
-      const res = await CustomerApi.getAllCustomer();
+      const cleanedFilters = Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== '')
+      );
+      const res = await CustomerApi.getAllCustomer(cleanedFilters);
       setAllUsers(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to fetch pets');
+      toast.error('Failed to fetch customers');
     }
     handleLoading(false);
   };
@@ -334,6 +351,79 @@ const Customers = () => {
           <div className='flex justify-between items-center mb-4'>
             <h2 className='text-4xl font-bold text-primary'>Customers</h2>
           </div>
+ {/* Filter Bar */}
+        <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm'>
+          
+          {/* Category Dropdown */}
+          <div className='space-y-1'>
+            <label className='block text-sm font-medium text-gray-700'>Category</label>
+            <select
+              name='categoryId'
+              value={filters.categoryId}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            >
+              <option value='' className='text-gray-400'>
+                All Categories
+              </option>
+              {categoryOptions.map((category) => (
+                <option
+                  key={category._id}
+                  value={category._id}
+                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
+                >
+                  {category.cName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Location Dropdown */}
+          <div className='space-y-1'>
+            <label className='block text-sm font-medium text-gray-700'>Location</label>
+            <select
+              name='location'
+              value={filters.location}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            >
+              <option value='' className='text-gray-400'>
+                All Locations
+              </option>
+              {locationOptions.map((loc) => (
+                <option
+                  key={loc._id}
+                  value={loc._id}
+                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
+                >
+                  {loc?.streetName}, {loc?.City?.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* isExpired Dropdown */}
+          <div className='space-y-1'>
+            <label className='block text-sm font-medium text-gray-700'>Expired</label>
+            <select
+              name='isExpired'
+              value={filters.isExpired}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            >
+              <option value='' className='text-gray-400'>
+                All
+              </option>
+              <option value={true} className='py-2 hover:bg-blue-50 hover:text-blue-600'>
+                Expired
+              </option>
+              <option value={false} className='py-2 hover:bg-blue-50 hover:text-blue-600'>
+                Not Expired
+              </option>
+            </select>
+          </div>
+        </div>
+
 
           <Table2
             column={customerColumns}

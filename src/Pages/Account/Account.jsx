@@ -7,8 +7,11 @@ import { CiLocationOn } from 'react-icons/ci';
 import { useSelector } from 'react-redux';
 import InputField from '../../Components/InputField';
 import { MasterApi } from '../../Api/Master.api';
+import { TrainerApi } from '../../Api/Trainer.api';
+import { useLoading } from '../../Components/loader/LoaderContext';
 
 const Account = () => {
+  const { handleLoading } = useLoading();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [countryData, setCountryData] = useState([]);
@@ -47,7 +50,7 @@ const Account = () => {
     }
   };
 
-  const GENDER_OPTS = [
+  const   GENDER_OPTS = [
     { value: 'MALE', label: 'Male' },
     { value: 'FEMALE', label: 'Female' },
     { value: 'OTHER', label: 'Other' },
@@ -114,23 +117,25 @@ const Account = () => {
       city: user.city?._id ?? '',
       profile_image: null,
     },
-    validationSchema: profileSchema,
-    onSubmit: (values) => {
-      setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Profile updated:', values);
-        setIsLoading(false);
-        setSuccessMessage('Profile updated successfully!');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      }, 1500);
+    // validationSchema: profileSchema,
+    onSubmit:async (values) => {
+      handleLoading(true);
+      try{
+        const res = await TrainerApi.trainerProfileUpdate(values);
+      }catch(err){
+        console.error("error:",err)
+      }finally{
+        handleLoading(false);
+      }
     },
   });
 
   const handleCountryChange = async (e) => {
     const selectedCountryId = e.target.value;
+    // console.log("country id:",e.target.value);
+    
     setCountryId(selectedCountryId);
-    formik.setFieldValue('country', selectedCountryId);
+    profileFormik.setFieldValue('country', selectedCountryId);
 
     if (selectedCountryId) {
       try {
@@ -380,6 +385,7 @@ const Account = () => {
                     </div>
 
                     {/* ── Demographics ─────────────────────────────────── */}
+                    {/* {JSON.stringify(profileFormik.values.gender)} */}
                     <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
                       <InputField
                         name='gender'

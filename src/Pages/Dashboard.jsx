@@ -28,6 +28,7 @@ const Dashboard = () => {
   const { handleLoading } = useLoading();
 
   const [dashboardData, setDashboardData] = useState();
+  const [classCount, setClassCount] = useState();
 
   const getAlldashboardData=async()=>{
     try{
@@ -107,9 +108,14 @@ const Dashboard = () => {
         {/* Total Subscriptions */}
         <Card title="Total Subsccriptions" value={dashboardData?.totalSubscriptions} icon={<FaDumbbell />} color="bg-indigo-100 text-indigo-600" />
 
+        <Card title="Total Classes" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-indigo-100 text-indigo-600" />
+
+        <Card title="Total Packages" value={dashboardData?.totalPackages} icon={<FaUserFriends />} color="bg-pink-100 text-pink-600" />
+
         {/* Total Trainers */}
         <Card title="Total Trainers" value={dashboardData?.totalTrainer} icon={<FaUserFriends />} color="bg-green-100 text-green-600" />
 
+        <Card title="Active Class" value={dashboardData?.totalActiveClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" />
         {/* Total Customers */}
         <Card title="Total Customers" value={dashboardData?.totalCustomers} icon={<FaUsers />} color="bg-blue-100 text-blue-600" />
 
@@ -120,7 +126,7 @@ const Dashboard = () => {
         <Card title="Active Sessions" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" />
 
         {/* Active Trainers */}
-        <Card title="Active Packages" value={dashboardData?.totalPackages} icon={<FaUserFriends />} color="bg-pink-100 text-pink-600" />
+        
       </div>
 
       {/* Charts */}

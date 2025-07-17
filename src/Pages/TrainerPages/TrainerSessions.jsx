@@ -7,6 +7,7 @@ import { Table2 } from '../../Components/Table/Table2';
 import Modal from '../../Components/Modal';
 import { MasterApi } from '../../Api/Master.api';
 import InputField from '../../Components/InputField';
+import { TrainerApi } from '../../Api/Trainer.api';
 
 // ───────────────────────────────────────────────────────────
 // Helper to convert 24‑h → 12‑h
@@ -86,24 +87,44 @@ const TrainerSessions = () => {
       }
     };
     
-  const handleStatusChange = async (nextStatus) => {
-    // setSaving(true);
-    // setError(null);
-    // try {
-    //   const res=await 
-    //   }
+const handleStatusChange = async (nextStatus) => {
+  if (!selectedRow?._id) return;
 
-    //   // bubble up to parent or refetch list
-    //   onStatusUpdated?.(nextStatus);
-    //   // reset local UI
-    //   setActionMode(null);
-    //   setRejectReason('');
-    // } catch (err) {
-    //   setError(err.response?.data?.message || 'Something went wrong');
-    // } finally {
-    //   setSaving(false);
-    // }
-  };
+  try {
+    // Get user's current location
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const payload = {
+          status: "CHECKIN",
+          trainerLocation: [longitude, latitude],
+        };
+
+        console.log("subscriptionId:", selectedRow._id);
+        console.log("payload:", payload);
+
+        const res = await TrainerApi.trainerCheckIn(selectedRow._id, payload);
+
+        // onStatusUpdated?.(nextStatus);
+        setActionMode(null);
+        setRejectReason('');
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("Failed to get current location. Please enable location access.");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Something went wrong");
+  }
+};
 
   const getAllLocations = async () => {
     try {

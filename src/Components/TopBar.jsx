@@ -42,12 +42,12 @@ const TopBar = () => {
           isTrainer ? 'cursor-pointer' : 'cursor-default'
         }`}
       >
-        <img
+        {user?.user_role?.role_id==="1"&&<img
           src={user?.profile_image}
           alt="avatar"
           width={30}
           className="rounded-full"
-        />
+        />}
         <span className="text-white text-2xl font-bold">
           hello! {user?.first_name}
         </span>
