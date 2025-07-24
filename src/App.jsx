@@ -41,7 +41,7 @@ import TrainerReviewPage from './Pages/Ratings/TrainerReviewPage';
 import MySessions from './Pages/Services/MySessions';
 import LocationMaster from './Pages/Master/LocationMaster';
 import { LoaderProvider } from './Components/loader/LoaderContext';
-import Loader from './components/loader/Loader';
+import Loader from './components/loader/Loader.jsx';
 import TrainerDashboard from './Pages/TrainerPages/TrainerDashboard';
 import TrainerSessions from './Pages/TrainerPages/TrainerSessions';
 import MyReviews from './Pages/TrainerPages/MyReviews';
