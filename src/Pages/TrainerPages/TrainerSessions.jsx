@@ -11,7 +11,7 @@ import { TrainerApi } from '../../Api/Trainer.api';
 import { toast } from 'react-toastify';
 import SmallCalendar from '../../Components/SmallCalendar.jsx';
 import FilterPanel from '../../Components/FilterPanel.jsx';
-import WeekView from "../../components/WeekView";
+import WeekView from "../../Components/WeekView";
 
 // ───────────────────────────────────────────────────────────
 // Helper to convert 24‑h → 12‑h 534612821827
