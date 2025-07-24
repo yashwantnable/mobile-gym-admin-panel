@@ -11,7 +11,7 @@ const liveUrl = "https://outbox.nablean.com";
 // const deliveryLocalUrl = "http://192.168.29.30:5001";
 // const deliveryLiveUrl = "http://192.168.29.30:5001";
 
-const isLive = false;
+const isLive = true;
 
 export const serverUrl = isLive ? liveUrl : localUrl;
 export const server = isLive ? `${liveUrl}/api/v1/` : `${localUrl}/api/v1/`;
