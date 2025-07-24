@@ -16,8 +16,12 @@ import { Table2 } from '../../Components/Table/Table2';
 import { columns, dummyCustomerList } from './customerData';
 import { FiCalendar, FiClock, FiMapPin } from 'react-icons/fi';
 import Modal from '../../Components/Modal';
+import { TrainerApi } from '../../Api/Trainer.api';
+import { CategoryApi } from '../../Api/Category.Api';
+import { SubscriptionApi } from '../../Api/Subscription.api';
 
 const Customers = () => {
+  const [subscriptionOptions, setSubscriptionOptions] = useState([]);
   const [open, setOpen] = useState(false);
   const [countryData, setCountryData] = useState([]);
   const [userSubscriptions, setUserSubscriptions] = useState([]);
@@ -32,14 +36,16 @@ const Customers = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRefs = useRef([]);
   const [locationOptions, setLocationOptions] = useState([]);
-    const [categoryOptions, setCategoryOptions] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const [filters, setFilters] = useState({
     country: '',
+    categoryId: '',
     city: '',
     gender: '',
     isActive: '',
   });
-   const handleChange = (e) => {
+  console.log('categoryOptions:', categoryOptions);
+  const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
@@ -54,7 +60,7 @@ const Customers = () => {
       const cleanedFilters = Object.fromEntries(
         Object.entries(filters).filter(([_, v]) => v !== '')
       );
-      const res = await CustomerApi.getAllCustomer(cleanedFilters);
+      const res = await CustomerApi.getFilteredCustomer(cleanedFilters);
       setAllUsers(res.data?.data || []);
     } catch (err) {
       console.error(err);
@@ -339,6 +345,46 @@ const Customers = () => {
     [setOpen, setSelectedRow, setDeleteModal]
   );
 
+  const handleClearFilters = () => {
+    setFilters({
+      trainerId: '',
+      categoryId: '',
+      location: '',
+      subscriptionId: '',
+      country: '',
+      city: '',
+    });
+
+    // Optional: Refetch data with empty filters
+    fetchData({ expired, isSingleClass: false });
+  };
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const [subscriptionRes, locationsRes, categoriesRes] = await Promise.all([
+          SubscriptionApi.getAllSubscription(),
+          MasterApi.getAllLocation(),
+          CategoryApi.getAllCategory(),
+        ]);
+        setSubscriptionOptions(subscriptionRes?.data?.data || []);
+        setLocationOptions(locationsRes?.data?.data?.allLocationMasters || []);
+        setCategoryOptions(categoriesRes?.data?.data || []);
+      } catch (err) {
+        console.error('Error loading dropdown filters:', err);
+      }
+    };
+    fetchOptions();
+  }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      getAllCustomers();
+    }, 300); // delay in milliseconds
+
+    return () => clearTimeout(timeout); // cleanup on next change
+  }, [filters]);
+
   useEffect(() => {
     getAllCustomers();
     handleCountry();
@@ -351,79 +397,98 @@ const Customers = () => {
           <div className='flex justify-between items-center mb-4'>
             <h2 className='text-4xl font-bold text-primary'>Customers</h2>
           </div>
- {/* Filter Bar */}
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm'>
-          
-          {/* Category Dropdown */}
-          <div className='space-y-1'>
-            <label className='block text-sm font-medium text-gray-700'>Category</label>
-            <select
-              name='categoryId'
-              value={filters.categoryId}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
-            >
-              <option value='' className='text-gray-400'>
-                All Categories
-              </option>
-              {categoryOptions.map((category) => (
-                <option
-                  key={category._id}
-                  value={category._id}
-                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
-                >
-                  {category.cName}
+          {/* Filter Bar */}
+          <div className='grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm items-end'>
+            {/* Subscription Dropdown */}
+            <div className='space-y-1'>
+              <label className='block text-sm font-medium text-gray-700'>Subscription</label>
+              <select
+                name='subscriptionId'
+                value={filters.subscriptionId}
+                onChange={handleFilterChange}
+                className='w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
+              >
+                <option value='' className='text-gray-400'>
+                  All Subscriptions
                 </option>
-              ))}
-            </select>
-          </div>
+                {subscriptionOptions.map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Location Dropdown */}
-          <div className='space-y-1'>
-            <label className='block text-sm font-medium text-gray-700'>Location</label>
-            <select
-              name='location'
-              value={filters.location}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
-            >
-              <option value='' className='text-gray-400'>
-                All Locations
-              </option>
-              {locationOptions.map((loc) => (
-                <option
-                  key={loc._id}
-                  value={loc._id}
-                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
-                >
-                  {loc?.streetName}, {loc?.City?.name}
+            {/* Country Dropdown */}
+            <div className='space-y-1'>
+              <label className='block text-sm font-medium text-gray-700'>Country</label>
+              <select
+                name='country'
+                value={filters.country}
+                onChange={handleFilterChange}
+                className='w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
+              >
+                <option value='' className='text-gray-400'>
+                  All Countries
                 </option>
-              ))}
-            </select>
-          </div>
+                {countryOptions.map((country) => (
+                  <option key={country.value} value={country.value}>
+                    {country.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* isExpired Dropdown */}
-          <div className='space-y-1'>
-            <label className='block text-sm font-medium text-gray-700'>Expired</label>
-            <select
-              name='isExpired'
-              value={filters.isExpired}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
-            >
-              <option value='' className='text-gray-400'>
-                All
-              </option>
-              <option value={true} className='py-2 hover:bg-blue-50 hover:text-blue-600'>
-                Expired
-              </option>
-              <option value={false} className='py-2 hover:bg-blue-50 hover:text-blue-600'>
-                Not Expired
-              </option>
-            </select>
-          </div>
-        </div>
+            {/* City Dropdown */}
+            <div className='space-y-1'>
+              <label className='block text-sm font-medium text-gray-700'>City</label>
+              <select
+                name='city'
+                value={filters.city}
+                onChange={handleFilterChange}
+                className='w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
+              >
+                <option value='' className='text-gray-400'>
+                  All Cities
+                </option>
+                {cityOptions.map((city) => (
+                  <option key={city._id} value={city._id}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
+            {/* Category Dropdown */}
+            <div className='space-y-1'>
+              <label className='block text-sm font-medium text-gray-700'>Category</label>
+              <select
+                name='categoryId'
+                value={filters.categoryId}
+                onChange={handleFilterChange}
+                className='w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
+              >
+                <option value='' className='text-gray-400'>
+                  All Categories
+                </option>
+                {categoryOptions.map((cata) => (
+                  <option key={cata._id} value={cata._id}>
+                    {cata?.cName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Clear Filters Button */}
+            <div className='flex items-end'>
+              <button
+                onClick={handleClearFilters}
+                className='w-full px-4 py-2 border border-primary text-primary rounded-lg shadow-sm hover:bg-primary hover:text-white transition-all'
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
 
           <Table2
             column={customerColumns}

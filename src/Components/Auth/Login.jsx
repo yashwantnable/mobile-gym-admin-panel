@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 const Login = () => {
   const navigate = useNavigate();
   const [isPwdShow, setIsPwdShow] = useState(false);
-  const [activeTab, setActiveTab] = useState("admin"); // 'admin' or 'trainer'
   const { handleLoading } = useLoading();
   const dispatch = useDispatch();
 
@@ -33,13 +32,19 @@ const Login = () => {
     
     onSubmit: async (values) => {
       handleLoading(true);
-      const roleIdMap = { admin: 1, trainer: 2 };
-      const authType = roleIdMap[activeTab];
       try {
-        // You can modify the payload based on the active tab here
-        const payload = { ...values, role: activeTab };
-        await dispatch(login({ authType, credentials: values })).unwrap();
-        navigate(activeTab === "admin" ? "/" : "/trainer");
+        // First try admin login (role 1)
+        try {
+          await dispatch(login({ authType: 1, credentials: values })).unwrap();
+          navigate("/");
+          return; // Exit if successful
+        } catch (adminError) {
+          console.log("Admin login failed, trying trainer...");
+        }
+
+        // If admin login fails, try trainer login (role 2)
+        await dispatch(login({ authType: 2, credentials: values })).unwrap();
+        navigate("/trainer");
       } catch (e) {
         console.error("Login error:", e);
         toast.error("Invalid credentials. Please try again.");
@@ -58,7 +63,7 @@ const Login = () => {
           <img src={logo} alt="Company Logo" className="w-full max-h-60 object-contain mx-auto" />
           <h1 className="text-white text-3xl font-bold mt-6">Welcome Back</h1>
           <p className="text-white opacity-80 mt-2">
-            Sign in to access your {activeTab === "admin" ? "admin" : "trainer"} dashboard
+            Sign in to access your dashboard
           </p>
         </div>
       </div>
@@ -66,34 +71,10 @@ const Login = () => {
       {/* Login Right */}
       <div className="w-full md:w-1/2 lg:w-3/5 flex justify-center items-center p-6 md:p-12">
         <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 md:p-10">
-          {/* Tab Navigation */}
-          <div className="flex justify-center mb-6 space-x-4">
-            <button
-              onClick={() => setActiveTab("admin")}
-              className={`px-4 py-2 rounded-full font-semibold text-sm ${
-                activeTab === "admin"
-                  ? "bg-primary text-white shadow"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              Admin
-            </button>
-            <button
-              onClick={() => setActiveTab("trainer")}
-              className={`px-4 py-2 rounded-full font-semibold text-sm ${
-                activeTab === "trainer"
-                  ? "bg-primary text-white shadow"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              Trainer
-            </button>
-          </div>
-
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Login</h2>
             <p className="text-gray-600 mt-1">
-              Please enter your credentials to login as {activeTab}
+              Please enter your credentials to login
             </p>
           </div>
 

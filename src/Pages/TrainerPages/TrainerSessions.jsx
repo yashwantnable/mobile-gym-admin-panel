@@ -8,9 +8,13 @@ import Modal from '../../Components/Modal';
 import { MasterApi } from '../../Api/Master.api';
 import InputField from '../../Components/InputField';
 import { TrainerApi } from '../../Api/Trainer.api';
+import { toast } from 'react-toastify';
+import SmallCalendar from '../../Components/SmallCalendar.jsx';
+import FilterPanel from '../../Components/FilterPanel.jsx';
+import WeekView from "../../components/WeekView";
 
 // ───────────────────────────────────────────────────────────
-// Helper to convert 24‑h → 12‑h
+// Helper to convert 24‑h → 12‑h 534612821827
 const formatTime12Hour = (timeString = '') => {
   if (!timeString) return '';
   const [h, m] = timeString.split(':');
@@ -46,23 +50,126 @@ const TrainerSessions = () => {
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [locationData, setLocationData] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [classes, setClasses] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [error, setError]               = useState(null);
   const [actionMode, setActionMode] = useState(null); // "CHECKED_IN" | "REJECTED" | null
   const [rejectReason, setRejectReason] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [filteredClasses, setFilteredClasses] = useState([]);
+  console.log("selectedDate:",selectedDate)
+ const [filters, setFilters] = useState({
+  location: [],
+  categoryId: [],
+  sessionTypeId: [],
+  minPrice: '',
+  maxPrice: '',
+  sortBy: 'relevance',
+  order: 'desc',
+  isExpired: false,
+  isSingleClass: "",
+  page: 1,
+  limit: 100,
+});
 
+ const getUniqueValues = (field) => {
+    const values = [...new Set(classes.map((cls) => cls[field]))].filter(
+      Boolean
+    );
+    // console.log(`Unique ${field} values:`, values);
+    return values;
+  };
+
+
+    const getUniqueOptions = (nameField, idField) => {
+    const unique = new Map();
+    classes.forEach((item) => {
+      const name = item[nameField];
+      const id = item[idField];
+      if (name && id && !unique.has(id)) {
+        unique.set(id, name);
+      }
+    });
+    return Array.from(unique.entries()).map(([id, name]) => ({ id, name }));
+  };
+
+
+   const handleDateSelect = (date) => {
+    setSelectedDate(date);
+  };
+
+//     const getAllClasses = async () => {
+//     handleLoading(true);
+//     try {
+//       const res = await SubscriptionApi.getAllSubscriptionFilter({ isSingleClass: true });
+//       const apiClasses = res?.data?.data?.subscriptions;
+
+     
+//       console.log("apiClasses:",apiClasses);
+
+//       setClasses(apiClasses);
+//       setFilteredClasses(apiClasses);
+//     } catch (err) {
+//       console.log(err);
+//     } finally {
+//       handleLoading(false);
+//     }
+//   };
+
+// useEffect(()=>{
+//   getAllClasses();
+// },[])
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+ const handleReset = () => {
+    setFilters((prev) => ({
+      ...prev,
+      location: [],
+      categoryId: [],
+      sessionTypeId: [],
+      page: 1,
+    }));
+  };
+
+
+
+ 
   // Fetch sessions created by this trainer
-  const getClassesDetails = async (trainerId, expired) => {
-    try {
-      handleLoading(true);
-      const res = await SubscriptionApi.SubscriptionByTrainerId(trainerId, expired);
-      setTrainerClasses(res?.data?.data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      handleLoading(false);
-    }
+  const getClassesDetails = async () => {
+  try {
+    handleLoading(true);
+    // Build payload from filters
+    const payload = {
+      sortBy: filters.sortBy,
+      order: filters.order,
+      minPrice: filters.minPrice || undefined,
+      maxPrice: filters.maxPrice || undefined,
+      categoryId: filters.categoryId.length ? filters.categoryId : undefined,
+      sessionTypeId: filters.sessionTypeId.length ? filters.sessionTypeId : undefined,
+      location: filters.location.length ? filters.location : undefined,
+      isExpired: filters.isExpired,
+      isSingleClass: filters.isSingleClass,
+      page: filters.page,
+      limit: filters.limit,
+    };
+    const res = await SubscriptionApi.trainerSubscriptionsfilters(payload);
+    setTrainerClasses(res?.data?.data?.subscriptions || []);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    handleLoading(false);
+  }
+};
+
+   const handleClassClick = (classItem) => {
+    setSelectedClass(classItem);
+    setShowModal(true);
   };
 
   const tabs = [
@@ -122,7 +229,7 @@ const handleStatusChange = async (nextStatus) => {
     );
   } catch (err) {
     console.error(err);
-    alert(err.response?.data?.message || "Something went wrong");
+    toast.error(err?.message || "Something went wrong");
   }
 };
 
@@ -156,16 +263,38 @@ const handleStatusChange = async (nextStatus) => {
         cellRenderer: ({ data }) => data?.sessionType?.sessionName ?? 'N/A',
       },
       {
-        headerName: 'Date',
+        headerName: 'Date(s)',
         field: 'date',
-        cellRenderer: ({ data }) =>
-          data?.date?.length
-            ? new Date(data.date[0]).toLocaleDateString({
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })
-            : 'N/A',
+        cellRenderer: ({ data }) => {
+          if (Array.isArray(data.date) && data.date.length > 1) {
+            const start = new Date(data.date[0]).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric',
+            });
+            const end = new Date(data.date[data.date.length - 1]).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric',
+            });
+            return `${start} - ${end}`;
+          } else if (Array.isArray(data.date) && data.date.length === 1) {
+            return new Date(data.date[0]).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric',
+            });
+          } else if (typeof data.date === 'string') {
+            return new Date(data.date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric',
+            });
+          }
+          return 'N/A';
+        },
+      },
+      {
+        headerName: 'Single/Range',
+        field: 'isSingleClass',
+        cellRenderer: ({ data }) => data.isSingleClass ? 'Single' : 'Range',
+      },
+      {
+        headerName: 'Expired',
+        field: 'isExpired',
+        cellRenderer: ({ data }) => data.isExpired ? 'Expired' : 'Active',
       },
       {
         headerName: 'Time',
@@ -201,23 +330,154 @@ const handleStatusChange = async (nextStatus) => {
     []
   );
 
-  useEffect(() => {
-    const isExpired = activeTab === 'all' ? undefined : activeTab === 'expired'; // true if expired, false if non-expired
-    if (trainerId) {
-      getClassesDetails(trainerId, isExpired);
-    }
-  }, [activeTab, trainerId]);
+ useEffect(() => {
+  if (trainerId) {
+    getClassesDetails();
+  }
+}, [filters, trainerId]);
 
   useEffect(() => {
     getAllLocations();
     getClassesDetails(user?._id);
   }, []);
 
+  const filterClassesByDate = (classes, selectedDate) => {
+  if (!selectedDate) return classes;
+  const selectedDateString = selectedDate.toISOString().split('T')[0];
+  const selectedTime = selectedDate.setHours(0,0,0,0);
+
+  return classes.filter(cls => {
+    if (Array.isArray(cls.date)) {
+      // Check if any date matches exactly
+      const anyMatch = cls.date.some(d => d.split('T')[0] === selectedDateString);
+      if (anyMatch) return true;
+
+      // Check if selectedDate is between first and last date in the array
+      if (cls.date.length >= 2) {
+        const start = new Date(cls.date[0]).setHours(0,0,0,0);
+        const end = new Date(cls.date[cls.date.length - 1]).setHours(0,0,0,0);
+        if (selectedTime >= start && selectedTime <= end) return true;
+      }
+      return false;
+    }
+    // Single date
+    return cls.date && cls.date.split('T')[0] === selectedDateString;
+  });
+};
+
   return (
     <div className='p-5'>
       <h2 className='mb-4 text-4xl font-bold text-primary'>My Sessions</h2>
+
+    {/* side filters */}
+     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Sidebar - Header, Small Calendar + Filter Panel */}
+            <div className="lg:col-span-3 flex flex-col gap-6">
+              {/* Sidebar Header and Description */}
+             
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <h2 className="text-lg font-medium text-gray-900">
+                    Calendar
+                  </h2>
+                </div>
+                <div className="p-4">
+                  <SmallCalendar
+                    selectedDate={selectedDate}
+                    onDateSelect={handleDateSelect}
+                    classesData={classes}
+                  />
+                  <button
+                    className="mt-3 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors w-full"
+                    onClick={() => setSelectedDate(null)}
+                    disabled={!selectedDate}
+                  >
+                    Clear Date
+                  </button>
+                </div>
+              </div>
+
+              <FilterPanel
+                filters={filters}
+                setFilters={setFilters}
+                onFilterChange={handleFilterChange}
+                onReset={handleReset}
+                locations={getUniqueOptions("location", "locationId")}
+                categories={getUniqueOptions("category", "categoryId")}
+                sessionTypes={getUniqueOptions("sessionType", "sessionTypeId")}
+              />
+            </div>
+            {/* Main Content - Week View */}
+            <div className="lg:col-span-9">
+              {/* Mobile Filters */}
+              {showFilters && (
+                <div className="lg:hidden mb-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <h2 className="text-lg font-medium text-gray-900">
+                      Filters
+                    </h2>
+                    <button
+                      onClick={() => setShowFilters(false)}
+                      className="text-gray-400 hover:text-gray-500"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div className="p-4">
+                    <FilterPanel
+                      filters={filters}
+                      setFilters={setFilters}
+                      onFilterChange={handleFilterChange}
+                      onReset={handleReset}
+                      locations={getUniqueValues("location")}
+                      categories={getUniqueValues("category")}
+                      sessionTypes={getUniqueValues("sessionType")}
+                    />
+                  </div>
+                </div>
+              )}
+              {/* Week View */}
+              {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden h-[100vh]">
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg  text-gray-900 font-bold">
+                      Schedule for{" "}
+                      {selectedDate.toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </h2>
+                    <div className="text-sm text-gray-500">
+                      {trainerClasses.length} classes found
+                    </div>
+                  </div>
+                </div>
+                <div className="overflow-hidden">
+                  <WeekView
+                    classes={[trainerClasses]}
+                    selectedDate={selectedDate}
+                    onClassClick={handleClassClick}
+                    selectedPackage={selectedPackage}
+                  />
+                </div>
+              </div> */}
+
+              <Table2
+        column={columns}
+        internalRowData={filterClassesByDate(trainerClasses, selectedDate)}
+        searchLabel='Classes'
+        sheetName='Classes'
+      />
+
+
+            </div>
+          </div>
+
+
       {/* Tabs */}
-      <div className='flex space-x-4 mb-4 '>
+      {/* <div className='flex space-x-4 mb-4 '>
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -231,15 +491,9 @@ const handleStatusChange = async (nextStatus) => {
             {tab.label}
           </button>
         ))}
-      </div>
+      </div> */}
 
-      <Table2
-        column={columns}
-        internalRowData={trainerClasses}
-        searchLabel='Classes'
-        sheetName='Classes'
-      />
-
+      
       {/* ───────────── Details Modal ───────────── */}
       <Modal
         isOpen={open}
@@ -420,13 +674,7 @@ const handleStatusChange = async (nextStatus) => {
               {/* Action buttons */}
               {actionMode === null && (
                 <div className='flex justify-end gap-4'>
-                  <button
-                    onClick={() => handleStatusChange('CHECKED_IN')}
-                    disabled={saving}
-                    className='px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 transition-colors'
-                  >
-                    {saving ? 'Saving…' : 'Check In'}
-                  </button>
+                  
 
                   <button
                     onClick={() => setActionMode('REJECTED')}
@@ -434,6 +682,14 @@ const handleStatusChange = async (nextStatus) => {
                     className='px-4 py-2 rounded-md bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-60 transition-colors'
                   >
                     Reject
+                  </button>
+
+                  <button
+                    onClick={() => handleStatusChange('CHECKED_IN')}
+                    disabled={saving}
+                    className='px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 transition-colors'
+                  >
+                    {saving ? 'Saving…' : 'Check In'}
                   </button>
                 </div>
               )}

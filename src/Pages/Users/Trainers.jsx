@@ -526,7 +526,7 @@ const Trainers = () => {
                   options={[
                     { label: 'Male', value: 'Male' },
                     { label: 'Female', value: 'Female' },
-                    { label: 'Other', value: 'Other' },
+                    { label: 'Other', value: 'Others' },
                   ]}
                   isRequired
                   value={formik.values.gender}

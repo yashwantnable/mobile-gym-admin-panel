@@ -113,6 +113,20 @@ const Subscription = () => {
     isExpired: '',
   });
 
+   const handleClearFilters = () => {
+    setFilters({
+      trainerId: '',
+      categoryId: '',
+      location: '',
+      subscriptionId: '',
+      country: '',
+      city: '',
+    });
+
+    // Optional: Refetch data with empty filters
+    fetchData({ expired, isSingleClass: false });
+  };
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ [name]: value }));
@@ -317,7 +331,7 @@ const Subscription = () => {
         const payload = {
           expired,
           isSingleClass: false,
-          ...(filters && { filters }),
+          ...filters,
         };
         const res = await SubscriptionApi.getAllSubscriptionFilter(payload);
         allData = res?.data?.data?.subscriptions || [];
@@ -626,6 +640,7 @@ const Subscription = () => {
             allSubscription={allSubscription}
             filters={filters}
             setFilters={setFilters}
+            handleClearFilters={handleClearFilters}
             setDeleteModal={setDeleteModal}
             handleChange={handleFilterChange}
             setSelectedRow={setSelectedRow}

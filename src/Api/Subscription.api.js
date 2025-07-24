@@ -2,7 +2,7 @@ import Api from '../Middleware/axios';
 
 export const SubscriptionApi = {
   getAllSubscription: (exipred,payload) => Api.post(`/subscription/get-all-subscription?isExpired=${exipred}`, payload),
-  getAllSubscriptionFilter: (payload) => Api.post(`/subscription//get-subscriptions-filter`, payload),
+  getAllSubscriptionFilter: (payload) => Api.post(`/subscription/get-subscriptions-filter`, payload),
   createSubscription: (payload) => Api.post('/subscription/create-subscription', payload),
   updateSubscription: (id, payload) => Api.put(`/subscription/update-subscription/${id}`, payload),
   getSingleSubscription: (id) => Api.get(`/subscription/get-subscription-by-id/${id}`),
@@ -10,6 +10,7 @@ export const SubscriptionApi = {
   DeleteSubscription: (id, payload) => Api.delete(`/subscription/delete-subscription/${id}`, payload),
   DeleteSubscription: (id, payload) => Api.delete(`/subscription/delete-subscription/${id}`, payload),
   SubscriptionByTrainerId: (trainerId,expired) => Api.get(`/subscription/get-subscriptions-by-trainer/${trainerId}?isExpired=${expired}`),
+  trainerSubscriptionsfilters: (payload) => Api.post(`/subscription/get-trainer-Assigned-Subscriptions-filters`,payload),
 };
 export const PackageApi = {
   getAllPackage: (payload) => Api.post(`/package/get-all-packages?`, payload),

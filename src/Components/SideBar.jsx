@@ -20,6 +20,7 @@ import { RiCalendarScheduleLine } from 'react-icons/ri';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaRegUser, FaUserNinja } from 'react-icons/fa';
 import { FaUsersLine } from 'react-icons/fa6';
+import { CiStar } from 'react-icons/ci';
 
 const menuItems = [
   { name: 'Dashboard', icon: AiOutlineHome, path: '/' },
@@ -31,7 +32,7 @@ const menuItems = [
   // { name: "Schedules", icon: FaUsersLine, path: "/schedules" },
   { name: 'Promo code', icon: MdDiscount, path: '/promocode' },
   { name: 'Payments', icon: AiOutlineCreditCard, path: '/payments' },
-  { name: 'System Settings', icon: AiOutlineCreditCard, path: '/system-settings' },
+  // { name: 'System Settings', icon: AiOutlineCreditCard, path: '/system-settings' },
   {
     name: 'Ratings',
     icon: MdOutlineStarRate,
@@ -60,6 +61,7 @@ const menuItems = [
 const TrainerMEnuItems = [
   { name: 'Dashboard', icon: AiOutlineHome, path: '/trainer' },
   { name: 'My Sessions', icon: FaRegUser, path: 'my-sessions' },
+  { name: 'My Reviews', icon: CiStar, path: 'my-reviews' },
 ];
 
 const Sidebar = () => {

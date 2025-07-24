@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaUser } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
+import NotificationProvider from '../Pages/Notification/NotificationSocket';
 
 const TopBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,12 +43,17 @@ const TopBar = () => {
           isTrainer ? 'cursor-pointer' : 'cursor-default'
         }`}
       >
-        {user?.user_role?.role_id==="1"&&<img
+        {user?.user_role?.role_id===2 &&
+        <>
+          <NotificationProvider userId={user?._id} />
+        <img
           src={user?.profile_image}
           alt="avatar"
           width={30}
           className="rounded-full"
-        />}
+        />
+        </>
+        }
         <span className="text-white text-2xl font-bold">
           hello! {user?.first_name}
         </span>

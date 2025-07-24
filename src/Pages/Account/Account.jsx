@@ -51,9 +51,9 @@ const Account = () => {
   };
 
   const   GENDER_OPTS = [
-    { value: 'MALE', label: 'Male' },
-    { value: 'FEMALE', label: 'Female' },
-    { value: 'OTHER', label: 'Other' },
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' },
+    { value: 'Other', label: 'Other' },
   ];
   const STATUS_OPTS = [
     { value: 'AVAILABLE', label: 'Available' },

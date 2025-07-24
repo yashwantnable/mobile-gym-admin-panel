@@ -13,7 +13,17 @@ import { Table2 } from '../../Components/Table/Table2';
 import { FiEdit } from 'react-icons/fi';
 import { MdOutlineDeleteOutline } from 'react-icons/md';
 
-const SubscriptionTable = ({ setOpen,allSubscription, setFilters, filters,handleChange, setSelectedRow, setDeleteModal, expired = false }) => {
+const SubscriptionTable = ({
+  setOpen,
+  handleClearFilters,
+  allSubscription,
+  setFilters,
+  filters,
+  handleChange,
+  setSelectedRow,
+  setDeleteModal,
+  expired = false,
+}) => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [trainerOptions, setTrainerOptions] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
@@ -25,8 +35,6 @@ const SubscriptionTable = ({ setOpen,allSubscription, setFilters, filters,handle
   //   isExpired: '',
   // });
   console.log('allSubscription:', allSubscription);
-
-
 
   const handleApplyFilters = () => {
     const parsedFilters = {
@@ -67,7 +75,7 @@ const SubscriptionTable = ({ setOpen,allSubscription, setFilters, filters,handle
   //     }
   //   };
   //   fetchInitialData();
-  // }, []); 
+  // }, []);
 
   // Fetch filtered subscriptions
   // useEffect(() => {
@@ -188,7 +196,8 @@ const SubscriptionTable = ({ setOpen,allSubscription, setFilters, filters,handle
     <div className='p-6'>
       <div className='p-6'>
         {/* Filter Bar */}
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm'>
+       {/* <div className='flex flex-wrap justify-around gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm items-end'> */}
+       <div className='grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm items-end'>
           {/* Trainer Dropdown */}
           <div className='space-y-1'>
             <label className='block text-sm font-medium text-gray-700'>Trainer</label>
@@ -281,7 +290,19 @@ const SubscriptionTable = ({ setOpen,allSubscription, setFilters, filters,handle
               </option>
             </select>
           </div>
+
+           {/* Clear Filters Button */}
+        <div className='space-y-1'>
+          <button
+            onClick={handleClearFilters}
+            className='w-full px-4 py-2 border border-primary text-primary rounded-lg shadow-sm hover:bg-primary hover:text-white transition-all'
+          >
+            Clear Filters
+          </button>
         </div>
+        </div>
+
+       
 
         {/* Apply Filters Button */}
         {/* <div className="mb-6">
