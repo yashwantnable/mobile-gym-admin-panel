@@ -12,6 +12,11 @@ import { CategoryApi } from '../../Api/Category.Api';
 import { Table2 } from '../../Components/Table/Table2';
 import { FiEdit } from 'react-icons/fi';
 import { MdOutlineDeleteOutline } from 'react-icons/md';
+import SmallCalendar from '../../Components/SmallCalendar';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { HiMapPin } from 'react-icons/hi2';
+import { HiOutlineSquares2X2 } from 'react-icons/hi2';
+import { FaUser } from 'react-icons/fa';
 
 const SubscriptionTable = ({
   setOpen,
@@ -28,6 +33,12 @@ const SubscriptionTable = ({
   const [trainerOptions, setTrainerOptions] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [dropdownOpen, setDropDownOpen] = useState({
+    location: false,
+    category: false,
+    trainer: false,
+  });
   // const [filters, setFilters] = useState({
   //   trainerId: '',
   //   categoryId: '',
@@ -93,6 +104,12 @@ const SubscriptionTable = ({
   //   };
   //   fetchData();
   // }, [filters, expired]);
+
+  const toggle = (key) => setDropDownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   const Columns = useMemo(
     () => [
@@ -190,138 +207,169 @@ const SubscriptionTable = ({
     return `${hour}:${minute} ${ampm}`;
   };
 
+  // Filter subscriptions by selected date (frontend only)
+  const filterByDate = (subscriptions, selectedDate) => {
+    if (!selectedDate) return subscriptions;
+    const selectedDateString = selectedDate.toISOString().split('T')[0];
+    return subscriptions.filter((sub) => {
+      if (Array.isArray(sub.date)) {
+        return sub.date.some((d) => d.split('T')[0] === selectedDateString);
+      }
+      return sub.date && sub.date.split('T')[0] === selectedDateString;
+    });
+  };
+
   // console.log("subscriptions:",subscriptions?.data?.subscriptions);
 
   return (
     <div className='p-6'>
-      <div className='p-6'>
-        {/* Filter Bar */}
-       {/* <div className='flex flex-wrap justify-around gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm items-end'> */}
-       <div className='grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm items-end'>
-          {/* Trainer Dropdown */}
-          <div className='space-y-1'>
-            <label className='block text-sm font-medium text-gray-700'>Trainer</label>
-            <select
-              name='trainerId'
-              value={filters.trainerId}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+      <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
+        {/* Left: Calendar and Filters */}
+        <div className='md:col-span-4 flex flex-col gap-6'>
+          {/* Calendar Filter */}
+          <div className='mb-2 max-w-xs md:max-w-full'>
+            <SmallCalendar
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+              classesData={allSubscription}
+            />
+            <button
+              className='mt-2 px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 w-full'
+              onClick={() => setSelectedDate(null)}
+              disabled={!selectedDate}
             >
-              <option value='' className='text-gray-400'>
-                All Trainers
-              </option>
-              {trainerOptions.map((trainer) => (
-                <option
-                  key={trainer._id}
-                  value={trainer._id}
-                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
-                >
-                  {trainer.first_name} {trainer.last_name}
-                </option>
-              ))}
-            </select>
+              Clear Date
+            </button>
           </div>
+          {/* Filters */}
+          <div className='bg-white rounded-xl shadow-sm p-4 space-y-4 w-full max-w-xs'>
+            <h2 className='text-lg font-semibold'>FILTERS</h2>
+            <input
+              type='text'
+              placeholder='Search...'
+              className='w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500'
+            />
 
-          {/* Category Dropdown */}
-          <div className='space-y-1'>
-            <label className='block text-sm font-medium text-gray-700'>Category</label>
-            <select
-              name='categoryId'
-              value={filters.categoryId}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            {/* Location */}
+            <div>
+              <button
+                className='flex justify-between items-center w-full text-left py-2 text-sm font-medium text-gray-700'
+                onClick={() => toggle('location')}
+              >
+                Location
+                {dropdownOpen.location ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+              </button>
+              {dropdownOpen.location && (
+                <div className='pl-2 mt-2 space-y-1'>
+                  {/* <div
+              className="cursor-pointer text-sm hover:text-blue-600"
+              onClick={() => handleFilterChange('location', '')}
             >
-              <option value='' className='text-gray-400'>
-                All Categories
-              </option>
-              {categoryOptions.map((category) => (
-                <option
-                  key={category._id}
-                  value={category._id}
-                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
-                >
-                  {category.cName}
-                </option>
-              ))}
-            </select>
-          </div>
+              All Locations
+            </div> */}
+                  {locationOptions.map((loc) => (
+                    <div
+                      key={loc._id}
+                      className={`flex items-center gap-2 cursor-pointer text-sm hover:text-blue-600 ${
+                        filters.location === loc._id ? 'text-blue-600 font-semibold' : ''
+                      }`}
+                      onClick={() => handleFilterChange('location', loc._id)}
+                    >
+                      <HiMapPin size={16} />
+                      {loc.streetName}, {loc?.City?.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* Location Dropdown */}
-          <div className='space-y-1'>
-            <label className='block text-sm font-medium text-gray-700'>Location</label>
-            <select
-              name='location'
-              value={filters.location}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            {/* Category */}
+            <div>
+              <button
+                className='flex justify-between items-center w-full text-left py-2 text-sm font-medium text-gray-700'
+                onClick={() => toggle('category')}
+              >
+                Category
+                {dropdownOpen.category ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+              </button>
+              {dropdownOpen.category && (
+                <div className='pl-2 mt-2 space-y-1'>
+                  {/* <div
+              className="cursor-pointer text-sm hover:text-blue-600"
+              onClick={() => handleFilterChange('categoryId', '')}
             >
-              <option value='' className='text-gray-400'>
-                All Locations
-              </option>
-              {locationOptions.map((loc) => (
-                <option
-                  key={loc._id}
-                  value={loc._id}
-                  className='py-2 hover:bg-blue-50 hover:text-blue-600'
-                >
-                  {loc?.streetName}, {loc?.City?.name}
-                </option>
-              ))}
-            </select>
-          </div>
+              All Categories
+            </div> */}
+                  {categoryOptions.map((category) => (
+                    <div
+                      key={category._id}
+                      className={`flex items-center gap-2 cursor-pointer text-sm hover:text-blue-600 ${
+                        filters.categoryId === category._id ? 'text-blue-600 font-semibold' : ''
+                      }`}
+                      onClick={() => handleFilterChange('categoryId', category._id)}
+                    >
+                      <HiOutlineSquares2X2 size={16} />
+                      {category.cName}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* isExpired Dropdown */}
-          <div className='space-y-1'>
-            <label className='block text-sm font-medium text-gray-700'>Expired</label>
-            <select
-              name='isExpired'
-              value={filters.isExpired}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9Ii82QjcyODkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jaGV2cm9uLWRvd24iPjxwYXRoIGQ9Im02IDkgNiA2IDYtNiIvPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem_1.25rem]"
+            {/* Session Type */}
+            <div>
+              <button
+                className='flex justify-between items-center w-full text-left py-2 text-sm font-medium text-gray-700'
+                onClick={() => toggle('trainer')}
+              >
+                Trainer
+                {dropdownOpen.trainer ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+              </button>
+              {dropdownOpen.trainer && (
+                <div className='pl-2 mt-2 space-y-1'>
+                  {/* <div
+              className="cursor-pointer text-sm hover:text-blue-600"
+              onClick={() => handleFilterChange('sessionTypeId', '')}
             >
-              <option value='' className='text-gray-400'>
-                All
-              </option>
-              <option value={true} className='py-2 hover:bg-blue-50 hover:text-blue-600'>
-                Expired
-              </option>
-              <option value={false} className='py-2 hover:bg-blue-50 hover:text-blue-600'>
-                Not Expired
-              </option>
-            </select>
-          </div>
+              All Session Types
+            </div> */}
+                  {trainerOptions.map((s) => (
+                    <div
+                      key={s._id}
+                      className={`flex items-center gap-2 cursor-pointer text-sm hover:text-blue-600 ${
+                        filters.trainerId === s._id ? 'text-blue-600 font-semibold' : ''
+                      }`}
+                      onClick={() => handleFilterChange('trainerId', s._id)}
+                    >
+                      <FaUser size={14} />
+                      {s.first_name} {s.last_name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-           {/* Clear Filters Button */}
-        <div className='space-y-1'>
-          <button
-            onClick={handleClearFilters}
-            className='w-full px-4 py-2 border border-primary text-primary rounded-lg shadow-sm hover:bg-primary hover:text-white transition-all'
-          >
-            Clear Filters
-          </button>
+            {/* Clear Filters */}
+            <div>
+              <button
+                onClick={handleClearFilters}
+                className='w-full px-4 py-2 border border-blue-600 text-blue-600 rounded-lg shadow-sm hover:bg-blue-600 hover:text-white transition'
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
         </div>
+        {/* Right: Table */}
+        <div className='md:col-span-8'>
+          <Table2
+            column={Columns}
+            internalRowData={filterByDate(allSubscription, selectedDate)}
+            searchLabel={'Subscription'}
+            sheetName={'Subscription'}
+            setModalOpen={setOpen}
+          />
         </div>
-
-       
-
-        {/* Apply Filters Button */}
-        {/* <div className="mb-6">
-        <button
-          onClick={handleApplyFilters}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Apply Filters
-        </button>
-      </div> */}
-
-        {/* Subscription Table */}
-        <Table2
-          column={Columns}
-          internalRowData={allSubscription}
-          searchLabel={'Subscription'}
-          sheetName={'Subscription'}
-          setModalOpen={setOpen}
-        />
       </div>
     </div>
   );

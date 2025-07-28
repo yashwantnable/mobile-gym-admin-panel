@@ -4,21 +4,14 @@ import * as Yup from "yup";
 import { Link } from "react-router-dom";
 import moment from "moment/moment";
 import { toast } from "react-toastify";
-import { bookingRowData } from "../../dummydata";
 import SidebarField from "../../Components/SideBarField";
 import Button from "../../Components/Button";
 import InputField from "../../Components/InputField";
 import DeleteModal from "../../Components/DeleteModal";
-import { timeSlots } from "../../Components/dummydata";
 import PriceDisplay from "../../Components/PriceDisplay";
 import { useLoading } from "../../Components/loader/LoaderContext";
 import { Table2 } from "../../Components/Table/Table2";
 import { getBookingColumns } from "./BookingColumns.jsx";
-// import { ServiceApi } from "../../Api/Service.api";
-// import { CustomerApi } from "../../Api/PetProfile.api";
-// import { GroomerApi } from "../../Api/Groomer.api";
-// import { BookingApi } from "../../Api/Booking.api";
-// import { SlotApi } from "../../Api/Slot.api.js";
 
 const validationSchema = Yup.object({
   customerId: Yup.string().required("Customer is required"),

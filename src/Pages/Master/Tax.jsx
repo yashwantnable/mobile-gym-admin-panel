@@ -10,7 +10,6 @@ import * as Yup from "yup";
 import InputField from "../../Components/InputField";
 import { MasterApi } from "../../Api/Master.api";
 import { toast } from "react-toastify";
-import { taxRowData } from "../../dummydata";
 import { useLoading } from "../../Components/loader/LoaderContext";
 
 const taxValidationSchema = Yup.object().shape({

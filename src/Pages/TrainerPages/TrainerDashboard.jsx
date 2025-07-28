@@ -10,12 +10,14 @@ import {
   Title,
 } from "chart.js";
 import { Pie, Bar } from "react-chartjs-2";
-import { FaCalendarAlt, FaClock, FaClipboardList } from "react-icons/fa";
+import { FaCalendarAlt, FaClock, FaClipboardList, FaCheckCircle, FaBolt, FaPlayCircle } from "react-icons/fa";
 import { SubscriptionApi } from "../../Api/Subscription.api";
 import { useLoading } from "../../Components/loader/LoaderContext";
 import { useSelector, useDispatch } from "react-redux";
-import { Table2 } from "../../Components/Table/Table2";
+// import { Table2 } from "../../Components/Table/Table2";
 import { FiEdit } from "react-icons/fi";
+import { TrainerApi } from "../../Api/Trainer.api";
+import { toast } from "react-toastify";
 
 // Register ChartJS components
 ChartJS.register(
@@ -60,80 +62,80 @@ const subtractDays = (dateString, days) => {
 
 const today = new Date().toISOString().split('T')[0];
 
-const dummyClasses = [
-  {
-    _id: "1",
-    date: today,
-    startTime: "09:00",
-    endTime: "10:00",
-    title: "Morning Yoga",
-    location: "Studio A",
-    status: "TODAY",
-  },
-  {
-    _id: "2",
-    date: today,
-    startTime: "17:00",
-    endTime: "18:00",
-    title: "Evening Cardio",
-    location: "Studio B",
-    status: "TODAY",
-  },
-  {
-    _id: "3",
-    date: addDays(today, 2),
-    startTime: "08:00",
-    endTime: "09:00",
-    title: "Pilates",
-    location: "Studio C",
-    status: "UPCOMING",
-  },
-  {
-    _id: "4",
-    date: subtractDays(today, 1),
-    startTime: "11:00",
-    endTime: "12:00",
-    title: "Strength Training",
-    location: "Studio D",
-    status: "COMPLETED",
-  },
-  {
-    _id: "5",
-    date: addDays(today, 10),
-    startTime: "15:00",
-    endTime: "16:00",
-    title: "Zumba",
-    location: "Studio A",
-    status: "UPCOMING",
-  },
-  {
-    _id: "6",
-    date: subtractDays(today, 15),
-    startTime: "07:00",
-    endTime: "08:00",
-    title: "HIIT",
-    location: "Studio B",
-    status: "COMPLETED",
-  },
-  {
-    _id: "7",
-    date: addDays(today, 20),
-    startTime: "18:00",
-    endTime: "19:00",
-    title: "Stretching",
-    location: "Studio C",
-    status: "UPCOMING",
-  },
-  {
-    _id: "8",
-    date: subtractDays(today, 30),
-    startTime: "10:00",
-    endTime: "11:00",
-    title: "Meditation",
-    location: "Studio D",
-    status: "COMPLETED",
-  },
-];
+// const dummyClasses = [
+//   {
+//     _id: "1",
+//     date: today,
+//     startTime: "09:00",
+//     endTime: "10:00",
+//     title: "Morning Yoga",
+//     location: "Studio A",
+//     status: "TODAY",
+//   },
+//   {
+//     _id: "2",
+//     date: today,
+//     startTime: "17:00",
+//     endTime: "18:00",
+//     title: "Evening Cardio",
+//     location: "Studio B",
+//     status: "TODAY",
+//   },
+//   {
+//     _id: "3",
+//     date: addDays(today, 2),
+//     startTime: "08:00",
+//     endTime: "09:00",
+//     title: "Pilates",
+//     location: "Studio C",
+//     status: "UPCOMING",
+//   },
+//   {
+//     _id: "4",
+//     date: subtractDays(today, 1),
+//     startTime: "11:00",
+//     endTime: "12:00",
+//     title: "Strength Training",
+//     location: "Studio D",
+//     status: "COMPLETED",
+//   },
+//   {
+//     _id: "5",
+//     date: addDays(today, 10),
+//     startTime: "15:00",
+//     endTime: "16:00",
+//     title: "Zumba",
+//     location: "Studio A",
+//     status: "UPCOMING",
+//   },
+//   {
+//     _id: "6",
+//     date: subtractDays(today, 15),
+//     startTime: "07:00",
+//     endTime: "08:00",
+//     title: "HIIT",
+//     location: "Studio B",
+//     status: "COMPLETED",
+//   },
+//   {
+//     _id: "7",
+//     date: addDays(today, 20),
+//     startTime: "18:00",
+//     endTime: "19:00",
+//     title: "Stretching",
+//     location: "Studio C",
+//     status: "UPCOMING",
+//   },
+//   {
+//     _id: "8",
+//     date: subtractDays(today, 30),
+//     startTime: "10:00",
+//     endTime: "11:00",
+//     title: "Meditation",
+//     location: "Studio D",
+//     status: "COMPLETED",
+//   },
+// ];
 
 const months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
@@ -154,23 +156,65 @@ const TrainerDashboard = () => {
     const { handleLoading } = useLoading();
     const [open,setOpen]=useState();
     const [selectedRow ,setSelectedRow ]=useState();    
-    const [trainerClasses ,setTrainerClasses ]=useState();    
+    const [trainerClasses, setTrainerClasses] = useState([]);     
+    const [trainerStats, setTrainerStats] = useState([]);     
     const user = useSelector((state) => state?.store?.currentUser);
     const dispatch = useDispatch();
     console.log("user:",user);
+    console.log("trainerStats:",trainerStats);
     
-const getClassesDetails=async(trainerId)=>{
-    try{
-        handleLoading(true);
-        const res= await SubscriptionApi.SubscriptionByTrainerId(trainerId);
-        setTrainerClasses(res?.data?.data)
-    }catch(err){
-        console.error(err);
-    }finally{
-        handleLoading(false)
-    }
+const getTrainerStatsDetails=async()=>{
+  try{
+    handleLoading(true);
+    const res= await TrainerApi.getTrainerStats();
+    setTrainerStats(res?.data?.data)
+    console.log("trainer stats:",res?.data?.data)
+  }catch(err){
+    // toast.error("error:",err)
+    console.error(err);
+  }finally{
+    handleLoading(false);
+  }
 }
-  const classes = dummyClasses;
+  
+const getClassesDetails = async (trainerId) => {
+  try {
+    handleLoading(true);
+    const res = await SubscriptionApi.SubscriptionByTrainerId(trainerId);
+    const rawClasses = res?.data?.data || [];
+
+    const now = new Date();
+
+    const transformed = rawClasses.map((cls) => {
+      const dateStr = cls.date?.[0]; // Take first date from array
+      const classDate = new Date(`${dateStr}T${cls.startTime}`);
+      const classEndDate = new Date(`${dateStr}T${cls.endTime}`);
+
+      let status = "UPCOMING";
+      if (isSameDay(dateStr, today)) {
+        status = "TODAY";
+      }
+      if (classEndDate < now) {
+        status = "COMPLETED";
+      }
+
+      return {
+        ...cls,
+        date: dateStr, // Flatten date
+        status,
+      };
+    });
+
+    setTrainerClasses(transformed);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    handleLoading(false);
+  }
+};
+
+ const classes = trainerClasses || [];
+
   const now = new Date();
   const todayString = now.toISOString().split('T')[0];
 
@@ -385,59 +429,74 @@ const columns = useMemo(
   );
   useEffect(()=>{
     getClassesDetails(user?._id,false)
+    getTrainerStatsDetails()
   },[])
 
   return (
-    <div className="space-y-8 p-4 md:p-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <SummaryCard 
-          icon={FaClipboardList} 
-          label="Total Classes" 
-          count={classes.length} 
-          color="bg-indigo-600" 
-        />
-        <SummaryCard 
-          icon={FaCalendarAlt} 
-          label="Upcoming" 
-          count={upcoming.length} 
-          color="bg-blue-600" 
-        />
-        <SummaryCard 
-          icon={FaClock} 
-          label="Today" 
-          count={todays.length} 
-          color="bg-emerald-600" 
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Monthly Session Stats</h3>
-          <div className="h-80">
-            <Bar data={barData} options={barOptions} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Session Status Distribution</h3>
-          <div className="h-80">
-            <Pie data={pieData} options={pieOptions} />
-          </div>
-        </div>
-      </div>
-
-      {/* <Table title="Today's Classes" data={todays} />
-      <Table title="Upcoming Classes" data={upcoming} />
-      <Table title="Completed Classes" data={completed} /> */}
-      <Table2
-      column={columns}
-      internalRowData={trainerClasses}
-      searchLabel={'Classes'}
-      sheetName={'Classes'}
-      setModalOpen={setOpen}
-    />
+  <div className="space-y-8 p-4 md:p-6">
+    {/* Top Summary Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <SummaryCard 
+        icon={FaClipboardList} 
+        label="Total Classes" 
+        count={trainerStats?.totalClasses || 0} 
+        color="bg-indigo-600" 
+      />
+      <SummaryCard 
+        icon={FaCalendarAlt} 
+        label="Upcoming" 
+        count={trainerStats?.totalUpcoming || 0} 
+        color="bg-blue-600" 
+      />
+      <SummaryCard 
+        icon={FaClock} 
+        label="Today" 
+        count={trainerStats?.totalToday || 0} 
+        color="bg-emerald-600" 
+      />
     </div>
-  );
+
+    {/* Optional: Add more detailed cards */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <SummaryCard 
+        icon={FaCheckCircle} 
+        label="Completed" 
+        count={trainerStats?.totalExpired || 0} 
+        color="bg-red-600" 
+      />
+      <SummaryCard 
+        icon={FaPlayCircle} 
+        label="Active / Non-expired" 
+        count={trainerStats?.totalNonExpired || 0} 
+        color="bg-green-600" 
+      />
+      <SummaryCard 
+        icon={FaBolt} 
+        label="Single Classes" 
+        count={trainerStats?.totalSingleClasses || 0} 
+        color="bg-yellow-500" 
+      />
+    </div>
+    
+    {/* Bar and Pie Chart Sections */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white rounded-2xl shadow p-6">
+        <h3 className="text-lg font-semibold mb-4">Monthly Session Stats</h3>
+        <div className="h-80">
+          <Bar data={barData} options={barOptions} />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow p-6">
+        <h3 className="text-lg font-semibold mb-4">Session Status Distribution</h3>
+        <div className="h-80">
+          <Pie data={pieData} options={pieOptions} />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 };
 
 export default TrainerDashboard;

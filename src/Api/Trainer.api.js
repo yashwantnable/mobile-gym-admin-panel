@@ -1,7 +1,8 @@
 import Api from '../Middleware/axios';
 
 export const TrainerApi = {
-  getAllTrainers: (payload) => Api.get('/trainer/get-all-trainers', payload),
+  getAllTrainers: () => Api.get('trainer/get-all-trainers'),
+  getTrainerStats: () => Api.get('subscription/trainer-class-stats' ),
   getAllTrainerReviews: () => Api.get('/user/get-all-trainer-reviews' ),
   getTrainerByDate: (payload) => Api.post('timeslot/getFreeTrainers', payload),
   createTrainer: (payload) => Api.post('/trainer/create-trainer', payload),
