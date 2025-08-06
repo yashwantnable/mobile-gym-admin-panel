@@ -480,12 +480,12 @@ const Payment = () => {
                             <VscCloudDownload />
                             <span>Export PDF</span>
                         </button>
-                        {isAdmin && (
+                        {/* {isAdmin && (
                             <button className="flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600">
                                 <FaPlus />
                                 <span>Add Payment</span>
                             </button>
-                        )}
+                        )} */}
                     </div>
                 </div>
             </div>

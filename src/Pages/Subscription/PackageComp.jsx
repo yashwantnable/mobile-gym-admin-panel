@@ -115,7 +115,7 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
     <div>
       {activeTab === 'packages' && (
         <div className='flex justify-end'>
-          <Button text='Create package' onClick={() => setOpen('package')} />
+          <Button text='Create Membership' onClick={() => setOpen('package')} />
         </div>
       )}
       {activeTab === 'packages' && (
@@ -205,7 +205,7 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
           setOpen(null);
           setSelectedRow(null);
         }}
-        title={`Create Package`}
+        title={`Create Membership`}
       >
         <form onSubmit={formik.handleSubmit} className='space-y-6'>
           {/* 🖼️ Image Preview or Upload */}

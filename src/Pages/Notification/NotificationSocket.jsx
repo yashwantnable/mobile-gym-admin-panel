@@ -108,7 +108,7 @@ console.log("notificationData:",notificationData)
               Mark all as read
             </button>
             <button
-              onClick={() => navigate("trainer/notifications")}
+              onClick={() => navigate("notifications")}
               className="hover:underline cursor-pointer"
             >
               View all

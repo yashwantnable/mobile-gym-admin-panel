@@ -27,7 +27,7 @@ const Customers = () => {
   const [userSubscriptions, setUserSubscriptions] = useState([]);
   const [userClasses, setUserClasses] = useState([]);
   const [userPackages, setUserPackages] = useState([]);
-  const [countryId, setCountryId] = useState([]);
+  const [countryId, setCountryId] = useState('66cd6e58bb9a967736a7f7ad');
   const [activeTab, setActiveTab] = useState('Subscription');
   const [cityData, setCityData] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -38,9 +38,10 @@ const Customers = () => {
   const [locationOptions, setLocationOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [filters, setFilters] = useState({
-    country: '',
-    categoryId: '',
+    // country: '',
+    // categoryId: '',
     city: '',
+    age: '',
     gender: '',
     isActive: '',
   });
@@ -68,21 +69,29 @@ const Customers = () => {
     }
     handleLoading(false);
   };
-
-  const handleCountryChange = async (e) => {
-    const selectedCountryId = e.target.value;
-    setCountryId(selectedCountryId);
-    formik.setFieldValue('country', selectedCountryId);
-
-    if (selectedCountryId) {
-      try {
-        const res = await MasterApi.city(selectedCountryId);
-        setCityData(res.data?.data);
-      } catch (err) {
-        console.log(err);
-      }
+  const getAllCities = async (id) => {
+    try {
+      const res = await MasterApi.city(id);
+      setCityData(res.data?.data || []);
+      console.log('city .data:', res.data?.data);
+    } catch (err) {
+      console.error('Error fetching cities:', err);
     }
   };
+  // const handleCountryChange = async (e) => {
+  //   const selectedCountryId = "66cd6e58bb9a967736a7f7ad";
+  //   setCountryId(selectedCountryId);
+  //   formik.setFieldValue('country', selectedCountryId);
+
+  //   if (selectedCountryId) {
+  //     try {
+  //       const res = await MasterApi.city(selectedCountryId);
+  //       setCityData(res.data?.data);
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   }
+  // };
 
   const getSubscriptionByUserId = async (userId) => {
     try {
@@ -239,7 +248,7 @@ const Customers = () => {
     value: item?._id,
     label: item?.name,
   }));
-
+  console.log('cityOptions:', cityOptions);
   const handleModalClose = () => {
     setOpen(false);
     setSelectedRow(null);
@@ -387,6 +396,7 @@ const Customers = () => {
 
   useEffect(() => {
     getAllCustomers();
+    getAllCities('66cd6e58bb9a967736a7f7ad');
     handleCountry();
   }, []);
 
@@ -398,9 +408,9 @@ const Customers = () => {
             <h2 className='text-4xl font-bold text-primary'>Customers</h2>
           </div>
           {/* Filter Bar */}
-          <div className='grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm items-end'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-4 bg-white rounded-xl shadow-sm items-end'>
             {/* Subscription Dropdown */}
-            <div className='space-y-1'>
+            {/* <div className='space-y-1'>
               <label className='block text-sm font-medium text-gray-700'>Subscription</label>
               <select
                 name='subscriptionId'
@@ -417,10 +427,10 @@ const Customers = () => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
 
             {/* Country Dropdown */}
-            <div className='space-y-1'>
+            {/* <div className='space-y-1'>
               <label className='block text-sm font-medium text-gray-700'>Country</label>
               <select
                 name='country'
@@ -437,7 +447,7 @@ const Customers = () => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
 
             {/* City Dropdown */}
             <div className='space-y-1'>
@@ -448,19 +458,51 @@ const Customers = () => {
                 onChange={handleFilterChange}
                 className='w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
               >
-                <option value='' className='text-gray-400'>
-                  All Cities
-                </option>
+                <option value=''>All Cities</option>
                 {cityOptions.map((city) => (
-                  <option key={city._id} value={city._id}>
-                    {city.name}
+                  <option key={city.value} value={city.value}>
+                    {city.label}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Category Dropdown */}
+            {/* Age Group Dropdown */}
             <div className='space-y-1'>
+              <label className='block text-sm font-medium text-gray-700'>Age Group</label>
+              <select
+                name='ageGroup'
+                value={filters.ageGroup}
+                onChange={handleFilterChange}
+                className='w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
+              >
+                <option value=''>All Age Groups</option>
+                <option value='under18'>Under 18</option>
+                <option value='18to25'>18 - 25</option>
+                <option value='26to35'>26 - 35</option>
+                <option value='36to45'>36 - 45</option>
+                <option value='46plus'>46+</option>
+              </select>
+            </div>
+
+            {/* Gender Dropdown */}
+            <div className='space-y-1'>
+              <label className='block text-sm font-medium text-gray-700'>Gender</label>
+              <select
+                name='gender'
+                value={filters.gender}
+                onChange={handleFilterChange}
+                className='w-full px-4 py-2.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
+              >
+                <option value=''>All</option>
+                <option value='Male'>Male</option>
+                <option value='Female'>Female</option>
+                <option value='Other'>Other</option>
+              </select>
+            </div>
+
+            {/* Category Dropdown */}
+            {/* <div className='space-y-1'>
               <label className='block text-sm font-medium text-gray-700'>Category</label>
               <select
                 name='categoryId'
@@ -477,13 +519,13 @@ const Customers = () => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
 
             {/* Clear Filters Button */}
-            <div className='flex items-end'>
+            <div className='md:col-start-6 flex justify-end items-end'>
               <button
                 onClick={handleClearFilters}
-                className='w-full px-4 py-2 border border-primary text-primary rounded-lg shadow-sm hover:bg-primary hover:text-white transition-all'
+                className='px-4 py-2 border border-primary text-primary rounded-lg shadow-sm hover:bg-primary hover:text-white transition-all'
               >
                 Clear Filters
               </button>

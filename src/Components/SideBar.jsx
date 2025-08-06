@@ -10,7 +10,7 @@ import {
   AiOutlineSetting,
 } from 'react-icons/ai';
 import { SlArrowDown, SlArrowUp } from 'react-icons/sl';
-import logo from '../Assets/logo.png';
+import outboxLogo from '../Assets/outboxLogo.png';
 import { MdOutlinePets, MdDiscount, MdOutlineStarRate, MdOutlineArticle } from 'react-icons/md';
 import { TbCategory } from 'react-icons/tb';
 import { logout } from '../store/slices/storeSlice';
@@ -28,7 +28,7 @@ const menuItems = [
   { name: 'Customers', icon: FaRegUser, path: '/customers' },
   { name: 'Trainers', icon: FaUserNinja, path: '/trainers' },
   // { name: "Schedule", icon: RiCalendarScheduleLine, path: "/schedule/planner" },
-  { name: 'Subscriptions', icon: FaUsersLine, path: '/subscription' },
+  { name: 'Memberships', icon: FaUsersLine, path: '/membership' },
   // { name: "Schedules", icon: FaUsersLine, path: "/schedules" },
   { name: 'Promo code', icon: MdDiscount, path: '/promocode' },
   { name: 'Payments', icon: AiOutlineCreditCard, path: '/payments' },
@@ -39,7 +39,7 @@ const menuItems = [
     path: '/ratings',
     submenu: [
       { name: 'Trainers', path: '/ratings/trainers' },
-      { name: 'Subscriptions', path: '/ratings/subscriptions' },
+      { name: 'Memberships', path: '/ratings/memberships' },
     ],
   },
   {
@@ -87,7 +87,7 @@ const Sidebar = () => {
     <>
       <div className='w-64 min-h-screen bg-primary text-white flex flex-col'>
         <Link to='/' className='p-2 flex items-center space-x-3'>
-          <img src={logo} alt='Outlet' />
+          <img src={outboxLogo} alt='Outlet' />
         </Link>
 
         <nav className='flex-1 mt-4'>

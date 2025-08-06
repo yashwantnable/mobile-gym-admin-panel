@@ -89,7 +89,7 @@ const App = () => {
             <Route path='planner' element={<ProtectedRoute children={<AdminScheduler />} />} />
           </Route>
           <Route path='customers' element={<ProtectedRoute children={<Customers />} />} />
-          <Route path='subscription' element={<ProtectedRoute children={<Subscription />} />} />
+          <Route path='membership' element={<ProtectedRoute children={<Subscription />} />} />
           <Route path='payments' element={<ProtectedRoute children={<Payment />} />} />
           {/* <Route path='/masters/pet-types' element={<ProtectedRoute children={<PetType />} />} /> */}
           {/* <Route path='/masters/breeds' element={<ProtectedRoute children={<BreedType />} />} /> */}
@@ -112,7 +112,7 @@ const App = () => {
             element={<ProtectedRoute children={<TrainerReviewPage />} />}
           />
           <Route
-            path='/ratings/subscriptions'
+            path='/ratings/memberships'
             element={<ProtectedRoute children={<ServiceRating />} />}
           />
           {/* <Route path='/articles/tips/:id' element={<ProtectedRoute children={<BlogPost />} />} /> */}

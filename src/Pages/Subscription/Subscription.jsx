@@ -564,9 +564,9 @@ const Subscription = () => {
   };
 
   const tabs = [
-    { key: 'subscription', label: 'Subscription' },
+    { key: 'subscription', label: 'Programs' },
     { key: 'classes', label: 'Classes' },
-    { key: 'packages', label: 'Packages' },
+    { key: 'packages', label: 'Membership' },
   ];
 
   const tabOption = {};
@@ -608,7 +608,7 @@ const Subscription = () => {
         </div>
         <div className='flex gap-2'>
           {activeTab === 'subscription' && (
-            <Button text='Create Subscription' onClick={() => setOpen('subscription')} />
+            <Button text='Create Program' onClick={() => setOpen('subscription')} />
           )}
           {activeTab === 'classes' && (
             <Button text='Create Class' onClick={() => setOpen('class')} />

@@ -110,7 +110,7 @@ const Dashboard = () => {
 
         <Card title="Total Classes" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-indigo-100 text-indigo-600" />
 
-        <Card title="Total Packages" value={dashboardData?.totalPackages} icon={<FaUserFriends />} color="bg-pink-100 text-pink-600" />
+        <Card title="Total Programs" value={dashboardData?.totalPackages} icon={<FaUserFriends />} color="bg-pink-100 text-pink-600" />
 
         {/* Total Trainers */}
         <Card title="Total Trainers" value={dashboardData?.totalTrainer} icon={<FaUserFriends />} color="bg-green-100 text-green-600" />
@@ -123,7 +123,9 @@ const Dashboard = () => {
         <Card title="Total Revenue" value={dashboardData?.totalRevenue} icon={<FaDollarSign />} color="bg-yellow-100 text-yellow-600" />
 
         {/* Active Sessions */}
-        <Card title="Active Sessions" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" />
+        {/* <Card title="Active Sessions" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" /> */}
+        {/* Active Sessions 3months/6months/1year*/}
+        <Card title="Total Members" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" />
 
         {/* Active Trainers */}
         
@@ -161,7 +163,7 @@ const Dashboard = () => {
         {/* Trainer Types */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Trainer Specializations
+            Trainer’s Classes
           </h2>
           <div className="h-80">
             <Pie
