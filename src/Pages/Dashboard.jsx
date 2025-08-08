@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -8,21 +8,21 @@ import {
   LinearScale,
   BarElement,
   Title,
-} from "chart.js";
-import { Pie, Bar } from "react-chartjs-2";
-import { FaDumbbell, FaUserFriends, FaUsers, FaDollarSign } from "react-icons/fa";
-import { useLoading } from "../Components/loader/LoaderContext";
-import { DashboardApi } from "../Api/Dashboard.api";
+} from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
+import {
+  FaDumbbell,
+  FaUserFriends,
+  FaUsers,
+  FaDollarSign,
+  FaCalendarDay,
+  FaCalendarWeek,
+  FaCalendarAlt,
+} from 'react-icons/fa';
+import { useLoading } from '../Components/loader/LoaderContext';
+import { DashboardApi } from '../Api/Dashboard.api';
 
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title
-);
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const Dashboard = () => {
   const { handleLoading } = useLoading();
@@ -30,34 +30,32 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState();
   const [classCount, setClassCount] = useState();
 
-  const getAlldashboardData=async()=>{
-    try{
-      handleLoading(true)
-      const res= await DashboardApi.getDashboardData();
+  const getAlldashboardData = async () => {
+    try {
+      handleLoading(true);
+      const res = await DashboardApi.getDashboardData();
       setDashboardData(res?.data?.data);
-      
-    }catch(err){
-      console.error("error:",err)
-    }finally{
-      handleLoading(false)
+    } catch (err) {
+      console.error('error:', err);
+    } finally {
+      handleLoading(false);
     }
-  }
-
+  };
 
   const [monthlySessionStats, setMonthlySessionStats] = useState([
-    { month: "Jan", count: 220 },
-    { month: "Feb", count: 260 },
-    { month: "Mar", count: 310 },
-    { month: "Apr", count: 280 },
-    { month: "May", count: 340 },
-    { month: "Jun", count: 390 },
+    { month: 'Jan', count: 220 },
+    { month: 'Feb', count: 260 },
+    { month: 'Mar', count: 310 },
+    { month: 'Apr', count: 280 },
+    { month: 'May', count: 340 },
+    { month: 'Jun', count: 390 },
   ]);
 
   const [trainerDistribution, setTrainerDistribution] = useState([
-    { type: "Yoga", count: 12 },
-    { type: "Strength", count: 18 },
-    { type: "Zumba", count: 9 },
-    { type: "Cardio", count: 6 },
+    { type: 'Yoga', count: 12 },
+    { type: 'Strength', count: 18 },
+    { type: 'Zumba', count: 9 },
+    { type: 'Cardio', count: 6 },
   ]);
 
   const sessionLabels = monthlySessionStats.map((item) => item.month);
@@ -67,10 +65,10 @@ const Dashboard = () => {
     labels: sessionLabels,
     datasets: [
       {
-        label: "Sessions",
+        label: 'Sessions',
         data: sessionCounts,
-        backgroundColor: "rgba(16, 185, 129, 0.8)",
-        borderColor: "rgba(16, 185, 129, 1)",
+        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        borderColor: 'rgba(16, 185, 129, 1)',
         borderWidth: 1,
       },
     ],
@@ -82,63 +80,114 @@ const Dashboard = () => {
       {
         data: trainerDistribution.map((t) => t.count),
         backgroundColor: [
-          "rgba(79, 70, 229, 0.8)",
-          "rgba(16, 185, 129, 0.8)",
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
+          'rgba(79, 70, 229, 0.8)',
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(239, 68, 68, 0.8)',
         ],
         borderColor: [
-          "rgba(79, 70, 229, 1)",
-          "rgba(16, 185, 129, 1)",
-          "rgba(59, 130, 246, 1)",
-          "rgba(239, 68, 68, 1)",
+          'rgba(79, 70, 229, 1)',
+          'rgba(16, 185, 129, 1)',
+          'rgba(59, 130, 246, 1)',
+          'rgba(239, 68, 68, 1)',
         ],
         borderWidth: 1,
       },
     ],
   };
 
-  useEffect(()=>{
-    getAlldashboardData()
-  },[])
+  useEffect(() => {
+    getAlldashboardData();
+  }, []);
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+    <div className='min-h-screen bg-gray-50 p-4 md:p-6'>
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6'>
         {/* Total Subscriptions */}
-        <Card title="Total Memberships" value={dashboardData?.totalSubscriptions} icon={<FaDumbbell />} color="bg-indigo-100 text-indigo-600" />
+        <Card
+          title='Total Memberships'
+          value={dashboardData?.totalSubscriptions}
+          icon={<FaDumbbell />}
+          color='bg-indigo-100 text-indigo-600'
+        />
 
-        <Card title="Total single day Memberships" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-indigo-100 text-indigo-600" />
+        <Card
+          title='Total Single Day Memberships'
+          value={dashboardData?.totalClasses}
+          icon={<FaDumbbell />}
+          color='bg-indigo-100 text-indigo-600'
+        />
 
-        <Card title="Total Programs" value={dashboardData?.totalPackages} icon={<FaUserFriends />} color="bg-pink-100 text-pink-600" />
+        {/* Total Programs */}
+        <Card
+          title='Total Programs'
+          value={dashboardData?.packages?.totalPackages}
+          icon={<FaUserFriends />}
+          color='bg-pink-100 text-pink-600'
+        />
+
+        {/* Sub-cards for Programs */}
+        <div className='grid grid-cols-1 gap-3 md:col-span-2 lg:col-span-3'>
+          <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+            <Card
+              title='Daily Packages'
+              value={dashboardData?.packages?.dailyPackages}
+              icon={<FaCalendarDay />}
+              color='bg-yellow-100 text-yellow-600'
+            />
+            <Card
+              title='Weekly Packages'
+              value={dashboardData?.packages?.weeklyPackages}
+              icon={<FaCalendarWeek />}
+              color='bg-green-100 text-green-600'
+            />
+            <Card
+              title='Monthly Packages'
+              value={dashboardData?.packages?.monthlyPackages}
+              icon={<FaCalendarAlt />}
+              color='bg-blue-100 text-blue-600'
+            />
+          </div>
+        </div>
 
         {/* Total Trainers */}
-        <Card title="Total Trainers" value={dashboardData?.totalTrainer} icon={<FaUserFriends />} color="bg-green-100 text-green-600" />
+        <Card
+          title='Total Trainers'
+          value={dashboardData?.totalTrainer}
+          icon={<FaUserFriends />}
+          color='bg-green-100 text-green-600'
+        />
 
-        <Card title="Active Class" value={dashboardData?.totalActiveClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" />
+        <Card
+          title='Active Class'
+          value={dashboardData?.totalActiveClasses}
+          icon={<FaDumbbell />}
+          color='bg-purple-100 text-purple-600'
+        />
+
         {/* Total Customers */}
-        <Card title="Total Customers" value={dashboardData?.totalCustomers} icon={<FaUsers />} color="bg-blue-100 text-blue-600" />
+        <Card
+          title='Total Customers'
+          value={dashboardData?.totalCustomers}
+          icon={<FaUsers />}
+          color='bg-blue-100 text-blue-600'
+        />
 
         {/* Total Revenue */}
-        <Card title="Total Revenue" value={dashboardData?.totalRevenue} icon={<FaDollarSign />} color="bg-yellow-100 text-yellow-600" />
-
-        {/* Active Sessions */}
-        {/* <Card title="Active Sessions" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" /> */}
-        {/* Active Sessions 3months/6months/1year*/}
-        {/* <Card title="Total Members" value={dashboardData?.totalClasses} icon={<FaDumbbell />} color="bg-purple-100 text-purple-600" /> */}
-
-        {/* Active Trainers */}
-        
+        <Card
+          title='Total Revenue'
+          value={dashboardData?.totalRevenue}
+          icon={<FaDollarSign />}
+          color='bg-yellow-100 text-yellow-600'
+        />
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6'>
         {/* Sessions Overview */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Monthly Session Stats
-          </h2>
-          <div className="h-80">
+        <div className='bg-white rounded-lg shadow p-6'>
+          <h2 className='text-lg font-semibold text-gray-800 mb-4'>Monthly Session Stats</h2>
+          <div className='h-80'>
             <Bar
               data={sessionBarData}
               options={{
@@ -147,7 +196,7 @@ const Dashboard = () => {
                 plugins: {
                   title: {
                     display: true,
-                    text: "Monthly Sessions",
+                    text: 'Monthly Sessions',
                     font: { size: 16 },
                   },
                   legend: { display: false },
@@ -161,11 +210,9 @@ const Dashboard = () => {
         </div>
 
         {/* Trainer Types */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Trainer’s Classes
-          </h2>
-          <div className="h-80">
+        <div className='bg-white rounded-lg shadow p-6'>
+          <h2 className='text-lg font-semibold text-gray-800 mb-4'>Trainer’s Classes</h2>
+          <div className='h-80'>
             <Pie
               data={trainerPieData}
               options={{
@@ -174,11 +221,11 @@ const Dashboard = () => {
                 plugins: {
                   title: {
                     display: true,
-                    text: "Trainer Distribution",
+                    text: 'Trainer Distribution',
                     font: { size: 16 },
                   },
                   legend: {
-                    position: "right",
+                    position: 'right',
                   },
                 },
               }}
@@ -191,11 +238,11 @@ const Dashboard = () => {
 };
 
 const Card = ({ title, value, icon, color }) => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <div className="flex items-center justify-between">
+  <div className='bg-white rounded-lg shadow p-6'>
+    <div className='flex items-center justify-between'>
       <div>
-        <p className="text-gray-500 text-sm font-medium">{title}</p>
-        <p className="text-3xl font-bold text-gray-800 mt-1">{value}</p>
+        <p className='text-gray-500 text-sm font-medium'>{title}</p>
+        <p className='text-3xl font-bold text-gray-800 mt-1'>{value}</p>
       </div>
       <div className={`p-3 rounded-full ${color}`}>{icon}</div>
     </div>
