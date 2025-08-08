@@ -153,7 +153,7 @@ console.log("deleteModal:",deleteModal);
         formData.append('categoryId', values.categoryId);
         formData.append('image', values.image);
         sId
-          ? await MasterApi.updateSession(sId, formData,{
+          ? await MasterApi.updateSession(sId?._id, formData,{
         headers: {
           "Content-Type": "multipart/form-data",
         },
