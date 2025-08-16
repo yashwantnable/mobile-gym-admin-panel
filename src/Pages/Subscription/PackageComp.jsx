@@ -61,7 +61,7 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
         setSelectedRow(null);
       } catch (error) {
         console.error('Package submission error:', error);
-        toast.error('Failed to save package');
+        toast.error(error?.response?.data?.message);
       }
     },
   });

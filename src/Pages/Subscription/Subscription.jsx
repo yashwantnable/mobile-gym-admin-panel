@@ -512,8 +512,8 @@ const Subscription = () => {
         setOpen(null);
         setSelectedRow(null);
       } catch (error) {
-        console.error('Submission error:', error);
-        toast.error('Failed to save subscription');
+        console.error('Submission error:', error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
       }
     },
   });
