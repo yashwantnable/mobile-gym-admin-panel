@@ -55,6 +55,7 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
         }
 
         resetForm();
+        getPackages();
         setAllpackages();
         setOpen(null);
         setSelectedRow(null);
