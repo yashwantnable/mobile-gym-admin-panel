@@ -50,6 +50,7 @@ const menuItems = [
       { name: 'Location', icon: TbCategory, path: '/master/locations' },
       { name: 'Categories', icon: TbCategory, path: '/master/categories' },
       { name: 'Types', icon: FaUsersLine, path: '/master/sessions' },
+      { name: 'Privacy & Terms', icon: FaUsersLine, path: '/master/policy-Terms' },
       // { name: "Tenures", path: "/masters/tenures" },
       // { name: "Currency", path: "/masters/currency" },
       { name: 'Tax', path: '/masters/tax' },

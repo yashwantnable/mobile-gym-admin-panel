@@ -4,6 +4,13 @@ export const MasterApi = {
     country: () => Api.get("master/get-all-country"),
     city: (countryId) => Api.get(`master/get-all-city/${countryId}`),
 
+    getAllTerms:()=>Api.get('master/get-all-terms'),
+    getAllPolicies:()=>Api.get('master/get-all-privacy'),
+    getAllTermsNPolicy:()=>Api.get('master/all'),
+
+     createTermsNpolicy: (payload) => Api.post('master/create-terms-n-policy', payload),
+     updateTermsNpolicy: (payload) => Api.put(`master/update-terms-n-policy/${id}`, payload),
+     deleteTermsNpolicy: (payload) => Api.delete(`master/delete-terms-n-policy/${id}`, payload),
 
 
 

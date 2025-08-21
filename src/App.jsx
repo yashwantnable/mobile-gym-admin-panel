@@ -47,6 +47,7 @@ import TrainerSessions from './Pages/TrainerPages/TrainerSessions';
 import MyReviews from './Pages/TrainerPages/MyReviews';
 import { NotificationProvider } from './Pages/contexts/NotificationContext';
 import Notification from './Pages/Notification/Notification';
+import PolicyMaster from './Pages/Master/PolicyMaster.jsx';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -73,6 +74,14 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Categories />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/master/policy-Terms'
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <PolicyMaster />
               </ProtectedRoute>
             }
           />
