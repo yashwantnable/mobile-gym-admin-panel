@@ -22,74 +22,6 @@ import { MdOutlineDeleteOutline } from 'react-icons/md';
 import SubscriptionTable from './SubscriptionTable';
 
 const Subscription = () => {
-  const initialClasses = [
-    {
-      id: '1',
-      name: 'Morning Yoga Flow',
-      category: 'Yoga',
-      type: 'All Levels',
-      trainer: 'Sarah Johnson',
-      location: 'Studio A',
-      date: '2024-01-15',
-      time: '07:00',
-      duration: 60,
-      capacity: 20,
-      enrolled: 15,
-      price: 25.0,
-      description: 'Start your day with a gentle yoga flow to energize your body and mind.',
-      isActive: true,
-    },
-    {
-      id: '2',
-      name: 'HIIT Cardio Blast',
-      category: 'Cardio',
-      type: 'Intermediate',
-      trainer: 'Mike Chen',
-      location: 'Main Gym',
-      date: '2024-01-15',
-      time: '18:00',
-      duration: 45,
-      capacity: 15,
-      enrolled: 12,
-      price: 30.0,
-      description: 'High-intensity interval training to boost your cardiovascular fitness.',
-      isActive: true,
-    },
-    {
-      id: '3',
-      name: 'Pilates Core Strength',
-      category: 'Pilates',
-      type: 'Beginner',
-      trainer: 'Sarah Johnson',
-      location: 'Studio B',
-      date: '2024-01-16',
-      time: '10:00',
-      duration: 50,
-      capacity: 12,
-      enrolled: 8,
-      price: 28.0,
-      description: 'Focus on building core strength and stability through controlled movements.',
-      isActive: true,
-    },
-    {
-      id: '4',
-      name: 'Zumba Dance Party',
-      category: 'Dance',
-      type: 'All Levels',
-      trainer: 'Emma Rodriguez',
-      location: 'Studio A',
-      date: '2024-01-16',
-      time: '19:00',
-      duration: 60,
-      capacity: 25,
-      enrolled: 20,
-      price: 22.0,
-      description: 'Dance your way to fitness with energetic Latin-inspired moves.',
-      isActive: true,
-    },
-  ];
-
-  const [classes, setClasses] = useState(initialClasses);
   const { handleLoading } = useLoading();
   const [open, setOpen] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -498,6 +430,7 @@ const Subscription = () => {
       }
 
       try {
+        handleLoading(true)
         let res;
         if (selectedRow?._id) {
           res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
@@ -514,6 +447,8 @@ const Subscription = () => {
       } catch (error) {
         console.error('Submission error:', error?.response?.data?.message);
         toast.error(error?.response?.data?.message);
+      }finally{
+        handleLoading(false)
       }
     },
   });

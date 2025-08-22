@@ -41,6 +41,7 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
 
       try {
         let res;
+        handleLoading(true)
         if (selectedRow?._id) {
           res = await PackageApi.updatePackage(selectedRow._id, formData);
           toast.success('Package updated successfully');
@@ -62,6 +63,8 @@ const PackageComp = ({ activeTab, isOpen, setOpen }) => {
       } catch (error) {
         console.error('Package submission error:', error);
         toast.error(error?.response?.data?.message);
+      }finally{
+        handleLoading(false)
       }
     },
   });

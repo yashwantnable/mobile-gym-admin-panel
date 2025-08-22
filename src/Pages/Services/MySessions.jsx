@@ -20,7 +20,7 @@ const MySessions = () => {
   const [deleteModal, setDeleteModal] = useState(null);
   const [sessions, setSessions] = useState(null);
   const [categories, setCategories] = useState(null);
-console.log("deleteModal:",deleteModal);
+  console.log('deleteModal:', deleteModal);
 
   const handleCancelImage = (isServiceType) => {
     if (isServiceType) {
@@ -32,18 +32,16 @@ console.log("deleteModal:",deleteModal);
     }
   };
 
-  
-
-    const handleDelete=async()=>{
-          try{
-              const res= await MasterApi.deleteSession(deleteModal);
-              toast.success("session deleted successfully")
-              setDeleteModal(false)
-              getAllCategories();
-          }catch(err){
-              toast.error("error:",err)
-          }
-      }
+  const handleDelete = async () => {
+    try {
+      const res = await MasterApi.deleteSession(deleteModal);
+      toast.success('session deleted successfully');
+      setDeleteModal(false);
+      getAllCategories();
+    } catch (err) {
+      toast.error('error:', err);
+    }
+  };
 
   const handleImageUpload = (isServiceType, event) => {
     const file = event.target.files[0];
@@ -59,12 +57,12 @@ console.log("deleteModal:",deleteModal);
       alert('Please upload a valid image');
     }
   };
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     setImagePreview(sId?.image);
-  },[sId])
-  console.log("sission id:",sId);
-  
+  }, [sId]);
+  console.log('sission id:', sId);
+
   const columns = useMemo(
     () => [
       {
@@ -80,7 +78,16 @@ console.log("deleteModal:",deleteModal);
         field: 'sessionName',
         minWidth: 150,
       },
-
+      {
+        headerName: 'Description',
+        field: 'description',
+        minWidth: 150,
+        flex: 1,
+        cellRenderer: (params) => {
+          const text = params.value || '';
+          return text.length > 50 ? text.substring(0, 50) + '...' : text;
+        },
+      },
 
       {
         headerName: 'Actions',
@@ -88,7 +95,6 @@ console.log("deleteModal:",deleteModal);
         minWidth: 150,
         cellRenderer: (params) => (
           <div className='text-xl flex items-center py-2'>
-            
             <button
               className='rounded cursor-pointer'
               onClick={() => {
@@ -100,7 +106,7 @@ console.log("deleteModal:",deleteModal);
             </button>
             <button
               className='px-4 rounded cursor-pointer text-red-500'
-              onClick={()=>setDeleteModal(params?.data?._id)}
+              onClick={() => setDeleteModal(params?.data?._id)}
             >
               <MdOutlineDeleteOutline />
             </button>
@@ -137,32 +143,34 @@ console.log("deleteModal:",deleteModal);
 
   const formik = useFormik({
     initialValues: {
-      categoryId: sId?.categoryId?._id||'',
-      sessionName: sId?.sessionName||'',
-      image: sId?.image||null,
+      categoryId: sId?.categoryId?._id || '',
+      sessionName: sId?.sessionName || '',
+      description: sId?.description || '',
+      image: sId?.image || null,
     },
     //   validationSchema,
-     enableReinitialize: true,
+    enableReinitialize: true,
     onSubmit: async (values) => {
-        console.log("values:",values);
-        
+      console.log('values:', values);
+
       handleLoading(true);
       try {
         const formData = new FormData();
         formData.append('sessionName', values.sessionName);
         formData.append('categoryId', values.categoryId);
+        formData.append('description', values.description);
         formData.append('image', values.image);
         sId
-          ? await MasterApi.updateSession(sId?._id, formData,{
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-          : await MasterApi.createSession(formData,{
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+          ? await MasterApi.updateSession(sId?._id, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            })
+          : await MasterApi.createSession(formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
         toast.success(
           isEditMode ? 'Service type updated successfully' : 'Service type created successfully'
         );
@@ -279,17 +287,19 @@ console.log("deleteModal:",deleteModal);
               isRequired
             />
 
-            {/* <InputField
-              name='categoryId'
-              label='Trainer'
-              type='select'
+            <InputField
+              name='description'
+              label='Description'
+              placeholder='description'
+              type='textarea'
               options={[]}
-              value={formik.values.categoryId}
-              onChange={(e) => formik.setFieldValue('categoryId', e.target.value)}
+              value={formik.values.description}
+              onChange={(e) => formik.setFieldValue('description', e.target.value)}
               onBlur={formik.handleBlur}
-              error={formik.touched.categoryId && formik.errors.categoryId}
+              error={formik.touched.description && formik.errors.description}
               isRequired
-            /> */}
+              className='w-full h-50 px-4 py-2 border rounded-lg outline-none border-[#d1d5db]'
+            />
           </form>
         </SidebarField>
       )}

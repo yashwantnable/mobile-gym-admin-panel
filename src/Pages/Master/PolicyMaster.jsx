@@ -38,6 +38,7 @@ const PolicyMaster = () => {
       handleLoading(true);
       const res = await MasterApi.getAllTerms();
       setTermsData(res?.data?.data || []);
+      console.log("terms:",res?.data?.data)
     } catch (err) {
       console.error('Error fetching policies:', err);
       toast.error('Failed to fetch policies');
@@ -82,18 +83,16 @@ const columns = useMemo(
   () => [
     { headerName: "Type", field: "type", minWidth: 120 },
     { headerName: "Title", field: "title", minWidth: 200 },
-    { headerName: "Content", field: "content", minWidth: 300 }, // ✅ optional preview
-    {
-      headerName: "Active",
-      field: "is_active",
-      minWidth: 120,
-      cellRenderer: (params) =>
-        params.data.is_active ? (
-          <span className="text-green-600 font-medium">Active</span>
-        ) : (
-          <span className="text-red-500 font-medium">Inactive</span>
-        ),
-    },
+   {
+  headerName: "Content",
+  field: "content",
+  minWidth: 300,
+  flex: 1,
+  renderCell: (params) => {
+    const text = params.value || "";
+    return text.length > 10 ? text.substring(0, 100) + "..." : text;
+  },
+},
     {
       headerName: "Created At",
       field: "createdAt",
@@ -143,7 +142,7 @@ const columns = useMemo(
       title: selectedRow?.title || '',
       content: selectedRow?.content || '',
       version: selectedRow?.version || '1.0',
-      is_active: selectedRow?.is_active || false,
+      // is_active: selectedRow?.is_active || false,
     },
     validationSchema: policyValidationSchema,
     enableReinitialize: true,
@@ -224,7 +223,7 @@ const columns = useMemo(
           {activeTab === 'terms' && (
             <Table2
               column={columns}
-              internalRowData={termsData}
+              internalRowData={[termsData]}
               searchLabel={'Terms'}
               sheetName={'Terms Master'}
               setModalOpen={setOpen}
@@ -331,7 +330,7 @@ const columns = useMemo(
                   error={formik.touched.version && formik.errors.version}
                 />
 
-                <InputField
+                {/* <InputField
                   name='is_active'
                   label='Active Status'
                   type='checkbox'
@@ -339,7 +338,7 @@ const columns = useMemo(
                   error={formik.touched.is_active && formik.errors.is_active}
                   onChange={(e) => formik.setFieldValue('is_active', e.target.checked)}
                   onBlur={formik.handleBlur}
-                />
+                /> */}
               </div>
             </form>
           </SidebarField>
