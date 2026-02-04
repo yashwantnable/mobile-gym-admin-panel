@@ -861,7 +861,7 @@ const Subscription = () => {
             <div className='w-full'>
               <InputField
                 name='price'
-                label='price'
+                label='Price'
                 placeholder='Enter price'
                 isRequired
                 type='number'
@@ -1004,7 +1004,7 @@ const Subscription = () => {
 
           <InputField
             name='description'
-            label='description'
+            label='Description'
             type={'textarea'}
             placeholder='Enter description'
             isRequired
