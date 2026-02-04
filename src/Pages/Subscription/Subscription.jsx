@@ -424,7 +424,7 @@ const Subscription = () => {
       if (values.features && values.features.length > 0) {
         formData.append('features', JSON.stringify(values.features));
       }
-
+  
       if (values.media) {
         formData.append('media', values.media);
       }
@@ -433,7 +433,7 @@ const Subscription = () => {
         handleLoading(true);
         let res;
         if (selectedRow) {
-          res = await SubscriptionApi.updateSubscription(selectedRow, formData);
+          res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
           toast.success('Subscription updated successfully');
         } else {
           res = await SubscriptionApi.createSubscription(formData);
