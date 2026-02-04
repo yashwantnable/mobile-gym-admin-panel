@@ -45,7 +45,7 @@ const Subscription = () => {
     isExpired: '',
   });
 
-   const handleClearFilters = () => {
+  const handleClearFilters = () => {
     setFilters({
       trainerId: '',
       categoryId: '',
@@ -385,7 +385,7 @@ const Subscription = () => {
     { label: 'Sat', value: 'Sat' },
     { label: 'Sun', value: 'Sun' },
   ];
-
+  console.log('selectedRow:', selectedRow);
   const formik = useFormik({
     initialValues: {
       name: selectedRow?.name || '',
@@ -430,10 +430,10 @@ const Subscription = () => {
       }
 
       try {
-        handleLoading(true)
+        handleLoading(true);
         let res;
-        if (selectedRow?._id) {
-          res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
+        if (selectedRow) {
+          res = await SubscriptionApi.updateSubscription(selectedRow, formData);
           toast.success('Subscription updated successfully');
         } else {
           res = await SubscriptionApi.createSubscription(formData);
@@ -447,8 +447,9 @@ const Subscription = () => {
       } catch (error) {
         console.error('Submission error:', error?.response?.data?.message);
         toast.error(error?.response?.data?.message);
-      }finally{
-        handleLoading(false)
+      } finally {
+        handleLoading(false);
+        selectedRow(null);
       }
     },
   });
@@ -476,6 +477,16 @@ const Subscription = () => {
       }
     }
   };
+
+  const toLocalISO = (d) => {
+  if (!d) return null;
+  // Create a new Date object with the same year, month, and day in the local timezone
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so +1
+  const day = String(d.getDate()).padStart(2, '0');
+  // Return ISO string in the format YYYY-MM-DD
+  return `${year}-${month}-${day}`;
+};
 
   const currentDate = new Date().toISOString().split('T')[0];
   const handleDateClick = (date) => {
@@ -795,94 +806,6 @@ const Subscription = () => {
               error={formik.touched.price && formik.errors.price}
             />
 
-            {/* <div className='flex justify-between items-center border-t pt-4 border-gray-300'>
-              <p>Address</p>
-              <button
-                type='button'
-                onClick={() => setUseMap(!useMap)}
-                className='px-4 py-2 rounded border border-primary text-primary text-sm'
-              >
-                {useMap ? 'Enter Address Manually' : 'Choose on Map'}
-              </button>
-            </div> */}
-
-            {/* {useMap ? (
-              <>
-                <MapLocationPicker formik={formik} />
-                {formik.touched.coordinates && formik.errors.coordinates && (
-                  <p className='text-red-500 text-sm mt-1'>{formik.errors.coordinates}</p>
-                )}
-                <div>
-                  <label className='block text-sm text-gray-600 mt-2'>Street</label>
-                  <input
-                    type='text'
-                    className='w-full px-3 py-2 border rounded'
-                    value={formik.values.streetName || ''}
-                    onChange={formik.handleChange}
-                  />
-                </div>
-              </>
-            ) : (
-              <div className=''>
-                <InputField
-                  name='country'
-                  label='Country'
-                  type='select'
-                  options={countryOptions}
-                  isRequired
-                  value={formik.values.country}
-                  error={formik.touched.country && formik.errors.country}
-                  onChange={handleCountryChange}
-                  onBlur={formik.handleBlur}
-                />
-                <InputField
-                  name='city'
-                  label='City'
-                  type='select'
-                  options={cityOptions}
-                  isRequired
-                  value={formik.values.city}
-                  error={formik.touched.city && formik.errors.city}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                <InputField
-                  name='streetName'
-                  label='Street'
-                  type='text'
-                  isRequired
-                  value={formik.values.streetName}
-                  error={formik.touched.streetName && formik.errors.streetName}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-              </div>
-            )} */}
-
-            {/* map  */}
-            {/* <div>
-            
-              <label className='block text-md font-medium text-gray-700 mb-1'>
-                Choose Location <span className='text-red-500'>*</span>
-              </label>
-              <MapLocationPicker formik={formik} />
-              {formik.touched.location && formik.errors.location && (
-                <p className='text-red-500 text-sm mt-1'>{formik.errors.location}</p>
-              )}
-            </div> */}
-
-            {/* Location */}
-            {/* <InputField
-              name='location'
-              label='Location'
-              placeholder='Enter location'
-              isRequired
-              value={formik.values.location}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.location && formik.errors.location}
-            /> */}
-
             {/* Description */}
             <InputField
               name='description'
@@ -897,7 +820,15 @@ const Subscription = () => {
         </SidebarField>
       )}
 
-      <Modal isOpen={open === 'class'} onClose={() => setOpen(null)} title={`Manage Classes`}>
+      <Modal
+        isOpen={open === 'class'}
+        onClose={() => {
+          setOpen(null);
+          formik.resetForm();
+          setSelectedRow(null);
+        }}
+        title={`Manage Classes`}
+      >
         <form onSubmit={formik.handleSubmit} className='space-y-4'>
           <InputField
             name='media'
@@ -1018,10 +949,7 @@ const Subscription = () => {
                 selected={formik.values.date?.[0] ? new Date(formik.values.date[0]) : null}
                 /* update Formik */
                 onChange={(date) => {
-                  const toLocalISO = (d) =>
-                    d ? new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString() : null;
-
-                  formik.setFieldValue('date', date ? [toLocalISO(date)] : []);
+                  formik.setFieldValue('date', date ? [toLocalISO(date)] : []); 
                 }}
                 required
                 isClearable

@@ -22,6 +22,8 @@ const Trainers = () => {
   const [allTrainer, setAllTrainer] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [idProofPreview, setIdProofPreview] = useState(null);
+  const [certificatePreview, setCertificatePreview] = useState(null);
   const [countryData, setCountryData] = useState([]);
   const [cityData, setCityData] = useState([]);
   const [selectedRow, setSelectedRow] = useState([]);
@@ -32,6 +34,7 @@ const Trainers = () => {
   const validationSchema = Yup.object({
     first_name: Yup.string().required('First Name is required'),
     last_name: Yup.string().required('Last Name is required'),
+    emirates_id: Yup.number().required('Emirates Id is required'),
     email: Yup.string().email('Invalid email address').required('Email is required'),
     phone_number: Yup.string().required('Phone Number is required'),
     address: Yup.string().required('Address is required'),
@@ -50,17 +53,35 @@ const Trainers = () => {
 
   const { handleLoading } = useLoading();
 
+  useEffect(() => {
+    if (selectedRow?._id) {
+      setIdProofPreview(selectedRow?.id_proof || null);
+      setCertificatePreview(selectedRow?.certificate || null);
+
+      // (optional) profile too if you want
+      setImagePreview(selectedRow?.profile_image || null);
+    } else {
+      // create mode
+      setIdProofPreview(null);
+      setCertificatePreview(null);
+      setImagePreview(null);
+    }
+  }, [selectedRow]);
+
   const formik = useFormik({
     initialValues: {
       // serviceProvider: selectedRow?.serviceProvider || [],
       first_name: selectedRow?.first_name || '',
       last_name: selectedRow?.last_name || '',
       email: selectedRow?.email || '',
+      emirates_id: selectedRow?.emirates_id || '',
       phone_number: selectedRow?.phone_number || '',
       address: selectedRow?.address || '',
       gender: selectedRow?.gender || '',
       age: selectedRow?.age || '',
       profile_image: selectedRow?.profile_image || null,
+      id_proof: selectedRow?.id_proof || null,
+      certificate: selectedRow?.certificate || null,
       country: selectedRow?.country?._id || '',
       city: selectedRow?.city?._id || '',
       password: selectedRow?.password || '',
@@ -76,6 +97,7 @@ const Trainers = () => {
       const formData = new FormData();
       formData.append('first_name', values.first_name);
       formData.append('last_name', values.last_name);
+      formData.append('emirates_id', values.emirates_id);
       formData.append('email', values.email);
       formData.append('phone_number', values.phone_number);
       formData.append('address', values.address);
@@ -90,6 +112,12 @@ const Trainers = () => {
       if (values.profile_image) {
         formData.append('profile_image', values.profile_image);
       }
+      if (values.id_proof) {
+        formData.append('id_proof', values.id_proof);
+      }
+      if (values.certificate) {
+        formData.append('certificate', values.certificate);
+      }
       console.log('Form Submitted:', values);
       console.log('selectedRow:', selectedRow?._id);
       try {
@@ -99,7 +127,7 @@ const Trainers = () => {
         console.log(res.data?.data);
         toast.success(selectedRow?._id ? 'User updated successfully' : 'user created successfully');
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
       setOpen(false);
       getTrainer();
@@ -124,7 +152,7 @@ const Trainers = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await GroomerApi.DeleteGroomer(id);
+      const res = await TrainerApi.DeleteTrainer(id);
       toast.success(res?.message);
     } catch (err) {
       toast.error(err);
@@ -157,31 +185,74 @@ const Trainers = () => {
     };
   });
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (!file.type.match('image.*')) {
-        formik.setFieldError('profile_image', 'Please select an image file');
-        return;
-      }
-      if (file.size > 2 * 1024 * 1024) {
-        formik.setFieldError('profile_image', 'Image must be less than 2MB');
-        return;
-      }
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     if (!file.type.match('image.*')) {
+  //       formik.setFieldError('profile_image', 'Please select an image file');
+  //       return;
+  //     }
+  //     if (file.size > 2 * 1024 * 1024) {
+  //       formik.setFieldError('profile_image', 'Image must be less than 2MB');
+  //       return;
+  //     }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-      formik.setFieldValue('profile_image', file);
-      formik.setFieldError('profile_image', undefined);
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setImagePreview(reader.result);
+  //     };
+  //     reader.readAsDataURL(file);
+  //     formik.setFieldValue('profile_image', file);
+  //     formik.setFieldError('profile_image', undefined);
+  //   }
+  // };
+  const handleFileChange = (
+    e,
+    fieldName,
+    { allowImage = true, allowPdf = false, maxSizeMB = 2, setPreview } = {}
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf';
+
+    // type validation
+    if ((!allowImage && isImage) || (!allowPdf && isPdf) || (!isImage && !isPdf)) {
+      formik.setFieldError(fieldName, 'Invalid file type');
+      return;
     }
+
+    // size validation
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      formik.setFieldError(fieldName, `File must be under ${maxSizeMB}MB`);
+      return;
+    }
+
+    // ✅ preview logic
+    if (setPreview) {
+      if (isImage) {
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(file);
+      } else if (isPdf) {
+        // preview as browser blob link
+        const pdfUrl = URL.createObjectURL(file);
+        setPreview(pdfUrl);
+      }
+    }
+
+    formik.setFieldValue(fieldName, file);
+    formik.setFieldError(fieldName, undefined);
   };
 
-  const removeImage = () => {
-    setImagePreview(null);
-    formik.setFieldValue('profile_image', null);
+  // const removeImage = () => {
+  //   setImagePreview(null);
+  //   formik.setFieldValue('profile_image', null);
+  // };
+  const removeFile = (fieldName, setPreview) => {
+    formik.setFieldValue(fieldName, null);
+    if (setPreview) setPreview(null);
   };
 
   const cityDataforEdit = async (countryId) => {
@@ -204,8 +275,13 @@ const Trainers = () => {
 
   const handleCountryChange = async (e) => {
     const selectedCountryId = e.target.value;
+
     setCountryId(selectedCountryId);
     formik.setFieldValue('country', selectedCountryId);
+
+    // ✅ reset city
+    formik.setFieldValue('city', '');
+    setCityData([]);
 
     if (selectedCountryId) {
       try {
@@ -265,6 +341,10 @@ const Trainers = () => {
         field: 'email',
       },
       {
+        headerName: 'Emirates Id',
+        field: 'emirates_id',
+      },
+      {
         headerName: 'Phone Number',
         field: 'phone_number',
       },
@@ -305,12 +385,12 @@ const Trainers = () => {
           params?.data?.experience === 'EXPERIENCE' ? params?.data?.experienceYear || 'N/A' : '-',
       },
       {
-        headerName: 'Certificates',
-        field: 'certificates',
+        headerName: 'Certificate',
+        field: 'certificate',
         cellRenderer: (params) =>
-          params?.data?.certificates ? (
+          params?.data?.certificate ? (
             <a
-              href={params.data.certificates}
+              href={params.data.certificate}
               target='_blank'
               rel='noopener noreferrer'
               className='text-blue-600 underline'
@@ -323,11 +403,11 @@ const Trainers = () => {
       },
       {
         headerName: 'ID Proof',
-        field: 'idProof',
+        field: 'id_proof',
         cellRenderer: (params) =>
-          params?.data?.idProof ? (
+          params?.data?.id_proof ? (
             <a
-              href={params.data.idProof}
+              href={params.data.id_proof}
               target='_blank'
               rel='noopener noreferrer'
               className='text-blue-600 underline'
@@ -366,10 +446,22 @@ const Trainers = () => {
     [setOpen, setSelectedRow, setDeleteModal]
   );
 
+  useEffect(() => {
+    const selectedCountryId = selectedRow?.country?._id;
+
+    if (open && selectedCountryId) {
+      // set country in form (optional but safe)
+      formik.setFieldValue('country', selectedCountryId);
+
+      // load cities for that country
+      cityDataforEdit(selectedCountryId);
+    }
+  }, [open, selectedRow]);
+
   const handleClose = () => {
     setOpen(false);
     setSelectedRow(null);
-    removeImage();
+    removeFile();
     formik.resetForm();
   };
 
@@ -417,7 +509,7 @@ const Trainers = () => {
                           />
                           <button
                             type='button'
-                            onClick={removeImage}
+                            onClick={() => removeFile('profile_image', setImagePreview)}
                             className='absolute top-2 right-2 bg-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200'
                           >
                             <FaTimes className='text-red-500 w-4 h-4' />
@@ -440,7 +532,13 @@ const Trainers = () => {
                         name='profile_image'
                         className='hidden'
                         accept='image/*'
-                        onChange={handleImageChange}
+                        onChange={(e) =>
+                          handleFileChange(e, 'profile_image', {
+                            allowImage: true,
+                            allowPdf: false,
+                            setPreview: setImagePreview,
+                          })
+                        }
                         onBlur={formik.handleBlur}
                       />
                     </label>
@@ -499,6 +597,18 @@ const Trainers = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
+
+                <InputField
+                  name='emirates_id'
+                  label='Emirates Id'
+                  placeholder='Enter Emirates Id'
+                  isRequired
+                  value={formik.values.emirates_id}
+                  error={formik.touched.emirates_id && formik.errors.emirates_id}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+
                 <PhoneInputField
                   name='phone_number'
                   label='Phone Number'
@@ -569,39 +679,41 @@ const Trainers = () => {
                   onBlur={formik.handleBlur}
                 />
 
-                <div>
-                  <label
-                    htmlFor='password'
-                    className='block text-gray-700 dark:bg-themeBG dark:text-themeText font-medium mb-2'
-                  >
-                    Password <span className='text-red-500'>*</span>
-                  </label>
-                  <div className='relative'>
-                    <div className='absolute top-4 left-0 pl-3 flex items-center pointer-events-none'>
-                      <FaLock className='text-gray-400' />
-                    </div>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name='password'
-                      id='password'
-                      placeholder='Enter your password'
-                      className='w-full pl-8 pr-10 py-3 border border-gray-300 rounded-lg outline-none'
-                      value={formik.values.password}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                    <button
-                      type='button'
-                      className='absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600'
-                      onClick={() => setShowPassword(!showPassword)}
+                {!selectedRow?._id && (
+                  <div>
+                    <label
+                      htmlFor='password'
+                      className='block text-gray-700 dark:bg-themeBG dark:text-themeText font-medium mb-2'
                     >
-                      {showPassword ? <FaEyeSlash /> : <FaEye />}
-                    </button>
+                      Password <span className='text-red-500'>*</span>
+                    </label>
+                    <div className='relative'>
+                      <div className='absolute top-4 left-0 pl-3 flex items-center pointer-events-none'>
+                        <FaLock className='text-gray-400' />
+                      </div>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name='password'
+                        id='password'
+                        placeholder='Enter your password'
+                        className='w-full pl-8 pr-10 py-3 border border-gray-300 rounded-lg outline-none'
+                        value={formik.values.password}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      />
+                      <button
+                        type='button'
+                        className='absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600'
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                    {formik.touched.password && formik.errors.password && (
+                      <p className='mt-1 text-sm text-red-600'>{formik.errors.password}</p>
+                    )}
                   </div>
-                  {formik.touched.password && formik.errors.password && (
-                    <p className='mt-1 text-sm text-red-600'>{formik.errors.password}</p>
-                  )}
-                </div>
+                )}
                 <InputField
                   name='specialization'
                   label='Specialization'
@@ -612,28 +724,36 @@ const Trainers = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                <InputField
-                  name='Id Proof'
-                  label='Id Proof'
-                  // placeholder="Enter Certificates"
-                  isRequired
-                  type={'file'}
-                  value={formik.values.idProof}
-                  error={formik.touched.idProof && formik.errors.idProof}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                
+                <DocumentUploadBox
+                  label='ID Proof'
+                  preview={idProofPreview}
+                  accept='image/*,.pdf'
+                  error={formik.touched.id_proof && formik.errors.id_proof}
+                  onChange={(e) =>
+                    handleFileChange(e, 'id_proof', {
+                      allowImage: true,
+                      allowPdf: true,
+                      setPreview: setIdProofPreview,
+                    })
+                  }
+                  onRemove={() => removeFile('id_proof', setIdProofPreview)}
                 />
-                <InputField
-                  name='Certificates'
-                  label='Certificates'
-                  placeholder='Enter Certificates'
-                  isRequired
-                  type={'file'}
-                  value={formik.values.certificates}
-                  error={formik.touched.certificates && formik.errors.certificates}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                <DocumentUploadBox
+                  label='Certificate'
+                  preview={certificatePreview}
+                  accept='image/*,.pdf'
+                  error={formik.touched.certificate && formik.errors.certificate}
+                  onChange={(e) =>
+                    handleFileChange(e, 'certificate', {
+                      allowImage: true,
+                      allowPdf: true,
+                      setPreview: setCertificatePreview,
+                    })
+                  }
+                  onRemove={() => removeFile('certificate', setCertificatePreview)}
                 />
+
                 <InputField
                   name='experience'
                   label='Experience'
@@ -679,3 +799,90 @@ const Trainers = () => {
 };
 
 export default Trainers;
+
+const DocumentUploadBox = ({
+  label,
+  preview,
+  accept,
+  onChange,
+  onRemove,
+  error,
+  isRequired = false,
+}) => {
+  const isPdf = preview?.includes('.pdf') || preview?.startsWith('blob:');
+
+  return (
+    <div className="mb-6">
+      {/* Label like other inputs */}
+      <label className="block text-gray-700 font-medium mb-2">
+        {label} {isRequired && <span className="text-red-500">*</span>}
+      </label>
+
+      {/* Preview box */}
+      <div className="relative group flex justify-center mb-3">
+        <div
+          className={`w-40 h-40 rounded-lg border-2 ${
+            error ? 'border-red-500' : 'border-gray-300'
+          } flex items-center justify-center overflow-hidden bg-gray-100`}
+        >
+          {preview ? (
+            <>
+              {isPdf ? (
+                <div className="flex flex-col items-center justify-center text-gray-600 text-sm">
+                  <span className="font-medium">{label}</span>
+                  <span className="text-xs mt-1">PDF Selected</span>
+                  <a
+                    href={preview}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 underline text-xs mt-2"
+                  >
+                    View PDF
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={preview}
+                  alt={`${label} Preview`}
+                  className="w-full h-full object-cover"
+                />
+              )}
+
+              {/* Remove */}
+              <button
+                type="button"
+                onClick={onRemove}
+                className="absolute top-2 right-2 bg-white rounded-full p-1 shadow opacity-0 group-hover:opacity-100"
+              >
+                <FaTimes className="text-red-500 w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center text-gray-400">
+              <FaCamera className="w-8 h-8 mb-1" />
+              <span className="text-xs">{label}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Input-like upload button */}
+      <label className="block">
+        <div className="w-full cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-gray-500 hover:border-primary transition">
+          {preview ? `Change ${label}` : `Upload ${label}`}
+        </div>
+
+        <input
+          type="file"
+          className="hidden"
+          accept={accept}
+          onChange={onChange}
+        />
+      </label>
+
+      {/* Error */}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+};
+
