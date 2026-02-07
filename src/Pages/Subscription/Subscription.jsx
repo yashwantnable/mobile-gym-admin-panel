@@ -424,7 +424,7 @@ const Subscription = () => {
       if (values.features && values.features.length > 0) {
         formData.append('features', JSON.stringify(values.features));
       }
-  
+
       if (values.media) {
         formData.append('media', values.media);
       }
@@ -433,7 +433,7 @@ const Subscription = () => {
         handleLoading(true);
         let res;
         if (selectedRow) {
-          res = await SubscriptionApi.updateSubscription(selectedRow._id, formData);
+          res = await SubscriptionApi.updateSubscription(selectedRow._id??selectedRow, formData);
           toast.success('Subscription updated successfully');
         } else {
           res = await SubscriptionApi.createSubscription(formData);
@@ -479,14 +479,14 @@ const Subscription = () => {
   };
 
   const toLocalISO = (d) => {
-  if (!d) return null;
-  // Create a new Date object with the same year, month, and day in the local timezone
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so +1
-  const day = String(d.getDate()).padStart(2, '0');
-  // Return ISO string in the format YYYY-MM-DD
-  return `${year}-${month}-${day}`;
-};
+    if (!d) return null;
+    // Create a new Date object with the same year, month, and day in the local timezone
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so +1
+    const day = String(d.getDate()).padStart(2, '0');
+    // Return ISO string in the format YYYY-MM-DD
+    return `${year}-${month}-${day}`;
+  };
 
   const currentDate = new Date().toISOString().split('T')[0];
   const handleDateClick = (date) => {
@@ -739,27 +739,26 @@ const Subscription = () => {
               <label className='block text-md font-medium text-gray-700 mb-1'>
                 Dates <span className='text-red-500'>*</span>
               </label>
+              
               <DatePicker
-                selected={formik.values.date?.[0] || null}
-                startDate={formik.values.date?.[0] || null}
-                endDate={formik.values.date?.[1] || null}
+                selected={formik.values.date?.[0] ? new Date(formik.values.date[0]) : null}
+                startDate={formik.values.date?.[0] ? new Date(formik.values.date[0]) : null}
+                endDate={formik.values.date?.[1] ? new Date(formik.values.date[1]) : null}
                 onChange={(dates) => {
                   const [start, end] = dates;
 
-                  // If only start is selected, make end same as start
                   if (start && !end) {
-                    formik.setFieldValue('date', [start]);
+                    formik.setFieldValue('date', [toLocalISO(start)]);
                   } else if (start && end) {
-                    formik.setFieldValue('date', [start, end]);
+                    formik.setFieldValue('date', [toLocalISO(start), toLocalISO(end)]);
                   } else {
                     formik.setFieldValue('date', []);
                   }
                 }}
                 selectsRange
-                required
-                isClearable
                 minDate={new Date()}
                 placeholderText='Select dates'
+                isClearable
                 dateFormat='dd/MM/yyyy'
                 className='border outline-none border-gray-300 rounded-lg px-3 py-2 w-full bg-white'
               />
@@ -949,7 +948,7 @@ const Subscription = () => {
                 selected={formik.values.date?.[0] ? new Date(formik.values.date[0]) : null}
                 /* update Formik */
                 onChange={(date) => {
-                  formik.setFieldValue('date', date ? [toLocalISO(date)] : []); 
+                  formik.setFieldValue('date', date ? [toLocalISO(date)] : []);
                 }}
                 required
                 isClearable
